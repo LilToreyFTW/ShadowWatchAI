@@ -1775,3 +1775,159 @@ body {
         padding: var(--spacing-sm);
     }
 }
+
+/* Access Control Styles */
+.access-denied {
+    text-align: center;
+    padding: 3rem 2rem;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.denied-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    opacity: 0.8;
+}
+
+.access-denied h2 {
+    color: #00ffff;
+    font-family: 'Orbitron', monospace;
+    margin: 0 0 1rem 0;
+    font-size: 2rem;
+}
+
+.access-denied p {
+    color: #ccc;
+    font-size: 1.1rem;
+    margin: 0 0 2rem 0;
+    line-height: 1.6;
+}
+
+.subscription-info {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin: 2rem 0;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.subscription-info h3 {
+    color: #00ffff;
+    margin: 0 0 1rem 0;
+    font-family: 'Rajdhani', sans-serif;
+}
+
+.subscription-info ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.subscription-info li {
+    color: #ccc;
+    margin-bottom: 0.5rem;
+    padding-left: 1rem;
+    position: relative;
+}
+
+.subscription-info li:before {
+    content: '✓';
+    color: #00aa44;
+    position: absolute;
+    left: 0;
+    font-weight: bold;
+}
+
+.access-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    align-items: center;
+}
+
+.access-actions .btn-primary,
+.access-actions .btn-secondary {
+    min-width: 200px;
+}
+
+.user-greeting {
+    color: #00ffff;
+    font-weight: bold;
+    font-size: 0.9rem;
+    margin-top: 1rem;
+}
+
+.subscription-locked {
+    text-align: center;
+    padding: 3rem 2rem;
+}
+
+.subscription-locked .locked-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    opacity: 0.8;
+}
+
+.subscription-locked h3 {
+    color: #ff4444;
+    font-family: 'Orbitron', monospace;
+    margin: 0 0 1rem 0;
+}
+
+.subscription-locked p {
+    color: #ccc;
+    margin: 0 0 2rem 0;
+}
+
+.subscription-status {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 1rem;
+    justify-content: center;
+}
+
+.status-badge.active {
+    background: #00aa44;
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: bold;
+}
+
+.expires-info {
+    color: #ccc;
+    font-size: 0.9rem;
+}
+
+.ai-prompt-access {
+    background: rgba(0, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 2rem;
+    margin-top: 2rem;
+    border: 1px solid rgba(0, 255, 255, 0.3);
+    text-align: center;
+}
+
+.ai-prompt-access h3 {
+    color: #00ffff;
+    margin: 0 0 1rem 0;
+    font-family: 'Orbitron', monospace;
+}
+
+.ai-prompt-access p {
+    color: #ccc;
+    margin: 0 0 1.5rem 0;
+}
+
+.ai-prompt-access .btn-secondary {
+    background: rgba(0, 255, 255, 0.2);
+    border-color: #00ffff;
+    color: #00ffff;
+}
+
+.ai-prompt-access .btn-secondary:hover {
+    background: rgba(0, 255, 255, 0.3);
+}

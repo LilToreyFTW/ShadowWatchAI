@@ -1,0 +1,1050 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Prompt - ShadowWatch AI</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="ai-prompt-container">
+        <!-- Moon Background -->
+        <div class="moon-bg">
+            <div class="moon">
+                <div class="moon-shadow"></div>
+            </div>
+            <div class="stars"></div>
+        </div>
+
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <h1>SHADOW<span>WATCH</span></h1>
+                <p>AI Gaming Assistant</p>
+            </div>
+            <nav class="nav">
+                <a href="/">Home</a>
+                <a href="/dashboard">Dashboard</a>
+                <a href="/download">Download</a>
+                <a href="/logout">Logout</a>
+            </nav>
+        </header>
+
+        <!-- AI Prompt Interface -->
+        <main class="ai-prompt-main">
+            <div class="prompt-header">
+                <h1>AI Game Development Assistant</h1>
+                <p>Paste your game project path and describe what you want to build</p>
+            </div>
+
+            <!-- Session Management -->
+            <div class="session-info">
+                <div id="sessionStatus" class="session-status">
+                    <span class="status-indicator inactive"></span>
+                    <span id="sessionText">No active session</span>
+                </div>
+                <button id="newSessionBtn" class="btn-secondary">Start New Session</button>
+            </div>
+
+            <!-- Game Path Input -->
+            <div class="input-section">
+                <div class="input-group">
+                    <label for="gamePath">Game Project Path</label>
+                    <div class="path-input-group">
+                        <input type="text" id="gamePath" placeholder="C:\Users\YourName\Projects\MyGame" required>
+                        <button id="browseBtn" class="btn-secondary browse-btn" type="button">
+                            <span class="browse-icon">📁</span>
+                            Browse
+                        </button>
+                    </div>
+                    <small class="input-help">Enter the full path to your game project directory</small>
+                </div>
+            </div>
+
+            <!-- AI Prompt Input -->
+            <div class="input-section">
+                <div class="input-group">
+                    <label for="aiPrompt">AI Development Prompt</label>
+                    <textarea id="aiPrompt" placeholder="Describe what you want to build...
+
+Examples:
+- Create a 3D character controller with WASD movement
+- Generate weapon blueprints for an FPS game
+- Build a vehicle physics system
+- Implement AI enemy behavior
+- Create procedural terrain generation
+- Design a multiplayer lobby system
+
+The AI will analyze your game path and implement your request using Unity or Unreal Engine." rows="8" required></textarea>
+                    <small class="input-help">Describe your development task in detail. The AI will use Cursor to implement it directly in your game project.</small>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+                <button id="submitPromptBtn" class="btn-primary" disabled>
+                    <span class="btn-text">Launch AI Development</span>
+                    <div class="btn-loader" style="display: none;">
+                        <div class="spinner"></div>
+                    </div>
+                </button>
+                <button id="clearBtn" class="btn-secondary">Clear</button>
+            </div>
+
+            <!-- Progress Display -->
+            <div id="progressSection" class="progress-section" style="display: none;">
+                <div class="progress-card">
+                    <div class="progress-header">
+                        <h3>AI Development in Progress</h3>
+                        <div class="progress-status">
+                            <span id="progressStatus">Initializing...</span>
+                        </div>
+                    </div>
+
+                    <div class="progress-steps">
+                        <div class="step-item active" id="step1">
+                            <div class="step-icon">🔍</div>
+                            <div class="step-content">
+                                <h4>Analyzing Game Project</h4>
+                                <p>Scanning project structure and detecting game engine</p>
+                            </div>
+                            <div class="step-status">
+                                <div class="checkmark">✓</div>
+                            </div>
+                        </div>
+
+                        <div class="step-item" id="step2">
+                            <div class="step-icon">🤖</div>
+                            <div class="step-content">
+                                <h4>Launching AI Agent</h4>
+                                <p>Initializing Cursor AI development agent</p>
+                            </div>
+                            <div class="step-status">
+                                <div class="spinner-small"></div>
+                            </div>
+                        </div>
+
+                        <div class="step-item" id="step3">
+                            <div class="step-icon">⚙️</div>
+                            <div class="step-content">
+                                <h4>Implementing Features</h4>
+                                <p>AI is coding and implementing your requested features</p>
+                            </div>
+                            <div class="step-status">
+                                <div class="pending">○</div>
+                            </div>
+                        </div>
+
+                        <div class="step-item" id="step4">
+                            <div class="step-icon">✅</div>
+                            <div class="step-content">
+                                <h4>Completing Development</h4>
+                                <p>Finalizing implementation and testing</p>
+                            </div>
+                            <div class="step-status">
+                                <div class="pending">○</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="progress-actions">
+                        <button id="cancelBtn" class="btn-secondary">Cancel</button>
+                        <button id="viewResultsBtn" class="btn-primary" style="display: none;">View Results</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results Display -->
+            <div id="resultsSection" class="results-section" style="display: none;">
+                <div class="results-card">
+                    <div class="results-header">
+                        <h3>Development Complete!</h3>
+                        <div class="results-status success">
+                            <span class="status-icon">🎉</span>
+                            <span>AI development completed successfully</span>
+                        </div>
+                    </div>
+
+                    <div class="results-content">
+                        <div class="result-item">
+                            <h4>Files Created/Modified</h4>
+                            <div id="filesList" class="files-list">
+                                <!-- Files will be listed here -->
+                            </div>
+                        </div>
+
+                        <div class="result-item">
+                            <h4>AI Agent Summary</h4>
+                            <div id="agentSummary" class="agent-summary">
+                                <!-- Summary will be shown here -->
+                            </div>
+                        </div>
+
+                        <div class="result-item">
+                            <h4>Next Steps</h4>
+                            <ul class="next-steps">
+                                <li>Open your game project in the Unity/Unreal Editor</li>
+                                <li>Review the implemented code and assets</li>
+                                <li>Test the new features in your game</li>
+                                <li>Make any adjustments as needed</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="results-actions">
+                        <button id="newPromptBtn" class="btn-primary">Start New Development</button>
+                        <button id="downloadProjectBtn" class="btn-secondary">Download Updated Project</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Prompt History -->
+            <div id="historySection" class="history-section">
+                <h3>Recent AI Sessions</h3>
+                <div id="promptsList" class="prompts-list">
+                    <div class="no-history">
+                        <p>No AI development sessions yet. Start your first project above!</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Help Section -->
+            <div class="help-section">
+                <h3>Need Help Getting Started?</h3>
+                <div class="help-grid">
+                    <div class="help-item">
+                        <div class="help-icon">📂</div>
+                        <h4>Finding Your Game Path</h4>
+                        <ul>
+                            <li>Open File Explorer</li>
+                            <li>Navigate to your game project folder</li>
+                            <li>Copy the full path from the address bar</li>
+                            <li>Paste it in the Game Project Path field</li>
+                        </ul>
+                    </div>
+
+                    <div class="help-item">
+                        <div class="help-icon">💡</div>
+                        <h4>Writing Good Prompts</h4>
+                        <ul>
+                            <li>Be specific about what you want to build</li>
+                            <li>Mention the game engine (Unity/Unreal)</li>
+                            <li>Include technical details when possible</li>
+                            <li>Describe the expected behavior</li>
+                        </ul>
+                    </div>
+
+                    <div class="help-item">
+                        <div class="help-icon">🔧</div>
+                        <h4>Supported Features</h4>
+                        <ul>
+                            <li>3D character controllers</li>
+                            <li>Weapon and vehicle systems</li>
+                            <li>AI enemy behavior</li>
+                            <li>Procedural generation</li>
+                            <li>Multiplayer systems</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async function() {
+            let currentSessionId = null;
+            let progressInterval = null;
+
+            const sessionStatus = document.getElementById('sessionStatus');
+            const sessionText = document.getElementById('sessionText');
+            const newSessionBtn = document.getElementById('newSessionBtn');
+            const gamePathInput = document.getElementById('gamePath');
+            const aiPromptTextarea = document.getElementById('aiPrompt');
+            const submitPromptBtn = document.getElementById('submitPromptBtn');
+            const clearBtn = document.getElementById('clearBtn');
+            const progressSection = document.getElementById('progressSection');
+            const resultsSection = document.getElementById('resultsSection');
+            const historySection = document.getElementById('historySection');
+
+            // Initialize - check for existing session
+            await checkExistingSession();
+
+            // Event listeners
+            newSessionBtn.addEventListener('click', startNewSession);
+            gamePathInput.addEventListener('input', validateInputs);
+            aiPromptTextarea.addEventListener('input', validateInputs);
+            submitPromptBtn.addEventListener('click', submitPrompt);
+            clearBtn.addEventListener('click', clearInputs);
+
+            // Browse button (placeholder for future file dialog)
+            document.getElementById('browseBtn').addEventListener('click', function() {
+                alert('File browser integration coming soon. Please manually enter your game project path.');
+            });
+
+            // Check for existing session
+            async function checkExistingSession() {
+                try {
+                    const response = await fetch('/api/auth/me');
+                    if (response.ok) {
+                        // Try to get last session or create new one
+                        updateSessionStatus('Ready to start new session');
+                    }
+                } catch (error) {
+                    console.error('Session check error:', error);
+                }
+            }
+
+            // Start new session
+            async function startNewSession() {
+                try {
+                    const response = await fetch('/api/ai-prompt/start', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        currentSessionId = data.sessionId;
+                        updateSessionStatus('Session started - Ready for prompts');
+                        newSessionBtn.textContent = 'Session Active';
+                        newSessionBtn.disabled = true;
+                    } else {
+                        throw new Error('Failed to start session');
+                    }
+                } catch (error) {
+                    console.error('Session start error:', error);
+                    alert('Failed to start AI session. Please try again.');
+                }
+            }
+
+            // Update session status display
+            function updateSessionStatus(status) {
+                sessionText.textContent = status;
+                const indicator = sessionStatus.querySelector('.status-indicator');
+                if (currentSessionId) {
+                    indicator.className = 'status-indicator active';
+                } else {
+                    indicator.className = 'status-indicator inactive';
+                }
+            }
+
+            // Validate inputs
+            function validateInputs() {
+                const gamePath = gamePathInput.value.trim();
+                const prompt = aiPromptTextarea.value.trim();
+
+                const isValid = gamePath && prompt && currentSessionId;
+                submitPromptBtn.disabled = !isValid;
+
+                if (isValid) {
+                    submitPromptBtn.classList.add('ready');
+                } else {
+                    submitPromptBtn.classList.remove('ready');
+                }
+            }
+
+            // Submit AI prompt
+            async function submitPrompt() {
+                if (!currentSessionId) {
+                    alert('Please start a new session first.');
+                    return;
+                }
+
+                const gamePath = gamePathInput.value.trim();
+                const prompt = aiPromptTextarea.value.trim();
+
+                if (!gamePath || !prompt) {
+                    alert('Please fill in both the game path and AI prompt.');
+                    return;
+                }
+
+                // Show loading state
+                submitPromptBtn.disabled = true;
+                submitPromptBtn.querySelector('.btn-text').textContent = 'Launching AI...';
+                submitPromptBtn.querySelector('.btn-loader').style.display = 'block';
+
+                try {
+                    const response = await fetch('/api/ai-prompt/submit', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            sessionId: currentSessionId,
+                            prompt: prompt,
+                            gamePath: gamePath
+                        })
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        showProgress(data.agentId);
+                    } else {
+                        const error = await response.json();
+                        throw new Error(error.error || 'Failed to submit prompt');
+                    }
+                } catch (error) {
+                    console.error('Prompt submission error:', error);
+                    alert('Failed to launch AI development: ' + error.message);
+
+                    // Reset button
+                    submitPromptBtn.disabled = false;
+                    submitPromptBtn.querySelector('.btn-text').textContent = 'Launch AI Development';
+                    submitPromptBtn.querySelector('.btn-loader').style.display = 'none';
+                }
+            }
+
+            // Show progress
+            function showProgress(agentId) {
+                progressSection.style.display = 'block';
+                resultsSection.style.display = 'none';
+
+                // Reset progress steps
+                document.querySelectorAll('.step-item').forEach(step => {
+                    step.classList.remove('completed', 'active');
+                });
+                document.getElementById('step1').classList.add('active');
+
+                // Start progress monitoring
+                progressInterval = setInterval(() => {
+                    checkProgress(agentId);
+                }, 3000);
+            }
+
+            // Check progress
+            async function checkProgress(agentId) {
+                try {
+                    // This would normally check the actual agent status
+                    // For demo purposes, we'll simulate progress
+                    simulateProgress();
+                } catch (error) {
+                    console.error('Progress check error:', error);
+                }
+            }
+
+            // Simulate progress (replace with real API calls)
+            let progressStep = 1;
+            function simulateProgress() {
+                if (progressStep < 4) {
+                    document.getElementById(`step${progressStep}`).classList.add('completed');
+                    document.getElementById(`step${progressStep + 1}`).classList.add('active');
+                    progressStep++;
+                } else {
+                    // Complete
+                    clearInterval(progressInterval);
+                    showResults();
+                }
+            }
+
+            // Show results
+            function showResults() {
+                progressSection.style.display = 'none';
+                resultsSection.style.display = 'block';
+
+                // Reset button
+                submitPromptBtn.disabled = false;
+                submitPromptBtn.querySelector('.btn-text').textContent = 'Launch AI Development';
+                submitPromptBtn.querySelector('.btn-loader').style.display = 'none';
+
+                // Populate results (mock data)
+                document.getElementById('filesList').innerHTML = `
+                    <div class="file-item">📄 PlayerController.cs (Created)</div>
+                    <div class="file-item">🎮 Character.prefab (Modified)</div>
+                    <div class="file-item">⚙️ InputManager.asset (Updated)</div>
+                `;
+
+                document.getElementById('agentSummary').innerHTML = `
+                    <p>Successfully implemented a 3D character controller with WASD movement, mouse look, and jumping mechanics. The AI created:</p>
+                    <ul>
+                        <li>C# character controller script with physics-based movement</li>
+                        <li>Input handling for keyboard and mouse controls</li>
+                        <li>Camera follow system with smooth rotation</li>
+                        <li>Ground detection and jumping mechanics</li>
+                    </ul>
+                `;
+            }
+
+            // Clear inputs
+            function clearInputs() {
+                gamePathInput.value = '';
+                aiPromptTextarea.value = '';
+                validateInputs();
+            }
+
+            // Load prompt history
+            async function loadPromptHistory() {
+                // This would load actual history from the server
+                // For now, just show placeholder
+            }
+
+            // Initialize validation
+            validateInputs();
+        });
+    </script>
+
+    <style>
+        .ai-prompt-container {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        .moon-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        .moon {
+            position: absolute;
+            top: 10%;
+            right: 10%;
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, #ffffff, #e0e0e0, #bbb);
+            box-shadow: 0 0 50px rgba(255, 255, 255, 0.3);
+        }
+
+        .stars {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image:
+                radial-gradient(2px 2px at 20px 30px, #eee, transparent),
+                radial-gradient(2px 2px at 40px 70px, #fff, transparent),
+                radial-gradient(1px 1px at 90px 40px, #eee, transparent),
+                radial-gradient(1px 1px at 130px 80px, #fff, transparent);
+            background-repeat: repeat;
+            background-size: 200px 100px;
+            animation: twinkle 4s ease-in-out infinite alternate;
+        }
+
+        @keyframes twinkle {
+            from { opacity: 0.3; }
+            to { opacity: 1; }
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+        }
+
+        .logo h1 {
+            color: #00ffff;
+            font-family: 'Orbitron', monospace;
+            font-size: 1.5rem;
+            margin: 0;
+        }
+
+        .logo span {
+            color: #ff006e;
+        }
+
+        .nav a {
+            color: #fff;
+            text-decoration: none;
+            margin-left: 2rem;
+            transition: color 0.3s;
+        }
+
+        .nav a:hover {
+            color: #00ffff;
+        }
+
+        .ai-prompt-main {
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .prompt-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .prompt-header h1 {
+            color: #00ffff;
+            font-family: 'Orbitron', monospace;
+            font-size: 2.5rem;
+            margin: 0 0 1rem 0;
+        }
+
+        .prompt-header p {
+            color: #ccc;
+            font-size: 1.2rem;
+            margin: 0;
+        }
+
+        .session-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .session-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #ff4444;
+            transition: background-color 0.3s;
+        }
+
+        .status-indicator.active {
+            background: #00aa44;
+        }
+
+        .status-indicator.inactive {
+            background: #ffaa00;
+        }
+
+        .btn-primary, .btn-secondary {
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            border: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #00ffff, #0080ff);
+            color: #000;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 255, 255, 0.3);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn-primary.ready {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #fff;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: #00ffff;
+            color: #00ffff;
+        }
+
+        .input-section {
+            margin-bottom: 2rem;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .input-group label {
+            color: #00ffff;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            font-family: 'Rajdhani', sans-serif;
+        }
+
+        .input-group input, .input-group textarea {
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .input-group input:focus, .input-group textarea:focus {
+            outline: none;
+            border-color: #00ffff;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+        }
+
+        .path-input-group {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .path-input-group input {
+            flex: 1;
+        }
+
+        .browse-btn {
+            flex-shrink: 0;
+            padding: 0 1rem;
+        }
+
+        .browse-icon {
+            font-size: 1.2rem;
+        }
+
+        .input-help {
+            color: #888;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+
+        .input-group textarea {
+            resize: vertical;
+            min-height: 120px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 3rem;
+        }
+
+        .btn-loader {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #000;
+            border-top: 2px solid transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .progress-section, .results-section {
+            margin-bottom: 3rem;
+        }
+
+        .progress-card, .results-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .progress-header h3, .results-header h3 {
+            color: #00ffff;
+            font-family: 'Orbitron', monospace;
+            margin: 0 0 1rem 0;
+            text-align: center;
+        }
+
+        .progress-status {
+            text-align: center;
+            color: #00aa44;
+            font-weight: 600;
+        }
+
+        .progress-steps {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .step-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            opacity: 0.6;
+            transition: all 0.3s;
+        }
+
+        .step-item.active {
+            opacity: 1;
+            border-color: #00ffff;
+            background: rgba(0, 255, 255, 0.1);
+        }
+
+        .step-item.completed {
+            opacity: 1;
+            border-color: #00aa44;
+            background: rgba(0, 170, 68, 0.1);
+        }
+
+        .step-icon {
+            font-size: 1.5rem;
+            width: 40px;
+            text-align: center;
+        }
+
+        .step-content {
+            flex: 1;
+        }
+
+        .step-content h4 {
+            color: #fff;
+            margin: 0 0 0.25rem 0;
+            font-family: 'Rajdhani', sans-serif;
+        }
+
+        .step-content p {
+            color: #ccc;
+            margin: 0;
+            font-size: 0.9rem;
+        }
+
+        .step-status {
+            width: 30px;
+            text-align: center;
+        }
+
+        .checkmark {
+            color: #00aa44;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .pending {
+            color: #888;
+            font-size: 1.2rem;
+        }
+
+        .spinner-small {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #00ffff;
+            border-top: 2px solid transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        .progress-actions {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .results-status {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            color: #00aa44;
+            font-weight: 600;
+            margin-bottom: 2rem;
+        }
+
+        .results-content {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .result-item h4 {
+            color: #00ffff;
+            margin: 0 0 1rem 0;
+            font-family: 'Rajdhani', sans-serif;
+        }
+
+        .files-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .file-item {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 0.75rem;
+            border-radius: 6px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #fff;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+        }
+
+        .agent-summary {
+            color: #ccc;
+            line-height: 1.6;
+        }
+
+        .agent-summary ul {
+            margin: 1rem 0;
+            padding-left: 1.5rem;
+        }
+
+        .agent-summary li {
+            margin-bottom: 0.5rem;
+        }
+
+        .next-steps {
+            color: #ccc;
+            margin: 0;
+            padding-left: 1.5rem;
+        }
+
+        .next-steps li {
+            margin-bottom: 0.5rem;
+        }
+
+        .results-actions {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .history-section {
+            margin-bottom: 3rem;
+        }
+
+        .history-section h3 {
+            color: #00ffff;
+            font-family: 'Orbitron', monospace;
+            margin-bottom: 1.5rem;
+        }
+
+        .prompts-list {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border-radius: 12px;
+            padding: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .no-history {
+            text-align: center;
+            color: #888;
+        }
+
+        .help-section {
+            margin-top: 3rem;
+        }
+
+        .help-section h3 {
+            color: #00ffff;
+            font-family: 'Orbitron', monospace;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .help-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .help-item {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .help-icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .help-item h4 {
+            color: #fff;
+            margin: 0 0 1rem 0;
+            font-family: 'Rajdhani', sans-serif;
+        }
+
+        .help-item ul {
+            color: #ccc;
+            margin: 0;
+            padding-left: 1.5rem;
+        }
+
+        .help-item li {
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .prompt-header h1 {
+                font-size: 2rem;
+            }
+
+            .session-info {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .path-input-group {
+                flex-direction: column;
+            }
+
+            .progress-steps {
+                gap: 0.5rem;
+            }
+
+            .step-item {
+                padding: 0.75rem;
+            }
+
+            .results-actions, .progress-actions {
+                flex-direction: column;
+            }
+
+            .help-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</body>
+</html>

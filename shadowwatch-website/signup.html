@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - ShadowWatch AI</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="signup-container">
+        <!-- Moon Background -->
+        <div class="moon-bg">
+            <div class="moon">
+                <div class="moon-shadow"></div>
+            </div>
+            <div class="stars"></div>
+        </div>
+
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <h1>SHADOW<span>WATCH</span></h1>
+                <p>AI Gaming Assistant</p>
+            </div>
+            <nav class="nav">
+                <a href="/">Home</a>
+                <a href="/login">Login</a>
+            </nav>
+        </header>
+
+        <!-- Signup Form -->
+        <main class="signup-main">
+            <div class="signup-card">
+                <div class="card-header">
+                    <h2>Join ShadowWatch AI</h2>
+                    <p>Create your account to access advanced AI game development tools</p>
+                </div>
+
+                <form id="signupForm" class="signup-form">
+                    <div class="form-group">
+                        <label for="username">Username</label>
+                        <input type="text" id="username" name="username" required minlength="3" maxlength="20">
+                        <span class="error-message" id="usernameError"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <input type="email" id="email" name="email" required>
+                        <span class="error-message" id="emailError"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" name="password" required minlength="8">
+                        <span class="error-message" id="passwordError"></span>
+                        <div class="password-strength">
+                            <div class="strength-bar">
+                                <div class="strength-fill" id="strengthFill"></div>
+                            </div>
+                            <span class="strength-text" id="strengthText">Password strength</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="confirmPassword">Confirm Password</label>
+                        <input type="password" id="confirmPassword" name="confirmPassword" required>
+                        <span class="error-message" id="confirmError"></span>
+                    </div>
+
+                    <div class="form-group checkbox-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="terms" name="terms" required>
+                            <span class="checkmark"></span>
+                            I agree to the <a href="/terms" target="_blank">Terms of Service</a> and <a href="/privacy" target="_blank">Privacy Policy</a>
+                        </label>
+                        <span class="error-message" id="termsError"></span>
+                    </div>
+
+                    <div class="form-group checkbox-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="newsletter" name="newsletter">
+                            <span class="checkmark"></span>
+                            Subscribe to our newsletter for updates and AI insights
+                        </label>
+                    </div>
+
+                    <button type="submit" class="btn-primary" id="signupBtn">
+                        <span class="btn-text">Create Account</span>
+                        <div class="btn-loader" style="display: none;">
+                            <div class="spinner"></div>
+                        </div>
+                    </button>
+                </form>
+
+                <div class="form-footer">
+                    <p>Already have an account? <a href="/login">Sign in here</a></p>
+                </div>
+
+                <!-- Success/Error Messages -->
+                <div id="messageContainer" class="message-container" style="display: none;">
+                    <div id="messageContent" class="message"></div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Features Preview -->
+        <section class="features-preview">
+            <h3>What you'll get access to:</h3>
+            <div class="features-grid">
+                <div class="feature-item">
+                    <div class="feature-icon">🎮</div>
+                    <h4>AI Game Development</h4>
+                    <p>Advanced AI assistance for creating games with Unity and Unreal Engine</p>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">📥</div>
+                    <h4>Download System</h4>
+                    <p>Secure access to ShadowWatch AI software and development tools</p>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">🤖</div>
+                    <h4>AI Prompt System</h4>
+                    <p>Direct AI assistance for your game development projects</p>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">🔒</div>
+                    <h4>Secure & Private</h4>
+                    <p>Your game projects and data remain completely secure</p>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const signupForm = document.getElementById('signupForm');
+            const signupBtn = document.getElementById('signupBtn');
+            const btnText = document.querySelector('.btn-text');
+            const btnLoader = document.querySelector('.btn-loader');
+            const messageContainer = document.getElementById('messageContainer');
+            const messageContent = document.getElementById('messageContent');
+
+            // Password strength indicator
+            const passwordInput = document.getElementById('password');
+            const strengthFill = document.getElementById('strengthFill');
+            const strengthText = document.getElementById('strengthText');
+
+            passwordInput.addEventListener('input', function() {
+                const password = this.value;
+                let strength = 0;
+                let feedback = [];
+
+                if (password.length >= 8) strength++;
+                if (password.match(/[a-z]/)) strength++;
+                if (password.match(/[A-Z]/)) strength++;
+                if (password.match(/[0-9]/)) strength++;
+                if (password.match(/[^A-Za-z0-9]/)) strength++;
+
+                const percentage = (strength / 5) * 100;
+                strengthFill.style.width = percentage + '%';
+
+                if (strength < 2) {
+                    strengthFill.style.backgroundColor = '#ff4444';
+                    strengthText.textContent = 'Weak password';
+                    strengthText.style.color = '#ff4444';
+                } else if (strength < 4) {
+                    strengthFill.style.backgroundColor = '#ffaa00';
+                    strengthText.textContent = 'Medium password';
+                    strengthText.style.color = '#ffaa00';
+                } else {
+                    strengthFill.style.backgroundColor = '#00aa44';
+                    strengthText.textContent = 'Strong password';
+                    strengthText.style.color = '#00aa44';
+                }
+            });
+
+            // Form validation
+            function showError(fieldId, message) {
+                const errorElement = document.getElementById(fieldId + 'Error');
+                errorElement.textContent = message;
+                errorElement.style.display = 'block';
+            }
+
+            function hideError(fieldId) {
+                const errorElement = document.getElementById(fieldId + 'Error');
+                errorElement.style.display = 'none';
+            }
+
+            function validateForm() {
+                let isValid = true;
+
+                // Username validation
+                const username = document.getElementById('username').value;
+                if (username.length < 3) {
+                    showError('username', 'Username must be at least 3 characters');
+                    isValid = false;
+                } else if (!/^[a-zA-Z0-9_]+$/.test(username)) {
+                    showError('username', 'Username can only contain letters, numbers, and underscores');
+                    isValid = false;
+                } else {
+                    hideError('username');
+                }
+
+                // Email validation
+                const email = document.getElementById('email').value;
+                if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                    showError('email', 'Please enter a valid email address');
+                    isValid = false;
+                } else {
+                    hideError('email');
+                }
+
+                // Password validation
+                const password = document.getElementById('password').value;
+                if (password.length < 8) {
+                    showError('password', 'Password must be at least 8 characters');
+                    isValid = false;
+                } else {
+                    hideError('password');
+                }
+
+                // Confirm password validation
+                const confirmPassword = document.getElementById('confirmPassword').value;
+                if (password !== confirmPassword) {
+                    showError('confirm', 'Passwords do not match');
+                    isValid = false;
+                } else {
+                    hideError('confirm');
+                }
+
+                // Terms validation
+                const terms = document.getElementById('terms').checked;
+                if (!terms) {
+                    showError('terms', 'You must agree to the terms and conditions');
+                    isValid = false;
+                } else {
+                    hideError('terms');
+                }
+
+                return isValid;
+            }
+
+            // Clear errors on input
+            document.querySelectorAll('input').forEach(input => {
+                input.addEventListener('input', function() {
+                    const fieldId = this.id;
+                    if (fieldId !== 'password') {
+                        hideError(fieldId);
+                    }
+                });
+            });
+
+            // Form submission
+            signupForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+
+                if (!validateForm()) {
+                    return;
+                }
+
+                // Show loading state
+                signupBtn.disabled = true;
+                btnText.style.display = 'none';
+                btnLoader.style.display = 'block';
+
+                try {
+                    const formData = new FormData(signupForm);
+                    const response = await fetch('/api/auth/signup', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            username: formData.get('username'),
+                            email: formData.get('email'),
+                            password: formData.get('password')
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (response.ok) {
+                        // Success
+                        messageContainer.className = 'message-container success';
+                        messageContent.textContent = data.message + ' Redirecting to dashboard...';
+                        messageContainer.style.display = 'block';
+
+                        // Redirect after success
+                        setTimeout(() => {
+                            window.location.href = '/dashboard';
+                        }, 2000);
+                    } else {
+                        // Error
+                        messageContainer.className = 'message-container error';
+                        messageContent.textContent = data.error || 'Signup failed';
+                        messageContainer.style.display = 'block';
+                    }
+                } catch (error) {
+                    console.error('Signup error:', error);
+                    messageContainer.className = 'message-container error';
+                    messageContent.textContent = 'Network error. Please try again.';
+                    messageContainer.style.display = 'block';
+                } finally {
+                    // Hide loading state
+                    signupBtn.disabled = false;
+                    btnText.style.display = 'block';
+                    btnLoader.style.display = 'none';
+                }
+            });
+        });
+    </script>
+
+    <style>
+        .signup-container {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        .moon-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        .moon {
+            position: absolute;
+            top: 10%;
+            right: 10%;
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, #ffffff, #e0e0e0, #bbb);
+            box-shadow: 0 0 50px rgba(255, 255, 255, 0.3);
+        }
+
+        .stars {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image:
+                radial-gradient(2px 2px at 20px 30px, #eee, transparent),
+                radial-gradient(2px 2px at 40px 70px, #fff, transparent),
+                radial-gradient(1px 1px at 90px 40px, #eee, transparent),
+                radial-gradient(1px 1px at 130px 80px, #fff, transparent);
+            background-repeat: repeat;
+            background-size: 200px 100px;
+            animation: twinkle 4s ease-in-out infinite alternate;
+        }
+
+        @keyframes twinkle {
+            from { opacity: 0.3; }
+            to { opacity: 1; }
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+        }
+
+        .logo h1 {
+            color: #00ffff;
+            font-family: 'Orbitron', monospace;
+            font-size: 1.5rem;
+            margin: 0;
+        }
+
+        .logo span {
+            color: #ff006e;
+        }
+
+        .nav a {
+            color: #fff;
+            text-decoration: none;
+            margin-left: 2rem;
+            transition: color 0.3s;
+        }
+
+        .nav a:hover {
+            color: #00ffff;
+        }
+
+        .signup-main {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 70vh;
+            padding: 2rem;
+        }
+
+        .signup-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 2rem;
+            width: 100%;
+            max-width: 500px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .card-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .card-header h2 {
+            color: #00ffff;
+            font-family: 'Orbitron', monospace;
+            margin: 0 0 0.5rem 0;
+        }
+
+        .card-header p {
+            color: #ccc;
+            margin: 0;
+        }
+
+        .signup-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            color: #fff;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .form-group input {
+            padding: 0.75rem;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #00ffff;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+        }
+
+        .password-strength {
+            margin-top: 0.5rem;
+        }
+
+        .strength-bar {
+            height: 4px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 2px;
+            overflow: hidden;
+            margin-bottom: 0.25rem;
+        }
+
+        .strength-fill {
+            height: 100%;
+            width: 0%;
+            transition: all 0.3s;
+        }
+
+        .strength-text {
+            font-size: 0.8rem;
+            color: #ccc;
+        }
+
+        .checkbox-group {
+            margin: 1rem 0;
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: flex-start;
+            cursor: pointer;
+            color: #ccc;
+            line-height: 1.4;
+        }
+
+        .checkbox-label input[type="checkbox"] {
+            margin-right: 0.5rem;
+            margin-top: 0.1rem;
+            width: auto;
+        }
+
+        .checkbox-label a {
+            color: #00ffff;
+            text-decoration: none;
+        }
+
+        .checkbox-label a:hover {
+            text-decoration: underline;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #00ffff, #0080ff);
+            border: none;
+            padding: 1rem;
+            border-radius: 8px;
+            color: #000;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 48px;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 255, 255, 0.3);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn-loader {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #000;
+            border-top: 2px solid transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .form-footer {
+            text-align: center;
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .form-footer p {
+            color: #ccc;
+            margin: 0;
+        }
+
+        .form-footer a {
+            color: #00ffff;
+            text-decoration: none;
+        }
+
+        .form-footer a:hover {
+            text-decoration: underline;
+        }
+
+        .message-container {
+            margin-top: 1rem;
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .message-container.success {
+            background: rgba(0, 170, 68, 0.2);
+            border: 1px solid #00aa44;
+        }
+
+        .message-container.error {
+            background: rgba(255, 68, 68, 0.2);
+            border: 1px solid #ff4444;
+        }
+
+        .message {
+            color: #fff;
+            font-weight: 600;
+        }
+
+        .error-message {
+            color: #ff4444;
+            font-size: 0.8rem;
+            margin-top: 0.25rem;
+            display: none;
+        }
+
+        .features-preview {
+            padding: 3rem 2rem;
+            text-align: center;
+        }
+
+        .features-preview h3 {
+            color: #00ffff;
+            font-family: 'Orbitron', monospace;
+            margin-bottom: 2rem;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .feature-item {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.3s;
+        }
+
+        .feature-item:hover {
+            transform: translateY(-5px);
+        }
+
+        .feature-icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .feature-item h4 {
+            color: #fff;
+            margin: 0 0 0.5rem 0;
+            font-family: 'Rajdhani', sans-serif;
+        }
+
+        .feature-item p {
+            color: #ccc;
+            margin: 0;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .nav {
+                display: flex;
+                gap: 1rem;
+            }
+
+            .nav a {
+                margin: 0;
+            }
+
+            .signup-card {
+                padding: 1.5rem;
+                margin: 1rem;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</body>
+</html>

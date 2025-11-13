@@ -14,10 +14,320 @@ class ShadowWatchWebsite {
         this.setupPricingInteractions();
         this.setupFAQInteractions();
         this.setupKeyboardShortcuts();
+        this.setupAuthentication();
         this.animateOnLoad();
 
         // Set initial tab
         this.switchTab('dashboard');
+    }
+
+    // Authentication System
+    setupAuthentication() {
+        this.checkAuthenticationStatus();
+        this.setupAuthEventListeners();
+    }
+
+    async checkAuthenticationStatus() {
+        try {
+            const response = await fetch('/api/auth/me');
+            const data = await response.json();
+
+            if (response.ok && data.user) {
+                this.updateAuthenticatedNavigation(data.user);
+                this.updateDownloadAccess(data.user);
+            } else {
+                this.updateUnauthenticatedNavigation();
+                this.updateDownloadAccess(null);
+            }
+        } catch (error) {
+            console.error('Auth check error:', error);
+            this.updateUnauthenticatedNavigation();
+            this.updateDownloadAccess(null);
+        }
+    }
+
+    // Update download tab access based on authentication/subscription
+    updateDownloadAccess(user) {
+        const downloadContent = document.getElementById('downloadAccessContent');
+
+        if (!user) {
+            // Not logged in
+            downloadContent.innerHTML = `
+                <div class="access-denied">
+                    <div class="denied-icon">🔒</div>
+                    <h2>Authentication Required</h2>
+                    <p>You must be logged in to access downloads.</p>
+                    <div class="access-actions">
+                        <a href="/login?redirect=/download" class="btn-primary">Login</a>
+                        <a href="/signup" class="btn-secondary">Sign Up</a>
+                    </div>
+                </div>
+            `;
+        } else if (!user.subscription || !user.subscription.active) {
+            // Logged in but no active subscription
+            downloadContent.innerHTML = `
+                <div class="access-denied">
+                    <div class="denied-icon">💎</div>
+                    <h2>Subscription Required</h2>
+                    <p>You need an active subscription to download ShadowWatch AI software.</p>
+                    <div class="subscription-info">
+                        <h3>Why subscribe?</h3>
+                        <ul>
+                            <li>✅ Full access to ShadowWatch AI software</li>
+                            <li>✅ AI prompt system for game development</li>
+                            <li>✅ Direct downloads to your PC</li>
+                            <li>✅ Priority support and updates</li>
+                            <li>✅ Advanced AI development features</li>
+                        </ul>
+                    </div>
+                    <div class="access-actions">
+                        <a href="/subscription" class="btn-primary">View Subscription Plans</a>
+                        <span class="user-greeting">Welcome, ${user.username}!</span>
+                    </div>
+                </div>
+            `;
+        } else if (user.subscription && user.subscription.active && new Date(user.subscription.expiresAt) < new Date()) {
+            // Subscription expired
+            downloadContent.innerHTML = `
+                <div class="access-denied">
+                    <div class="denied-icon">⏰</div>
+                    <h2>Subscription Expired</h2>
+                    <p>Your subscription expired on ${new Date(user.subscription.expiresAt).toLocaleDateString()}. Renew to continue accessing downloads.</p>
+                    <div class="access-actions">
+                        <a href="/subscription" class="btn-primary">Renew Subscription</a>
+                    </div>
+                </div>
+            `;
+        } else {
+            // Has active subscription - show download content
+            downloadContent.innerHTML = `
+                <div class="download-header">
+                    <h2>📥 Download ShadowWatch AI Software</h2>
+                    <p>Welcome back, ${user.username}! Your ${user.subscription.plan} subscription is active.</p>
+                    <div class="subscription-status">
+                        <span class="status-badge active">✓ Active</span>
+                        <span class="expires-info">Expires: ${new Date(user.subscription.expiresAt).toLocaleDateString()}</span>
+                    </div>
+                </div>
+
+                <div class="download-content">
+                    <div class="download-main">
+                        <div class="download-card">
+                            <div class="download-icon">📦</div>
+                            <div class="download-info">
+                                <h3>ShadowWatchAI-Software.zip</h3>
+                                <p class="version">Version 1.0.0</p>
+                                <p class="description">Complete portable AI development system. Copy this folder into your game project to get instant AI assistance.</p>
+                                <div class="file-details">
+                                    <span class="file-size">Size: ~50MB</span>
+                                    <span class="file-type">ZIP Archive</span>
+                                </div>
+                            </div>
+                            <button id="downloadBtn" class="btn-primary download-button">
+                                <span class="btn-text">Download Now</span>
+                                <div class="btn-loader" style="display: none;">
+                                    <div class="spinner"></div>
+                                </div>
+                            </button>
+                        </div>
+
+                        <div class="download-features">
+                            <h3>What's Included</h3>
+                            <div class="feature-list">
+                                <div class="feature-item">
+                                    <span class="feature-check">✅</span>
+                                    <span>Complete AI Engine (Cursor + OpenAI)</span>
+                                </div>
+                                <div class="feature-item">
+                                    <span class="feature-check">✅</span>
+                                    <span>Vehicle Creation System (50+ manufacturers)</span>
+                                </div>
+                                <div class="feature-item">
+                                    <span class="feature-check">✅</span>
+                                    <span>Weapon Blueprint Generator</span>
+                                </div>
+                                <div class="feature-item">
+                                    <span class="feature-check">✅</span>
+                                    <span>Multi-Engine Support (Unity, Unreal, Web)</span>
+                                </div>
+                                <div class="feature-item">
+                                    <span class="feature-check">✅</span>
+                                    <span>Autonomous Development Mode</span>
+                                </div>
+                                <div class="feature-item">
+                                    <span class="feature-check">✅</span>
+                                    <span>Enterprise Security & Protection</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="installation-guide">
+                        <h3>🚀 Quick Start Installation</h3>
+                        <div class="install-steps">
+                            <div class="install-step">
+                                <div class="step-number">1</div>
+                                <div class="step-content">
+                                    <h4>Download & Extract</h4>
+                                    <p>Download ShadowWatchAI-Software.zip and extract it to your game project root directory.</p>
+                                    <div class="code-snippet">YourGameProject/<br>└── ShadowWatchAI-Software/  ← Extract here</div>
+                                </div>
+                            </div>
+                            <div class="install-step">
+                                <div class="step-number">2</div>
+                                <div class="step-content">
+                                    <h4>Start AI Server</h4>
+                                    <p>Double-click Start-ShadowWatchAI.bat (Windows) or run:</p>
+                                    <div class="code-snippet">node scripts/start-server.js</div>
+                                </div>
+                            </div>
+                            <div class="install-step">
+                                <div class="step-number">3</div>
+                                <div class="step-content">
+                                    <h4>Launch Control Panel</h4>
+                                    <p>Open your browser and navigate to:</p>
+                                    <div class="code-snippet">http://localhost:8080/cursor-control.html</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="ai-prompt-access">
+                        <h3>🤖 AI Prompt System</h3>
+                        <p>With your active subscription, you can use our AI prompt system to get direct AI assistance for your game development.</p>
+                        <a href="/ai-prompt" class="btn-secondary">Open AI Prompt System</a>
+                    </div>
+                </div>
+            `;
+
+            // Add download button event listener
+            setTimeout(() => {
+                const downloadBtn = document.getElementById('downloadBtn');
+                if (downloadBtn) {
+                    downloadBtn.addEventListener('click', () => this.handleDownload());
+                }
+            }, 100);
+        }
+    }
+
+    // Handle download button click
+    async handleDownload() {
+        const downloadBtn = document.getElementById('downloadBtn');
+        const btnText = downloadBtn.querySelector('.btn-text');
+        const btnLoader = downloadBtn.querySelector('.btn-loader');
+
+        // Show loading state
+        downloadBtn.disabled = true;
+        btnText.textContent = 'Preparing Download...';
+        btnLoader.style.display = 'block';
+
+        try {
+            // Create download link and trigger download
+            const link = document.createElement('a');
+            link.href = '/download/ShadowWatchAI-Software.zip';
+            link.download = 'ShadowWatchAI-Software.zip';
+            link.style.display = 'none';
+
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            // Success state
+            btnText.textContent = 'Download Started!';
+            btnLoader.style.display = 'none';
+
+            // Track download
+            try {
+                await fetch('/api/download/track', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        fileName: 'ShadowWatchAI-Software.zip',
+                        timestamp: new Date().toISOString()
+                    })
+                });
+            } catch (error) {
+                console.error('Download tracking error:', error);
+            }
+
+            // Reset button after 3 seconds
+            setTimeout(() => {
+                downloadBtn.disabled = false;
+                btnText.textContent = 'Download Now';
+            }, 3000);
+
+        } catch (error) {
+            console.error('Download error:', error);
+            btnText.textContent = 'Download Failed';
+            btnLoader.style.display = 'none';
+            downloadBtn.disabled = false;
+
+            alert('Download failed. Please try again or contact support.');
+        }
+    }
+
+    updateAuthenticatedNavigation(user) {
+        const authNav = document.getElementById('authNav');
+
+        if (user.role === 'owner') {
+            authNav.innerHTML = `
+                <a href="/owner-projects" class="nav-tab" style="background: linear-gradient(135deg, #f59e0b, #d97706); color: white; text-decoration: none; font-weight: bold;">👑 Owner Dashboard</a>
+                <a href="/download" class="nav-tab" style="background: linear-gradient(135deg, #059669, #10b981); color: white; text-decoration: none;">📥 Download</a>
+                <a href="/ai-prompt" class="nav-tab" style="background: linear-gradient(135deg, #dc2626, #b91c1c); color: white; text-decoration: none;">🤖 AI Prompt</a>
+                <button class="nav-tab logout-btn" style="background: rgba(255,255,255,0.1); color: #ccc; border: 1px solid rgba(255,255,255,0.2);">Logout</button>
+            `;
+        } else if (user.subscription && user.subscription.active) {
+            authNav.innerHTML = `
+                <a href="/subscription" class="nav-tab" style="background: linear-gradient(135deg, #dc2626, #b91c1c); color: white; text-decoration: none; animation: pulse 2s infinite;">💎 ${user.subscription.plan.charAt(0).toUpperCase() + user.subscription.plan.slice(1)}</a>
+                <a href="/download" class="nav-tab" style="background: linear-gradient(135deg, #059669, #10b981); color: white; text-decoration: none;">📥 Download</a>
+                <a href="/ai-prompt" class="nav-tab" style="background: linear-gradient(135deg, #1e3a8a, #3b82f6); color: white; text-decoration: none;">🤖 AI Prompt</a>
+                <span class="nav-tab user-info" style="background: rgba(255,255,255,0.1); color: #00ffff; font-weight: bold;">Welcome, ${user.username}</span>
+                <button class="nav-tab logout-btn" style="background: rgba(255,255,255,0.1); color: #ccc; border: 1px solid rgba(255,255,255,0.2);">Logout</button>
+            `;
+        } else {
+            authNav.innerHTML = `
+                <a href="/subscription" class="nav-tab" style="background: linear-gradient(135deg, #dc2626, #b91c1c); color: white; text-decoration: none; animation: pulse 2s infinite;">💎 Subscribe</a>
+                <span class="nav-tab user-info" style="background: rgba(255,255,255,0.1); color: #ccc;">Welcome, ${user.username} (Free)</span>
+                <button class="nav-tab logout-btn" style="background: rgba(255,255,255,0.1); color: #ccc; border: 1px solid rgba(255,255,255,0.2);">Logout</button>
+            `;
+        }
+
+        // Add logout event listener
+        const logoutBtn = authNav.querySelector('.logout-btn');
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', this.handleLogout.bind(this));
+        }
+    }
+
+    updateUnauthenticatedNavigation() {
+        const authNav = document.getElementById('authNav');
+        authNav.innerHTML = `
+            <a href="/signup" class="nav-tab" style="background: linear-gradient(135deg, #00ffff, #0080ff); color: white; text-decoration: none;">Sign Up</a>
+            <a href="/login" class="nav-tab" style="background: rgba(255,255,255,0.1); color: #ccc; text-decoration: none;">Login</a>
+        `;
+    }
+
+    setupAuthEventListeners() {
+        // Handle login redirects
+        const urlParams = new URLSearchParams(window.location.search);
+        const redirect = urlParams.get('redirect');
+        if (redirect) {
+            localStorage.setItem('postLoginRedirect', redirect);
+        }
+    }
+
+    async handleLogout() {
+        try {
+            await fetch('/api/auth/logout', { method: 'POST' });
+        } catch (error) {
+            console.error('Logout error:', error);
+        }
+
+        // Clear stored data
+        localStorage.removeItem('authToken');
+
+        // Reload page
+        window.location.reload();
     }
 
     // Tab Navigation System

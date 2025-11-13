@@ -18,6 +18,8 @@ import session from 'express-session';
 import cookieParser from 'cookie-parser';
 import fs from 'fs';
 import crypto from 'crypto';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 
 // Cursor API Integration
 import CursorAPIIntegration from './cursor-api-integration.js';
@@ -38,11 +40,38 @@ class ShadowWatchWebsiteServer {
         // Initialize Cursor API Integration
         this.cursorAPI = new CursorAPIIntegration();
 
+        // Initialize user and subscription system
+        this.initializeUserSystem();
+
         this.setupMiddleware();
         this.setupRoutes();
         this.setupCursorAPIRoutes();
         this.setupAPIProxy();
         this.setupErrorHandling();
+    }
+
+    // Initialize user management system
+    initializeUserSystem() {
+        // In-memory user storage (use database in production)
+        this.users = [
+            {
+                id: 'owner-001',
+                username: 'ToreyOwner57',
+                email: 'owner@shadowwatch-ai.com',
+                password: '$2a$10$example.hash.for.owner.account', // bcrypt hash
+                role: 'owner',
+                subscription: {
+                    active: true,
+                    plan: 'enterprise',
+                    expiresAt: '2099-12-31T23:59:59Z',
+                    features: ['all']
+                },
+                createdAt: '2025-01-01T00:00:00Z'
+            }
+        ];
+
+        // AI prompt sessions storage
+        this.aiPromptSessions = new Map();
     }
 
     setupCursorAPIRoutes() {
@@ -1875,6 +1904,10 @@ node scripts/start-server.js
             }
         }));
 
+        // JWT Authentication middleware
+        this.app.use('/api/protected', this.authenticateToken.bind(this));
+        this.app.use('/download', this.requireSubscription.bind(this));
+
         // Static files with cache control
         this.app.use(express.static(path.join(__dirname), {
             maxAge: this.isDevelopment ? 0 : '1d',
@@ -1884,7 +1917,526 @@ node scripts/start-server.js
         console.log('🔧 Middleware configured');
     }
 
+    // JWT Authentication middleware
+    authenticateToken(req, res, next) {
+        const authHeader = req.headers['authorization'];
+        const token = authHeader && authHeader.split(' ')[1];
+
+        if (!token) {
+            return res.status(401).json({ error: 'Access token required' });
+        }
+
+        jwt.verify(token, process.env.JWT_SECRET || 'shadowwatch-jwt-secret-2025', (err, user) => {
+            if (err) {
+                return res.status(403).json({ error: 'Invalid or expired token' });
+            }
+            req.user = user;
+            next();
+        });
+    }
+
+    // Subscription requirement middleware
+    requireSubscription(req, res, next) {
+        // Check if user is logged in via session
+        if (!req.session.user) {
+            return res.redirect('/login?redirect=' + encodeURIComponent(req.originalUrl) + '&message=Please log in to access downloads');
+        }
+
+        // Check if user has active subscription
+        const user = this.users.find(u => u.id === req.session.user.id);
+        if (!user || !user.subscription || !user.subscription.active) {
+            return res.redirect('/subscription?message=Active subscription required to access downloads');
+        }
+
+        // Check if subscription is not expired
+        if (new Date(user.subscription.expiresAt) < new Date()) {
+            return res.redirect('/subscription?message=Your subscription has expired. Please renew to access downloads');
+        }
+
+        next();
+    }
+
+    // Authentication routes setup
+    setupAuthRoutes() {
+        // Signup page
+        this.app.get('/signup', (req, res) => {
+            res.sendFile(path.join(__dirname, 'signup.html'));
+        });
+
+        // Login page
+        this.app.get('/login', (req, res) => {
+            const message = req.query.message || '';
+            const redirect = req.query.redirect || '/dashboard';
+            res.sendFile(path.join(__dirname, 'login.html'));
+        });
+
+        // Signup API
+        this.app.post('/api/auth/signup', async (req, res) => {
+            try {
+                const { username, email, password } = req.body;
+
+                // Validation
+                if (!username || !email || !password) {
+                    return res.status(400).json({ error: 'All fields are required' });
+                }
+
+                if (password.length < 8) {
+                    return res.status(400).json({ error: 'Password must be at least 8 characters' });
+                }
+
+                // Check if user already exists
+                const existingUser = this.users.find(u => u.email === email || u.username === username);
+                if (existingUser) {
+                    return res.status(409).json({ error: 'User already exists' });
+                }
+
+                // Hash password
+                const saltRounds = 10;
+                const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+                // Create user
+                const newUser = {
+                    id: `user-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+                    username,
+                    email,
+                    password: hashedPassword,
+                    role: 'user',
+                    subscription: null,
+                    createdAt: new Date().toISOString()
+                };
+
+                this.users.push(newUser);
+
+                // Generate JWT token
+                const token = jwt.sign(
+                    { id: newUser.id, username: newUser.username, email: newUser.email },
+                    process.env.JWT_SECRET || 'shadowwatch-jwt-secret-2025',
+                    { expiresIn: '24h' }
+                );
+
+                // Set session
+                req.session.user = {
+                    id: newUser.id,
+                    username: newUser.username,
+                    email: newUser.email,
+                    role: newUser.role
+                };
+
+                res.json({
+                    message: 'Account created successfully',
+                    token,
+                    user: {
+                        id: newUser.id,
+                        username: newUser.username,
+                        email: newUser.email,
+                        role: newUser.role
+                    }
+                });
+            } catch (error) {
+                console.error('Signup error:', error);
+                res.status(500).json({ error: 'Failed to create account' });
+            }
+        });
+
+        // Login API
+        this.app.post('/api/auth/login', async (req, res) => {
+            try {
+                const { email, password } = req.body;
+
+                // Find user
+                const user = this.users.find(u => u.email === email);
+                if (!user) {
+                    return res.status(401).json({ error: 'Invalid credentials' });
+                }
+
+                // Verify password
+                const isValidPassword = await bcrypt.compare(password, user.password);
+                if (!isValidPassword) {
+                    return res.status(401).json({ error: 'Invalid credentials' });
+                }
+
+                // Generate JWT token
+                const token = jwt.sign(
+                    { id: user.id, username: user.username, email: user.email },
+                    process.env.JWT_SECRET || 'shadowwatch-jwt-secret-2025',
+                    { expiresIn: '24h' }
+                );
+
+                // Set session
+                req.session.user = {
+                    id: user.id,
+                    username: user.username,
+                    email: user.email,
+                    role: user.role
+                };
+
+                res.json({
+                    message: 'Login successful',
+                    token,
+                    user: {
+                        id: user.id,
+                        username: user.username,
+                        email: user.email,
+                        role: user.role,
+                        subscription: user.subscription
+                    }
+                });
+            } catch (error) {
+                console.error('Login error:', error);
+                res.status(500).json({ error: 'Login failed' });
+            }
+        });
+
+        // Logout
+        this.app.post('/api/auth/logout', (req, res) => {
+            req.session.destroy((err) => {
+                if (err) {
+                    return res.status(500).json({ error: 'Logout failed' });
+                }
+                res.json({ message: 'Logged out successfully' });
+            });
+        });
+
+        // Get current user
+        this.app.get('/api/auth/me', (req, res) => {
+            if (!req.session.user) {
+                return res.status(401).json({ error: 'Not authenticated' });
+            }
+
+            const user = this.users.find(u => u.id === req.session.user.id);
+            if (!user) {
+                return res.status(404).json({ error: 'User not found' });
+            }
+
+            res.json({
+                user: {
+                    id: user.id,
+                    username: user.username,
+                    email: user.email,
+                    role: user.role,
+                    subscription: user.subscription
+                }
+            });
+        });
+    }
+
+    // AI Prompt routes setup
+    setupAIPromptRoutes() {
+        // AI Prompt page
+        this.app.get('/ai-prompt', this.requireSubscription, (req, res) => {
+            res.sendFile(path.join(__dirname, 'ai-prompt.html'));
+        });
+
+        // Start AI prompt session
+        this.app.post('/api/ai-prompt/start', this.requireSubscription, (req, res) => {
+            const sessionId = `session-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+
+            this.aiPromptSessions.set(sessionId, {
+                id: sessionId,
+                userId: req.session.user.id,
+                createdAt: new Date().toISOString(),
+                prompts: [],
+                status: 'active'
+            });
+
+            res.json({
+                sessionId,
+                message: 'AI prompt session started'
+            });
+        });
+
+        // Submit AI prompt
+        this.app.post('/api/ai-prompt/submit', this.requireSubscription, async (req, res) => {
+            try {
+                const { sessionId, prompt, gamePath } = req.body;
+
+                if (!sessionId || !prompt) {
+                    return res.status(400).json({ error: 'Session ID and prompt are required' });
+                }
+
+                const session = this.aiPromptSessions.get(sessionId);
+                if (!session || session.userId !== req.session.user.id) {
+                    return res.status(403).json({ error: 'Invalid session' });
+                }
+
+                // Add prompt to session
+                session.prompts.push({
+                    id: `prompt-${Date.now()}`,
+                    prompt,
+                    gamePath,
+                    timestamp: new Date().toISOString(),
+                    status: 'processing'
+                });
+
+                // Process the prompt with Cursor AI
+                const enhancedPrompt = `
+You are ShadowWatch AI, an advanced game development assistant. The user has provided a game path and wants you to help develop their game.
+
+GAME PATH: ${gamePath}
+USER PROMPT: ${prompt}
+
+IMPORTANT RULES:
+1. You must ONLY work on the user's game files, NEVER modify ShadowWatch AI code
+2. Use only allowed languages: C#, C++, TypeScript, JavaScript, HTML (web-based MMO only)
+3. Update game files to work with the chosen language
+4. Create organized project structure
+5. Implement the requested features fully and correctly
+
+Please analyze the game path and implement the user's request. Provide detailed implementation steps and code.
+                `;
+
+                // Launch AI agent
+                const agentResponse = await this.cursorAPI.launchProtectedAgent(
+                    enhancedPrompt,
+                    gamePath,
+                    'AUTO', // Use best available model
+                    true,   // Enable all autonomous features
+                    true,   // Enable Unity support
+                    true,   // Enable Unreal support
+                    true,   // Enable weapon creation
+                    true,   // Enable vehicle creation
+                    true,   // Enable model packs
+                    true,   // Enable anti-hacker protection
+                    gamePath // Target directory
+                );
+
+                // Update prompt status
+                const lastPrompt = session.prompts[session.prompts.length - 1];
+                lastPrompt.status = 'completed';
+                lastPrompt.agentId = agentResponse.id;
+                lastPrompt.response = agentResponse;
+
+                res.json({
+                    promptId: lastPrompt.id,
+                    agentId: agentResponse.id,
+                    status: 'processing',
+                    message: 'AI agent launched successfully. Processing your request...'
+                });
+
+            } catch (error) {
+                console.error('AI prompt submission error:', error);
+                res.status(500).json({ error: 'Failed to process AI prompt' });
+            }
+        });
+
+        // Get AI prompt status
+        this.app.get('/api/ai-prompt/status/:sessionId', this.requireSubscription, (req, res) => {
+            const { sessionId } = req.params;
+            const session = this.aiPromptSessions.get(sessionId);
+
+            if (!session || session.userId !== req.session.user.id) {
+                return res.status(403).json({ error: 'Invalid session' });
+            }
+
+            res.json({
+                session: {
+                    id: session.id,
+                    status: session.status,
+                    prompts: session.prompts
+                }
+            });
+        });
+    }
+
+    // Subscription routes setup
+    setupSubscriptionRoutes() {
+        // Subscription page
+        this.app.get('/subscription', (req, res) => {
+            const message = req.query.message || '';
+            res.sendFile(path.join(__dirname, 'subscription.html'));
+        });
+
+        // Get subscription plans
+        this.app.get('/api/subscription/plans', (req, res) => {
+            const plans = {
+                monthly: {
+                    id: 'monthly',
+                    name: 'Monthly Plan',
+                    price: 59.99,
+                    interval: 'month',
+                    features: [
+                        'Full ShadowWatch AI access',
+                        'Download system access',
+                        'AI prompt system',
+                        'Priority support',
+                        'Regular updates'
+                    ]
+                },
+                yearly: {
+                    id: 'yearly',
+                    name: 'Yearly Plan',
+                    price: 599.99,
+                    interval: 'year',
+                    features: [
+                        'All Monthly features',
+                        '20% discount',
+                        'Advanced AI features',
+                        'Beta access',
+                        'Custom integrations'
+                    ]
+                },
+                lifetime: {
+                    id: 'lifetime',
+                    name: 'Lifetime Access',
+                    price: 2999.99,
+                    interval: 'lifetime',
+                    features: [
+                        'All Yearly features',
+                        'Lifetime updates',
+                        'Source code access',
+                        'Custom development',
+                        'Direct support'
+                    ]
+                }
+            };
+
+            res.json({ plans });
+        });
+
+        // Subscribe to plan
+        this.app.post('/api/subscription/subscribe', this.authenticateToken, async (req, res) => {
+            try {
+                const { planId } = req.body;
+                const user = this.users.find(u => u.id === req.user.id);
+
+                if (!user) {
+                    return res.status(404).json({ error: 'User not found' });
+                }
+
+                // Calculate subscription details
+                let expiresAt;
+                const now = new Date();
+
+                switch (planId) {
+                    case 'monthly':
+                        expiresAt = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000); // 30 days
+                        break;
+                    case 'yearly':
+                        expiresAt = new Date(now.getTime() + 365 * 24 * 60 * 60 * 1000); // 365 days
+                        break;
+                    case 'lifetime':
+                        expiresAt = new Date('2099-12-31T23:59:59Z'); // Far future
+                        break;
+                    default:
+                        return res.status(400).json({ error: 'Invalid plan' });
+                }
+
+                // Update user subscription
+                user.subscription = {
+                    active: true,
+                    plan: planId,
+                    expiresAt: expiresAt.toISOString(),
+                    features: planId === 'lifetime' ? ['all'] : ['standard'],
+                    subscribedAt: now.toISOString()
+                };
+
+                res.json({
+                    message: 'Subscription activated successfully',
+                    subscription: user.subscription
+                });
+
+            } catch (error) {
+                console.error('Subscription error:', error);
+                res.status(500).json({ error: 'Failed to process subscription' });
+            }
+        });
+
+        // Cancel subscription
+        this.app.post('/api/subscription/cancel', this.authenticateToken, (req, res) => {
+            const user = this.users.find(u => u.id === req.user.id);
+            if (!user) {
+                return res.status(404).json({ error: 'User not found' });
+            }
+
+            user.subscription = null;
+            res.json({ message: 'Subscription cancelled successfully' });
+        });
+    }
+
+    // Download routes setup
+    setupDownloadRoutes() {
+        // Download page (protected by subscription)
+        this.app.get('/download', this.requireSubscription, (req, res) => {
+            res.sendFile(path.join(__dirname, 'download.html'));
+        });
+
+        // Download ShadowWatch AI Software
+        this.app.get('/download/ShadowWatchAI-Software.zip', this.requireSubscription, async (req, res) => {
+            try {
+                const zipPath = path.join(__dirname, 'download', 'ShadowWatchAI-Software.zip');
+
+                // Check if file exists
+                if (!fs.existsSync(zipPath)) {
+                    return res.status(404).json({ error: 'Download file not found' });
+                }
+
+                // Track download
+                const user = this.users.find(u => u.id === req.session.user.id);
+                if (user) {
+                    this.trackDownload('ShadowWatchAI-Software.zip', req.get('User-Agent'), req.ip);
+                }
+
+                // Set headers for download
+                res.setHeader('Content-Type', 'application/zip');
+                res.setHeader('Content-Disposition', 'attachment; filename="ShadowWatchAI-Software.zip"');
+
+                // Stream the file
+                const fileStream = fs.createReadStream(zipPath);
+                fileStream.pipe(res);
+
+                fileStream.on('error', (error) => {
+                    console.error('Download error:', error);
+                    res.status(500).json({ error: 'Download failed' });
+                });
+
+            } catch (error) {
+                console.error('Download setup error:', error);
+                res.status(500).json({ error: 'Failed to initiate download' });
+            }
+        });
+
+        // Download verification
+        this.app.get('/api/download/verify/:filename', this.requireSubscription, (req, res) => {
+            const { filename } = req.params;
+            const filePath = path.join(__dirname, 'download', filename);
+
+            if (!fs.existsSync(filePath)) {
+                return res.status(404).json({ error: 'File not found' });
+            }
+
+            // Calculate file hash
+            const fileBuffer = fs.readFileSync(filePath);
+            const hash = crypto.createHash('sha256').update(fileBuffer).digest('hex');
+
+            res.json({
+                filename,
+                verified: true,
+                hash,
+                size: fileBuffer.length,
+                lastModified: fs.statSync(filePath).mtime.toISOString()
+            });
+        });
+    }
+
+    // Download tracking helper
+    trackDownload(fileName, userAgent, ip) {
+        // Implementation for download analytics
+        console.log(`📥 Download tracked: ${fileName} by user ${ip}`);
+    }
+
     setupRoutes() {
+        // Authentication routes
+        this.setupAuthRoutes();
+
+        // AI Prompt routes
+        this.setupAIPromptRoutes();
+
+        // Subscription routes
+        this.setupSubscriptionRoutes();
+
+        // Download routes
+        this.setupDownloadRoutes();
+
         // Health check for website server
         this.app.get('/health', (req, res) => {
             res.json({

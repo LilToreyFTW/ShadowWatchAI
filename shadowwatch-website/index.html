@@ -48,11 +48,11 @@
                 <button class="nav-tab" data-tab="faq">FAQ</button>
                 <button class="nav-tab" data-tab="buy">BUY HERE</button>
                 <button class="nav-tab" data-tab="keys">Software Keys</button>
-                <button class="nav-tab" data-tab="subscription" style="background: linear-gradient(135deg, #dc2626, #b91c1c); color: white; animation: pulse 2s infinite;">💎 SUBSCRIPTION</button>
                 <a href="documentation.html" class="nav-tab" style="background: linear-gradient(135deg, #7c3aed, #a855f7); color: white; text-decoration: none;">📚 Docs</a>
-                <button class="nav-tab" data-tab="download" style="background: linear-gradient(135deg, #059669, #10b981); color: white;">📥 Download</button>
-                <a href="/owner-login" class="nav-tab" style="background: linear-gradient(135deg, #f59e0b, #d97706); color: white; text-decoration: none; font-weight: bold;">👑 Owner Login</a>
                 <a href="cursor-control.html" class="nav-tab control-link" style="background: linear-gradient(135deg, #1e3a8a, #3b82f6); color: white; text-decoration: none;">🤖 AI Control</a>
+                <div class="auth-nav" id="authNav">
+                    <!-- Authenticated user navigation will be populated by JavaScript -->
+                </div>
             </div>
         </div>
     </nav>
@@ -631,193 +631,9 @@
 
         <!-- Download Tab -->
         <section id="download" class="tab-content">
-            <div class="download-header">
-                <h2>📥 Download ShadowWatch AI Software</h2>
-                <p>Get the complete ShadowWatchAI-Software package to start building games with AI</p>
-            </div>
-
-            <div class="download-content">
-                <div class="download-main">
-                    <div class="download-card">
-                        <div class="download-icon">📦</div>
-                        <h3>ShadowWatchAI-Software.zip</h3>
-                        <p class="download-desc">
-                            Complete portable AI development system. Copy this folder into your game project to get instant AI assistance.
-                        </p>
-
-                        <div class="download-meta">
-                            <div class="meta-item">
-                                <span class="meta-label">Version:</span>
-                                <span class="meta-value">1.0.0</span>
-                            </div>
-                            <div class="meta-item">
-                                <span class="meta-label">Size:</span>
-                                <span class="meta-value">~50MB</span>
-                            </div>
-                            <div class="meta-item">
-                                <span class="meta-label">Updated:</span>
-                                <span class="meta-value">November 2025</span>
-                            </div>
-                        </div>
-
-                        <a href="/download/ShadowWatchAI-Software.zip" class="download-btn" download onclick="trackDownload('ShadowWatchAI-Software.zip')">
-                            <span class="download-icon">⬇️</span>
-                            Download Now
-                        </a>
-
-                        <div class="download-options">
-                            <h4>Additional Downloads</h4>
-                            <div class="download-links">
-                                <a href="/download/documentation.pdf" class="download-link" onclick="trackDownload('documentation.pdf')">
-                                    📄 Documentation PDF
-                                </a>
-                                <a href="/download/setup/windows" class="download-link" onclick="trackDownload('setup-windows.bat')">
-                                    🪟 Windows Setup Script
-                                </a>
-                                <a href="/download/setup/linux" class="download-link" onclick="trackDownload('setup-linux.sh')">
-                                    🐧 Linux Setup Script
-                                </a>
-                                <a href="/download/setup/macos" class="download-link" onclick="trackDownload('setup-macos.sh')">
-                                    🍎 macOS Setup Script
-                                </a>
-                            </div>
-                        </div>
-
-                        <div class="download-analytics">
-                            <button class="analytics-btn" onclick="showDownloadStats()">📊 View Download Statistics</button>
-                            <button class="analytics-btn" onclick="verifyDownload('ShadowWatchAI-Software.zip')" style="margin-left: 10px;">🔒 Verify Download</button>
-                        </div>
-                    </div>
-
-                    <div class="download-features">
-                        <h3>What's Included</h3>
-                        <div class="feature-list">
-                            <div class="feature-item">
-                                <span class="feature-check">✅</span>
-                                <span>Complete AI Engine (Cursor + OpenAI)</span>
-                            </div>
-                            <div class="feature-item">
-                                <span class="feature-check">✅</span>
-                                <span>Vehicle Creation System (50+ manufacturers)</span>
-                            </div>
-                            <div class="feature-item">
-                                <span class="feature-check">✅</span>
-                                <span>Weapon Blueprint Generator</span>
-                            </div>
-                            <div class="feature-item">
-                                <span class="feature-check">✅</span>
-                                <span>Multi-Engine Support (Unity, Unreal, Web)</span>
-                            </div>
-                            <div class="feature-item">
-                                <span class="feature-check">✅</span>
-                                <span>Autonomous Development Mode</span>
-                            </div>
-                            <div class="feature-item">
-                                <span class="feature-check">✅</span>
-                                <span>Enterprise Security & Protection</span>
-                            </div>
-                            <div class="feature-item">
-                                <span class="feature-check">✅</span>
-                                <span>Complete Documentation</span>
-                            </div>
-                            <div class="feature-item">
-                                <span class="feature-check">✅</span>
-                                <span>Setup Scripts & Tools</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="installation-guide">
-                    <h3>🚀 Quick Start Installation</h3>
-
-                    <div class="install-steps">
-                        <div class="install-step">
-                            <div class="step-number">1</div>
-                            <div class="step-content">
-                                <h4>Download & Extract</h4>
-                                <p>Download ShadowWatchAI-Software.zip and extract it to your game project root directory.</p>
-                                <div class="code-snippet">YourGameProject/<br>└── ShadowWatchAI-Software/  ← Extract here</div>
-                            </div>
-                        </div>
-
-                        <div class="install-step">
-                            <div class="step-number">2</div>
-                            <div class="step-content">
-                                <h4>Install Dependencies</h4>
-                                <p>Open command prompt in the ShadowWatchAI-Software folder and run:</p>
-                                <div class="code-snippet">cd ShadowWatchAI-Software<br>npm install</div>
-                            </div>
-                        </div>
-
-                        <div class="install-step">
-                            <div class="step-number">3</div>
-                            <div class="step-content">
-                                <h4>Start AI Server</h4>
-                                <p>Double-click Start-ShadowWatchAI.bat (Windows) or run:</p>
-                                <div class="code-snippet">node scripts/start-server.js</div>
-                            </div>
-                        </div>
-
-                        <div class="install-step">
-                            <div class="step-number">4</div>
-                            <div class="step-content">
-                                <h4>Launch Control Panel</h4>
-                                <p>Open your browser and navigate to:</p>
-                                <div class="code-snippet">http://localhost:8080/cursor-control.html</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="system-requirements">
-                    <h3>💻 System Requirements</h3>
-                    <div class="requirements-grid">
-                        <div class="requirement-card">
-                            <h4>Minimum Requirements</h4>
-                            <ul>
-                                <li>Node.js 16+ installed</li>
-                                <li>4GB RAM</li>
-                                <li>2GB free disk space</li>
-                                <li>Modern web browser</li>
-                                <li>Internet connection</li>
-                            </ul>
-                        </div>
-
-                        <div class="requirement-card">
-                            <h4>Recommended</h4>
-                            <ul>
-                                <li>Node.js 18+ LTS</li>
-                                <li>8GB RAM</li>
-                                <li>SSD storage</li>
-                                <li>Chrome/Edge/Firefox</li>
-                                <li>Stable internet (for AI APIs)</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="support-links">
-                    <h3>🆘 Need Help?</h3>
-                    <div class="support-grid">
-                        <a href="documentation.html" class="support-link">
-                            <span class="support-icon">📚</span>
-                            <span>Complete Documentation</span>
-                        </a>
-                        <a href="mailto:support@shadowwatch-ai.com" class="support-link">
-                            <span class="support-icon">📧</span>
-                            <span>Email Support</span>
-                        </a>
-                        <a href="https://forum.shadowwatch-ai.com" target="_blank" class="support-link">
-                            <span class="support-icon">💬</span>
-                            <span>Community Forum</span>
-                        </a>
-                        <a href="cursor-control.html" class="support-link">
-                            <span class="support-icon">🚀</span>
-                            <span>Launch AI Control</span>
-                        </a>
-                    </div>
-                </div>
+            <!-- Download Access Check - This will be populated by JavaScript -->
+            <div id="downloadAccessContent">
+                <!-- Content will be dynamically loaded based on authentication/subscription status -->
             </div>
         </section>
 
@@ -829,188 +645,17 @@
             </div>
 
             <div class="subscription-content">
-                <!-- Important Disclosure -->
-                <div class="disclosure-banner">
-                    <div class="disclosure-icon">⚠️</div>
-                    <div class="disclosure-content">
-                        <h3>Important Subscription Disclosure</h3>
-                        <p><strong>ShadowWatch AI requires active subscription payments to remain operational.</strong> Without ongoing subscription revenue, our AI development servers, API integrations, and continuous development capabilities will be suspended. Subscribe now to ensure uninterrupted access to the most advanced gaming AI system available.</p>
-                        <div class="disclosure-highlights">
-                            <div class="highlight-item">
-                                <span class="highlight-icon">🖥️</span>
-                                <span>Server maintenance & hosting costs</span>
-                            </div>
-                            <div class="highlight-item">
-                                <span class="highlight-icon">🤖</span>
-                                <span>AI API usage (Cursor + OpenAI)</span>
-                            </div>
-                            <div class="highlight-item">
-                                <span class="highlight-icon">⚡</span>
-                                <span>Continuous development & updates</span>
-                            </div>
-                            <div class="highlight-item">
-                                <span class="highlight-icon">🛡️</span>
-                                <span>Security monitoring & protection</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Subscription Plans -->
-                <div class="subscription-plans">
-                    <h3>Choose Your Subscription Plan</h3>
-                    <div class="plans-grid">
-                        <div class="plan-card basic">
-                            <div class="plan-header">
-                                <h4>Basic Plan</h4>
-                                <div class="plan-price">
-                                    <span class="price">$9.99</span>
-                                    <span class="period">/month</span>
-                                </div>
-                            </div>
-                            <div class="plan-features">
-                                <ul>
-                                    <li>✅ Access to basic AI features</li>
-                                    <li>✅ Standard development support</li>
-                                    <li>✅ Community forum access</li>
-                                    <li>✅ Email support</li>
-                                    <li>❌ Advanced weapon creation</li>
-                                    <li>❌ 9500-hour autonomous mode</li>
-                                    <li>❌ Priority support</li>
-                                </ul>
-                            </div>
-                            <button class="plan-btn" onclick="subscribePlan('basic')">Subscribe Basic</button>
-                        </div>
-
-                        <div class="plan-card pro featured">
-                            <div class="plan-badge">Most Popular</div>
-                            <div class="plan-header">
-                                <h4>Pro Plan</h4>
-                                <div class="plan-price">
-                                    <span class="price">$29.99</span>
-                                    <span class="period">/month</span>
-                                </div>
-                            </div>
-                            <div class="plan-features">
-                                <ul>
-                                    <li>✅ All Basic features</li>
-                                    <li>✅ Advanced weapon & vehicle creation</li>
-                                    <li>✅ Full autonomous development</li>
-                                    <li>✅ Unity & Unreal Engine support</li>
-                                    <li>✅ Priority email support</li>
-                                    <li>✅ Owner project access</li>
-                                    <li>❌ 24/7 live support</li>
-                                </ul>
-                            </div>
-                            <button class="plan-btn featured" onclick="subscribePlan('pro')">Subscribe Pro</button>
-                        </div>
-
-                        <div class="plan-card enterprise">
-                            <div class="plan-header">
-                                <h4>Enterprise Plan</h4>
-                                <div class="plan-price">
-                                    <span class="price">$99.99</span>
-                                    <span class="period">/month</span>
-                                </div>
-                            </div>
-                            <div class="plan-features">
-                                <ul>
-                                    <li>✅ All Pro features</li>
-                                    <li>✅ 24/7 live phone support</li>
-                                    <li>✅ Custom AI model training</li>
-                                    <li>✅ Private API endpoints</li>
-                                    <li>✅ Dedicated account manager</li>
-                                    <li>✅ Custom integrations</li>
-                                    <li>✅ SLA guarantees</li>
-                                </ul>
-                            </div>
-                            <button class="plan-btn" onclick="subscribePlan('enterprise')">Subscribe Enterprise</button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Payment Methods -->
-                <div class="payment-section">
-                    <h3>Secure Payment Methods</h3>
-                    <div class="payment-methods">
-                        <div class="payment-method">
-                            <span class="payment-icon">💳</span>
-                            <span>Credit/Debit Cards</span>
-                        </div>
-                        <div class="payment-method">
-                            <span class="payment-icon">💰</span>
-                            <span>PayPal</span>
-                        </div>
-                        <div class="payment-method">
-                            <span class="payment-icon">₿</span>
-                            <span>Cryptocurrency</span>
-                        </div>
-                        <div class="payment-method">
-                            <span class="payment-icon">🏦</span>
-                            <span>Bank Transfer</span>
-                        </div>
-                    </div>
-
-                    <div class="payment-security">
-                        <div class="security-icon">🔒</div>
-                        <div class="security-text">
-                            <h4>256-bit SSL Encryption</h4>
-                            <p>Your payment information is protected by industry-leading security standards. We never store credit card details on our servers.</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Urgency Call-to-Action -->
-                <div class="urgency-banner">
-                    <div class="urgency-content">
-                        <h3>🚨 Act Now - Keep ShadowWatch AI Active!</h3>
-                        <p><strong>Without subscription revenue, ShadowWatch AI development will be suspended.</strong> Our servers require continuous funding to maintain the advanced AI capabilities that power your gaming projects.</p>
-                        <div class="urgency-stats">
-                            <div class="stat">
-                                <span class="stat-number">$500+</span>
-                                <span class="stat-label">Monthly server costs</span>
-                            </div>
-                            <div class="stat">
-                                <span class="stat-number">$200+</span>
-                                <span class="stat-label">AI API usage costs</span>
-                            </div>
-                            <div class="stat">
-                                <span class="stat-number">24/7</span>
-                                <span class="stat-label">Development uptime</span>
-                            </div>
-                        </div>
-                        <button class="urgency-btn" onclick="subscribePlan('pro')">Subscribe Now - Keep AI Alive</button>
-                    </div>
-                </div>
-
-                <!-- FAQ Section -->
-                <div class="subscription-faq">
-                    <h3>Frequently Asked Questions</h3>
-                    <div class="faq-grid">
-                        <div class="faq-item">
-                            <h4>What happens if I don't subscribe?</h4>
-                            <p>Without subscription revenue, we cannot maintain our AI development infrastructure. Access to advanced features, continuous development, and AI integrations will be suspended.</p>
-                        </div>
-                        <div class="faq-item">
-                            <h4>Can I cancel my subscription anytime?</h4>
-                            <p>Yes, you can cancel your subscription at any time. However, this will suspend access to premium features and autonomous development capabilities.</p>
-                        </div>
-                        <div class="faq-item">
-                            <h4>What do subscription fees cover?</h4>
-                            <p>Subscription fees cover server hosting, AI API usage (Cursor/OpenAI), continuous development, security monitoring, and maintenance of our advanced gaming AI system.</p>
-                        </div>
-                        <div class="faq-item">
-                            <h4>Is my payment information secure?</h4>
-                            <p>Absolutely. We use industry-standard 256-bit SSL encryption and never store credit card information on our servers. All payments are processed through secure third-party providers.</p>
-                        </div>
-                    </div>
+                <div class="subscription-locked">
+                    <div class="locked-icon">🔒</div>
+                    <h3>Subscription Required</h3>
+                    <p>You need an active subscription to access subscription management features.</p>
+                    <a href="/subscription" class="btn-primary">View Subscription Plans</a>
                 </div>
             </div>
         </section>
 
     </main>
 
-    <!-- Footer -->
     <footer class="footer">
         <div class="footer-content">
             <div class="footer-section">
@@ -1025,8 +670,7 @@
                 <ul>
                     <li><a href="#" onclick="switchTab('product')">Features</a></li>
                     <li><a href="#" onclick="switchTab('faq')">FAQ</a></li>
-                    <li><a href="implementation-guide.txt" target="_blank">Documentation</a></li>
-                    <li><a href="cursor-prompt.txt" target="_blank">Integration Help</a></li>
+                    <li><a href="documentation.html" target="_blank">Documentation</a></li>
                 </ul>
             </div>
             <div class="footer-section">
@@ -1034,8 +678,7 @@
                 <ul>
                     <li><a href="mailto:support@shadowwatch-ai.com">Email Support</a></li>
                     <li><a href="https://forum.shadowwatch-ai.com" target="_blank">Community</a></li>
-                    <li><a href="#" onclick="switchTab('buy')">Purchase</a></li>
-                    <li><a href="#" onclick="switchTab('keys')">License Keys</a></li>
+                    <li><a href="/subscription">Subscription</a></li>
                 </ul>
             </div>
             <div class="footer-section">
@@ -1044,7 +687,6 @@
                     <li><a href="#">Privacy Policy</a></li>
                     <li><a href="#">Terms of Service</a></li>
                     <li><a href="#">GDPR Compliance</a></li>
-                    <li><a href="#">License Agreement</a></li>
                 </ul>
             </div>
         </div>
