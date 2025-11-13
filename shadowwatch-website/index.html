@@ -660,10 +660,33 @@
                             </div>
                         </div>
 
-                        <a href="/download/ShadowWatchAI-Software.zip" class="download-btn" download>
+                        <a href="/download/ShadowWatchAI-Software.zip" class="download-btn" download onclick="trackDownload('ShadowWatchAI-Software.zip')">
                             <span class="download-icon">⬇️</span>
                             Download Now
                         </a>
+
+                        <div class="download-options">
+                            <h4>Additional Downloads</h4>
+                            <div class="download-links">
+                                <a href="/download/documentation.pdf" class="download-link" onclick="trackDownload('documentation.pdf')">
+                                    📄 Documentation PDF
+                                </a>
+                                <a href="/download/setup/windows" class="download-link" onclick="trackDownload('setup-windows.bat')">
+                                    🪟 Windows Setup Script
+                                </a>
+                                <a href="/download/setup/linux" class="download-link" onclick="trackDownload('setup-linux.sh')">
+                                    🐧 Linux Setup Script
+                                </a>
+                                <a href="/download/setup/macos" class="download-link" onclick="trackDownload('setup-macos.sh')">
+                                    🍎 macOS Setup Script
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="download-analytics">
+                            <button class="analytics-btn" onclick="showDownloadStats()">📊 View Download Statistics</button>
+                            <button class="analytics-btn" onclick="verifyDownload('ShadowWatchAI-Software.zip')" style="margin-left: 10px;">🔒 Verify Download</button>
+                        </div>
                     </div>
 
                     <div class="download-features">

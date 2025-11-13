@@ -17,6 +17,7 @@ import { fileURLToPath } from 'url';
 import session from 'express-session';
 import cookieParser from 'cookie-parser';
 import fs from 'fs';
+import crypto from 'crypto';
 
 // Cursor API Integration
 import CursorAPIIntegration from './cursor-api-integration.js';
@@ -578,64 +579,295 @@ class ShadowWatchWebsiteServer {
         });
 
         // ================================================
-        // DOWNLOAD ENDPOINTS
+        // ENHANCED DOWNLOAD SYSTEM
         // ================================================
 
-        // Serve ShadowWatchAI-Software.zip download
+        // Download analytics tracking
+        const downloadStats = {
+            totalDownloads: 0,
+            recentDownloads: [],
+            fileStats: {}
+        };
+
+        // Track download analytics
+        const trackDownload = (fileName, userAgent, ip) => {
+            downloadStats.totalDownloads++;
+            downloadStats.recentDownloads.unshift({
+                fileName,
+                timestamp: new Date().toISOString(),
+                userAgent: userAgent.substring(0, 100),
+                ip: ip.replace(/\.\d+$/, '.xxx') // Mask last octet for privacy
+            });
+
+            // Keep only last 100 downloads
+            if (downloadStats.recentDownloads.length > 100) {
+                downloadStats.recentDownloads = downloadStats.recentDownloads.slice(0, 100);
+            }
+
+            // Track file-specific stats
+            if (!downloadStats.fileStats[fileName]) {
+                downloadStats.fileStats[fileName] = { count: 0, lastDownloaded: null };
+            }
+            downloadStats.fileStats[fileName].count++;
+            downloadStats.fileStats[fileName].lastDownloaded = new Date().toISOString();
+
+            console.log(`📥 Download tracked: ${fileName} (${downloadStats.fileStats[fileName].count} total)`);
+        };
+
+        // Download tracking endpoint
+        this.app.post('/api/download/track', (req, res) => {
+            const { fileName, timestamp, userAgent, referrer } = req.body;
+
+            if (fileName) {
+                trackDownload(fileName, userAgent || req.get('User-Agent') || 'Unknown', req.ip);
+            }
+
+            res.json({ tracked: true, timestamp: new Date().toISOString() });
+        });
+
+        // Get download statistics
+        this.app.get('/api/download/stats', (req, res) => {
+            res.json({
+                totalDownloads: downloadStats.totalDownloads,
+                recentDownloads: downloadStats.recentDownloads.slice(0, 10),
+                fileStats: downloadStats.fileStats
+            });
+        });
+
+        // Enhanced ZIP download with progress and error handling
         this.app.get('/download/ShadowWatchAI-Software.zip', (req, res) => {
             try {
                 const zipPath = path.join(__dirname, 'download', 'ShadowWatchAI-Software.zip');
 
                 // Check if the ZIP file exists
-                if (fs.existsSync(zipPath)) {
-                    // Serve the actual ZIP file
-                    res.setHeader('Content-Type', 'application/zip');
-                    res.setHeader('Content-Disposition', 'attachment; filename="ShadowWatchAI-Software.zip"');
+                if (!fs.existsSync(zipPath)) {
+                    // Try to recreate the ZIP file
+                    console.log('ZIP file missing, attempting to recreate...');
+                    const softwarePath = path.join(__dirname, '..', 'ShadowWatchAI-Software');
+                    if (fs.existsSync(softwarePath)) {
+                        // Note: In production, this would use a proper ZIP library
+                        // For now, we'll create a placeholder
+                        console.log('Software directory exists, but ZIP recreation not implemented in this environment');
+                    }
 
-                    const fileStream = fs.createReadStream(zipPath);
-                    fileStream.pipe(res);
+                    return res.status(404).json({
+                        error: 'Download file not found',
+                        message: 'The ShadowWatchAI-Software.zip file is currently being prepared. Please try again in a few minutes or download from GitHub.',
+                        alternative: 'https://github.com/LilToreyFTW/ShadowWatchAI/tree/master/ShadowWatchAI-Software'
+                    });
+                }
 
-                    fileStream.on('error', (error) => {
-                        res.status(500).json({ error: 'File read error', details: error.message });
+                // Get file stats
+                const stats = fs.statSync(zipPath);
+                const fileSize = stats.size;
+
+                // Track the download
+                trackDownload('ShadowWatchAI-Software.zip', req.get('User-Agent') || 'Unknown', req.ip);
+
+                // Set headers for download
+                res.setHeader('Content-Type', 'application/zip');
+                res.setHeader('Content-Disposition', 'attachment; filename="ShadowWatchAI-Software.zip"');
+                res.setHeader('Content-Length', fileSize);
+                res.setHeader('Accept-Ranges', 'bytes');
+                res.setHeader('Cache-Control', 'no-cache');
+                res.setHeader('X-Download-Source', 'ShadowWatchAI-Server');
+
+                // Handle range requests for resumable downloads
+                const range = req.headers.range;
+                if (range) {
+                    const parts = range.replace(/bytes=/, '').split('-');
+                    const start = parseInt(parts[0], 10);
+                    const end = parts[1] ? parseInt(parts[1], 10) : fileSize - 1;
+                    const chunkSize = (end - start) + 1;
+
+                    res.status(206);
+                    res.setHeader('Content-Range', `bytes ${start}-${end}/${fileSize}`);
+                    res.setHeader('Content-Length', chunkSize);
+
+                    const stream = fs.createReadStream(zipPath, { start, end });
+                    stream.pipe(res);
+
+                    stream.on('error', (error) => {
+                        console.error('Range download error:', error);
+                        if (!res.headersSent) {
+                            res.status(500).json({ error: 'Range download failed', details: error.message });
+                        }
                     });
                 } else {
-                    // Fallback: create a placeholder message
-                    res.setHeader('Content-Type', 'application/zip');
-                    res.setHeader('Content-Disposition', 'attachment; filename="ShadowWatchAI-Software.zip"');
+                    // Regular download
+                    const stream = fs.createReadStream(zipPath);
 
-                    const downloadMessage = `
-ShadowWatchAI-Software Package
-=============================
+                    stream.on('open', () => {
+                        stream.pipe(res);
+                    });
 
-This is a placeholder for the ShadowWatchAI-Software.zip download.
+                    stream.on('error', (error) => {
+                        console.error('Download error:', error);
+                        if (!res.headersSent) {
+                            res.status(500).json({ error: 'Download failed', details: error.message });
+                        }
+                    });
 
-The actual ZIP file is not available at this time. Please visit the
-GitHub repository to download the ShadowWatchAI-Software folder directly.
-
-Contents should include:
-- core/server.js (AI server)
-- core/cursor-api-integration.js (AI integration)
-- models/ (generated assets directory)
-- scripts/start-server.js (startup script)
-- scripts/setup.js (setup script)
-- config/default-config.json (configuration)
-- docs/README.md (documentation)
-- docs/setup-guide.md (setup guide)
-- Start-ShadowWatchAI.bat (Windows launcher)
-- package.json (dependencies)
-- index.html (landing page)
-
-For installation instructions, visit: /documentation.html
-
-Generated on: ${new Date().toISOString()}
-Version: 1.0.0
-                    `;
-
-                    res.send(downloadMessage);
+                    stream.on('end', () => {
+                        console.log('✅ Download completed successfully');
+                    });
                 }
 
             } catch (error) {
-                res.status(500).json({ error: 'Download failed', details: error.message });
+                console.error('Download endpoint error:', error);
+                res.status(500).json({
+                    error: 'Download service error',
+                    details: error.message,
+                    timestamp: new Date().toISOString()
+                });
+            }
+        });
+
+        // Download individual components
+        this.app.get('/download/component/:component', (req, res) => {
+            const component = req.params.component;
+            const allowedComponents = ['core', 'models', 'scripts', 'docs', 'config'];
+
+            if (!allowedComponents.includes(component)) {
+                return res.status(400).json({ error: 'Invalid component requested' });
+            }
+
+            try {
+                const componentPath = path.join(__dirname, '..', 'ShadowWatchAI-Software', component);
+
+                if (!fs.existsSync(componentPath)) {
+                    return res.status(404).json({ error: 'Component not found' });
+                }
+
+                // Create a ZIP of the component
+                const zipFileName = `ShadowWatchAI-${component}.zip`;
+                const zipPath = path.join(__dirname, 'download', zipFileName);
+
+                // For now, return the component as a directory listing
+                // In production, this would create a ZIP of the specific component
+                const items = fs.readdirSync(componentPath);
+                const componentData = {
+                    component,
+                    items,
+                    downloadUrl: `/download/${zipFileName}`,
+                    note: 'Component ZIP creation not implemented in demo environment'
+                };
+
+                res.json(componentData);
+
+            } catch (error) {
+                res.status(500).json({ error: 'Component download failed', details: error.message });
+            }
+        });
+
+        // Download documentation as PDF (placeholder)
+        this.app.get('/download/documentation.pdf', (req, res) => {
+            // In production, this would generate a PDF from the documentation
+            res.setHeader('Content-Type', 'application/pdf');
+            res.setHeader('Content-Disposition', 'attachment; filename="ShadowWatchAI-Documentation.pdf"');
+
+            const pdfContent = `
+ShadowWatch AI Documentation
+============================
+
+This is a placeholder PDF download.
+In production, this would contain the complete documentation
+in PDF format for offline reading.
+
+For now, please visit: /documentation.html
+
+Generated: ${new Date().toISOString()}
+            `;
+
+            res.send(pdfContent);
+        });
+
+        // Download setup script for different platforms
+        this.app.get('/download/setup/:platform', (req, res) => {
+            const platform = req.params.platform;
+            const supportedPlatforms = ['windows', 'linux', 'macos'];
+
+            if (!supportedPlatforms.includes(platform)) {
+                return res.status(400).json({ error: 'Unsupported platform' });
+            }
+
+            // Create platform-specific setup script
+            let scriptContent = '';
+            let fileName = '';
+
+            switch (platform) {
+                case 'windows':
+                    scriptContent = `@echo off
+echo Setting up ShadowWatch AI for Windows...
+echo.
+echo This script will:
+echo 1. Install Node.js dependencies
+echo 2. Configure environment
+echo 3. Start the AI server
+echo.
+pause
+npm install
+if %errorlevel% neq 0 exit /b %errorlevel%
+copy .env.example .env
+echo Please edit .env file with your API keys
+node scripts/start-server.js
+                    `;
+                    fileName = 'setup-windows.bat';
+                    res.setHeader('Content-Type', 'application/x-bat');
+                    break;
+
+                case 'linux':
+                case 'macos':
+                    scriptContent = `#!/bin/bash
+echo "Setting up ShadowWatch AI for ${platform}..."
+echo ""
+echo "This script will:"
+echo "1. Install Node.js dependencies"
+echo "2. Configure environment"
+echo "3. Start the AI server"
+echo ""
+read -p "Press Enter to continue..."
+npm install
+if [ $? -ne 0 ]; then exit 1; fi
+cp .env.example .env 2>/dev/null || echo "Please create .env file with your API keys"
+echo "Please edit .env file with your API keys"
+node scripts/start-server.js
+                    `;
+                    fileName = `setup-${platform}.sh`;
+                    res.setHeader('Content-Type', 'application/x-shellscript');
+                    break;
+            }
+
+            res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
+            res.send(scriptContent);
+        });
+
+        // File integrity check endpoint
+        this.app.get('/api/download/verify/:filename', (req, res) => {
+            const filename = req.params.filename;
+            const filePath = path.join(__dirname, 'download', filename);
+
+            if (!fs.existsSync(filePath)) {
+                return res.status(404).json({ error: 'File not found' });
+            }
+
+            try {
+                const stats = fs.statSync(filePath);
+
+                // Calculate file hash
+                const fileBuffer = fs.readFileSync(filePath);
+                const hash = crypto.createHash('sha256').update(fileBuffer).digest('hex');
+
+                res.json({
+                    filename,
+                    size: stats.size,
+                    modified: stats.mtime.toISOString(),
+                    sha256: hash,
+                    verified: true
+                });
+
+            } catch (error) {
+                res.status(500).json({ error: 'Verification failed', details: error.message });
             }
         });
 

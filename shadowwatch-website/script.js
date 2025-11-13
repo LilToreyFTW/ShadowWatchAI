@@ -490,6 +490,100 @@ Next steps:
 (Note: This is a demo. In production, this would integrate with a real payment processor like Stripe, PayPal, or cryptocurrency payment system.)`);
         }
     };
+
+    // Download tracking and progress functionality
+    window.trackDownload = function(fileName) {
+        console.log(`📥 Tracking download: ${fileName}`);
+
+        // Send analytics to server (if available)
+        fetch('/api/download/track', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                fileName,
+                timestamp: new Date().toISOString(),
+                userAgent: navigator.userAgent,
+                referrer: document.referrer
+            })
+        }).catch(err => console.log('Analytics tracking failed:', err));
+
+        // Show download progress notification
+        showDownloadNotification(fileName);
+    };
+
+    function showDownloadNotification(fileName) {
+        const notification = document.createElement('div');
+        notification.className = 'download-notification';
+        notification.innerHTML = `
+            <div class="notification-content">
+                <div class="notification-icon">⬇️</div>
+                <div class="notification-text">
+                    <h4>Download Started</h4>
+                    <p>${fileName} is being downloaded to your device.</p>
+                </div>
+                <button class="notification-close" onclick="this.parentElement.parentElement.remove()">×</button>
+            </div>
+        `;
+
+        document.body.appendChild(notification);
+
+        // Auto-remove after 5 seconds
+        setTimeout(() => {
+            if (notification.parentElement) {
+                notification.remove();
+            }
+        }, 5000);
+    }
+
+    // File verification function
+    window.verifyDownload = async function(fileName) {
+        try {
+            const response = await fetch(`/api/download/verify/${fileName}`);
+            const data = await response.json();
+
+            if (response.ok) {
+                alert(`✅ File Verification Successful!\n\n📄 File: ${data.filename}\n📏 Size: ${(data.size / 1024 / 1024).toFixed(2)} MB\n🔒 SHA256: ${data.sha256.substring(0, 16)}...\n⏰ Modified: ${new Date(data.modified).toLocaleString()}`);
+            } else {
+                alert(`❌ Verification failed: ${data.error}`);
+            }
+        } catch (error) {
+            alert(`❌ Verification error: ${error.message}`);
+        }
+    };
+
+    // Component download function
+    window.downloadComponent = async function(component) {
+        try {
+            const response = await fetch(`/download/component/${component}`);
+            const data = await response.json();
+
+            if (response.ok) {
+                alert(`📦 Component: ${data.component}\n📂 Items: ${data.items.join(', ')}\n\n${data.note}\n\nDownload URL: ${data.downloadUrl}`);
+            } else {
+                alert(`❌ Component download failed: ${data.error}`);
+            }
+        } catch (error) {
+            alert(`❌ Component download error: ${error.message}`);
+        }
+    };
+
+    // Download statistics viewer
+    window.showDownloadStats = async function() {
+        try {
+            const response = await fetch('/api/download/stats');
+            const stats = await response.json();
+
+            if (response.ok) {
+                const statsMessage = `📊 Download Statistics\n\n📈 Total Downloads: ${stats.totalDownloads}\n\n📁 File Statistics:\n${Object.entries(stats.fileStats).map(([file, data]) => `${file}: ${data.count} downloads`).join('\n')}\n\n🕐 Recent Downloads:\n${stats.recentDownloads.slice(0, 3).map(d => `${d.fileName} - ${new Date(d.timestamp).toLocaleString()}`).join('\n')}`;
+
+                alert(statsMessage);
+            } else {
+                alert(`❌ Failed to load statistics: ${stats.error}`);
+            }
+        } catch (error) {
+            alert(`❌ Statistics error: ${error.message}`);
+        }
+    };
 });
 
 // Handle browser back/forward navigation
