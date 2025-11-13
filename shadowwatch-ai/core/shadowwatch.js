@@ -729,6 +729,27 @@ class ShadowWatchAI {
         this.log('info', 'ShadowWatch AI shutdown complete');
     }
 
+    getAIStatus() {
+        return {
+            activeAgents: this.aiAgents.size,
+            processedDecisions: this.gameWorld.ai.processedDecisions,
+            autonomousTasks: this.gameWorld.ai.autonomousTasks,
+            worldStatus: this.getWorldStatus(),
+            developmentProgress: this.getDevelopmentProgress()
+        };
+    }
+
+    getWorldStatus() {
+        return {
+            zones: this.gameWorld.zones.length,
+            entities: this.gameWorld.zones.reduce((total, zone) => total + zone.entities.size, 0),
+            players: this.players.size,
+            npcs: this.npcs ? this.npcs.size : 0,
+            weather: this.gameWorld.weather,
+            time: this.gameWorld.time
+        };
+    }
+
     // #endregion
 }
 

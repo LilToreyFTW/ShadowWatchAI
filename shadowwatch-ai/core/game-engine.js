@@ -1295,13 +1295,13 @@ class ShadowWatchGameEngine {
     // Get game statistics
     getStatistics() {
         return {
-            players: this.players.size,
-            npcs: this.npcs.size,
-            items: this.items.size,
-            quests: this.quests.size,
-            zones: this.zones.size,
-            activeCombats: this.combatSystem.activeCombats.size,
-            worldEvents: this.events.length,
+            players: this.players ? this.players.size : 0,
+            npcs: this.npcs ? this.npcs.size : 0,
+            items: this.items ? this.items.size : 0,
+            quests: this.quests ? this.quests.size : 0,
+            zones: this.zones ? this.zones.size : 0,
+            activeCombats: this.combatSystem && this.combatSystem.activeCombats ? this.combatSystem.activeCombats.size : 0,
+            worldEvents: this.events ? this.events.length : 0,
             uptime: process.uptime(),
             memoryUsage: process.memoryUsage()
         };

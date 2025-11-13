@@ -12,6 +12,7 @@
     "start": "node game-runner.js",
     "game": "node game-runner.js",
     "dev": "node game-runner.js",
+    "demo": "node demo.js",
     "server": "node deployment/server.js",
     "test": "jest tests/*.test.js --coverage",
     "test:e2e": "cypress run --spec tests/tutorial-flow.cy.js",

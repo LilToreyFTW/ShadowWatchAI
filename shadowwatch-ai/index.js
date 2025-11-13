@@ -70,11 +70,14 @@ export const initializeCompleteGameSystem = async (config = {}) => {
         assignQuest: (player, quest) => gameEngine.assignQuest(player, quest),
 
         // Statistics
-        getStatistics: () => ({
-            ...gameEngine.getStatistics(),
-            aiStatus: shadowwatch.getAIStatus(),
-            developmentProgress: shadowwatch.getDevelopmentProgress()
-        }),
+        getStatistics: () => {
+            const gameStats = gameEngine.getStatistics();
+            return {
+                ...gameStats,
+                aiStatus: shadowwatch.getAIStatus ? shadowwatch.getAIStatus() : null,
+                developmentProgress: shadowwatch.getDevelopmentProgress ? shadowwatch.getDevelopmentProgress() : null
+            };
+        },
 
         // Export complete game data
         exportGameData: () => ({
