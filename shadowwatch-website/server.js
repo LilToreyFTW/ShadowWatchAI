@@ -2161,10 +2161,22 @@ node scripts/start-server.js
     }
 }
 
-// Start the server if called directly
-if (import.meta.url === `file://${process.argv[1]}`) {
+// For Vercel deployment, create and export the app
+if (process.env.VERCEL) {
+    console.log('🚀 ShadowWatch AI initializing for Vercel deployment');
+    const server = new ShadowWatchWebsiteServer();
+    server.setupMiddleware();
+    server.setupRoutes();
+    server.setupCursorAPIRoutes();
+    server.setupAPIProxy();
+    server.setupErrorHandling();
+
+    // Export the Express app for Vercel
+    export default server.app;
+} else {
+    // Local development
     const server = new ShadowWatchWebsiteServer();
     server.start();
 }
 
-export default ShadowWatchWebsiteServer;
+export { ShadowWatchWebsiteServer };
