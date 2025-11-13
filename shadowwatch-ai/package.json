@@ -1,0 +1,93 @@
+{
+  "name": "shadowwatch-ai",
+  "version": "1.0.0",
+  "description": "Ethical AI monitoring and guidance system for browser MMORPGs",
+  "main": "core/shadowwatch.js",
+  "type": "module",
+  "scripts": {
+    "start": "node deployment/server.js",
+    "dev": "node deployment/server.js",
+    "test": "jest tests/*.test.js --coverage",
+    "test:e2e": "cypress run --spec tests/tutorial-flow.cy.js",
+    "lint": "eslint core/*.js tests/*.js deployment/*.js",
+    "deploy": "node deployment/deploy.js",
+    "migrate": "psql -f database/shadowwatch_schema.sql",
+    "health": "curl -s http://localhost:3000/api/health | jq .",
+    "admin": "curl -s http://localhost:3000/api/admin/shadowwatch | jq .",
+    "docs": "node -e \"console.log('📚 ShadowWatch AI Documentation: https://github.com/shadowwatch-ai/docs')\""
+  },
+  "keywords": [
+    "ai",
+    "gaming",
+    "monitoring",
+    "ethical-ai",
+    "mmorpg",
+    "privacy",
+    "gdpr",
+    "real-time",
+    "websocket",
+    "tutorial-system"
+  ],
+  "author": "ShadowWatch AI Team",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  },
+  "dependencies": {
+    "pg": "^8.11.3",
+    "redis": "^4.6.10",
+    "socket.io": "^4.7.4",
+    "node-cron": "^3.0.3",
+    "crypto": "^1.0.1",
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "helmet": "^7.1.0",
+    "compression": "^1.7.4",
+    "dotenv": "^16.3.1"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "cypress": "^13.6.0",
+    "eslint": "^8.54.0",
+    "prettier": "^3.1.0",
+    "@types/node": "^20.9.0",
+    "@types/pg": "^8.10.2",
+    "@types/redis": "^4.0.11"
+  },
+  "peerDependencies": {
+    "socket.io-client": "^4.7.4"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/shadowwatch-ai/shadowwatch-ai.git"
+  },
+  "bugs": {
+    "url": "https://github.com/shadowwatch-ai/shadowwatch-ai/issues"
+  },
+  "homepage": "https://shadowwatch-ai.com",
+  "jest": {
+    "testEnvironment": "node",
+    "collectCoverageFrom": [
+      "core/**/*.js",
+      "deployment/server.js",
+      "!tests/**"
+    ],
+    "coverageThreshold": {
+      "global": {
+        "branches": 80,
+        "functions": 80,
+        "lines": 80,
+        "statements": 80
+      }
+    }
+  },
+  "cypress": {
+    "baseUrl": "http://localhost:3000",
+    "video": false,
+    "screenshotOnRunFailure": true,
+    "defaultCommandTimeout": 10000,
+    "requestTimeout": 15000,
+    "responseTimeout": 15000
+  }
+}

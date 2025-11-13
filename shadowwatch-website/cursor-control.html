@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cursor AI Control - ShadowWatch AI Development</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Orbitron:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🤖</text></svg>">
+    <style>
+        .cursor-control {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .control-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .control-title {
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--moon-accent);
+            margin-bottom: 1rem;
+            font-family: 'Orbitron', monospace;
+        }
+
+        .control-subtitle {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        .control-grid {
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .control-panel {
+            background: rgba(30, 58, 138, 0.3);
+            border: 1px solid rgba(6, 182, 212, 0.2);
+            border-radius: 1rem;
+            padding: 2rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .panel-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .command-section {
+            margin-bottom: 2rem;
+        }
+
+        .command-input {
+            width: 100%;
+            padding: 1rem;
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(6, 182, 212, 0.3);
+            border-radius: 0.5rem;
+            color: var(--text-primary);
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1rem;
+            margin-bottom: 1rem;
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .command-input:focus {
+            outline: none;
+            border-color: var(--moon-accent);
+            box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.1);
+        }
+
+        .command-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .agents-list {
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .agent-item {
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(6, 182, 212, 0.2);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .agent-item:hover {
+            border-color: var(--moon-accent);
+            transform: translateY(-2px);
+        }
+
+        .agent-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .agent-id {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.875rem;
+            color: var(--moon-accent);
+            font-weight: 600;
+        }
+
+        .agent-status {
+            padding: 0.25rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .agent-status.finished { background: #10b981; color: white; }
+        .agent-status.running { background: #f59e0b; color: white; }
+        .agent-status.failed { background: #ef4444; color: white; }
+        .agent-status.creating { background: #8b5cf6; color: white; }
+
+        .agent-name {
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .agent-summary {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .agent-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn-sm {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            border-radius: 0.25rem;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .btn-sm:hover {
+            transform: translateY(-1px);
+        }
+
+        .stats-panel {
+            background: rgba(30, 58, 138, 0.3);
+            border: 1px solid rgba(6, 182, 212, 0.2);
+            border-radius: 1rem;
+            padding: 2rem;
+            backdrop-filter: blur(10px);
+            height: fit-content;
+        }
+
+        .stats-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid rgba(6, 182, 212, 0.1);
+        }
+
+        .stats-item:last-child {
+            border-bottom: none;
+        }
+
+        .stats-label {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        .stats-value {
+            color: var(--text-primary);
+            font-weight: 600;
+            font-family: 'Orbitron', monospace;
+        }
+
+        .conversation-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+            display: none;
+            z-index: 1000;
+            padding: 2rem;
+        }
+
+        .conversation-content {
+            background: var(--moon-dark);
+            border: 1px solid var(--moon-accent);
+            border-radius: 1rem;
+            padding: 2rem;
+            max-width: 800px;
+            max-height: 80vh;
+            margin: 0 auto;
+            overflow-y: auto;
+        }
+
+        .conversation-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .conversation-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .conversation-messages {
+            max-height: 400px;
+            overflow-y: auto;
+            margin-bottom: 1.5rem;
+        }
+
+        .message {
+            margin-bottom: 1rem;
+            padding: 1rem;
+            border-radius: 0.5rem;
+        }
+
+        .message.user {
+            background: rgba(59, 130, 246, 0.1);
+            border-left: 4px solid var(--moon-secondary);
+        }
+
+        .message.assistant {
+            background: rgba(6, 182, 212, 0.1);
+            border-left: 4px solid var(--moon-accent);
+        }
+
+        .message-type {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+        }
+
+        .message-text {
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(6, 182, 212, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--moon-accent);
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 0.5rem;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .alert {
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        .alert.success {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid #10b981;
+            color: #10b981;
+        }
+
+        .alert.error {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid #ef4444;
+            color: #ef4444;
+        }
+
+        .alert.info {
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid #3b82f6;
+            color: #3b82f6;
+        }
+
+        @media (max-width: 1024px) {
+            .control-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-panel {
+                order: -1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .cursor-control {
+                padding: 1rem;
+            }
+
+            .control-title {
+                font-size: 2rem;
+            }
+
+            .command-buttons {
+                grid-template-columns: 1fr;
+            }
+
+            .agent-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Back to Main Site -->
+    <nav class="nav-container" style="position: relative; margin-bottom: 2rem;">
+        <div class="nav-content">
+            <div class="logo">
+                <div class="logo-moon">🤖</div>
+                <span class="logo-text">Cursor AI Control</span>
+            </div>
+            <div class="nav-tabs">
+                <a href="/" class="nav-link" style="text-decoration: none; color: var(--text-secondary); padding: 0.5rem 1rem; border-radius: 0.5rem; border: 1px solid rgba(6, 182, 212, 0.2); transition: all 0.3s ease;">← Back to Site</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="cursor-control">
+        <div class="control-header">
+            <h1 class="control-title">Cursor AI Control Panel</h1>
+            <p class="control-subtitle">
+                Full programmatic control over ShadowWatch AI development using Cursor Cloud Agents.
+                Launch agents, track progress, and manage the entire development lifecycle.
+            </p>
+        </div>
+
+        <!-- Alerts -->
+        <div id="alerts"></div>
+
+        <!-- AI PROVIDER CONFIGURATION -->
+        <div class="control-grid" style="margin-bottom: 2rem;">
+            <div class="control-panel">
+                <h3 class="panel-title">🤖 AI Provider Configuration</h3>
+
+                <!-- Cursor AI Configuration -->
+                <div style="margin-bottom: 1.5rem;">
+                    <h4 style="margin: 0 0 0.5rem 0; color: var(--moon-accent); font-size: 0.875rem;">🖱️ Cursor AI</h4>
+                    <p style="margin: 0 0 0.5rem 0; color: var(--text-secondary); font-size: 0.75rem;">
+                        Use Cursor AI for GitHub-integrated development with pull requests
+                    </p>
+                    <div style="display: flex; gap: 0.5rem; align-items: center;">
+                        <input type="radio" id="use-cursor" name="ai-provider" value="cursor" checked onchange="toggleAIProvider(false)">
+                        <label for="use-cursor" style="font-size: 0.75rem;">Use Cursor AI</label>
+                        <div id="cursor-status" class="status-indicator" style="width: 8px; height: 8px; border-radius: 50%; background: var(--text-secondary);"></div>
+                    </div>
+                </div>
+
+                <!-- OpenAI Configuration -->
+                <div style="margin-bottom: 1.5rem;">
+                    <h4 style="margin: 0 0 0.5rem 0; color: var(--moon-accent); font-size: 0.875rem;">🧠 OpenAI GPT</h4>
+                    <p style="margin: 0 0 0.5rem 0; color: var(--text-secondary); font-size: 0.75rem;">
+                        Use OpenAI GPT models for direct AI-powered development
+                    </p>
+                    <div style="display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.5rem;">
+                        <input type="radio" id="use-openai" name="ai-provider" value="openai" onchange="toggleAIProvider(true)">
+                        <label for="use-openai" style="font-size: 0.75rem;">Use OpenAI</label>
+                        <div id="openai-status" class="status-indicator" style="width: 8px; height: 8px; border-radius: 50%; background: var(--text-secondary);"></div>
+                    </div>
+
+                    <div style="margin-bottom: 0.5rem;">
+                        <input type="password" id="openai-api-key" placeholder="sk-..." style="width: 100%; padding: 0.5rem; background: var(--moon-dark); border: 1px solid var(--moon-accent); border-radius: var(--radius-sm); color: var(--text-primary); font-size: 0.75rem;" />
+                    </div>
+
+                    <div style="display: flex; gap: 0.5rem;">
+                        <button class="btn-secondary" onclick="setOpenAIKey()" style="font-size: 0.75rem; padding: 0.25rem 0.5rem;">Set Key</button>
+                        <button class="btn-secondary" onclick="testOpenAIConnection()" style="font-size: 0.75rem; padding: 0.25rem 0.5rem;">Test</button>
+                        <select id="openai-model" style="font-size: 0.75rem; padding: 0.25rem; background: var(--moon-dark); border: 1px solid var(--moon-accent); border-radius: var(--radius-sm); color: var(--text-primary);">
+                            <option value="gpt-4o">GPT-4o (Recommended)</option>
+                            <option value="gpt-4o-mini">GPT-4o Mini</option>
+                            <option value="gpt-4-turbo">GPT-4 Turbo</option>
+                            <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Current Provider Status -->
+                <div style="padding: 0.75rem; background: var(--moon-dark); border-radius: var(--radius-md); border: 1px solid var(--moon-accent);">
+                    <div style="font-size: 0.75rem;">
+                        <strong style="color: var(--moon-accent);">Current AI Provider:</strong>
+                        <span id="current-provider">Cursor AI</span>
+                    </div>
+                    <div style="font-size: 0.7rem; color: var(--text-secondary); margin-top: 0.25rem;">
+                        <div>Cursor AI: <span id="cursor-config-status">Not Configured</span></div>
+                        <div>OpenAI: <span id="openai-config-status">Not Configured</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="control-grid">
+            <!-- Main Control Panel -->
+            <div class="control-panel">
+                <div class="command-section">
+                    <h3 class="panel-title">🚀 Launch New Agent</h3>
+
+                    <!-- Model Selection -->
+                    <div style="margin-bottom: 1rem;">
+                        <label style="display: block; margin-bottom: 0.5rem; color: var(--text-secondary); font-size: 0.875rem;">
+                            🤖 AI Model:
+                        </label>
+                        <select id="modelSelect" class="command-input" style="height: auto; padding: 0.5rem; font-size: 0.875rem;">
+                            <option value="AUTO">AUTO (Recommended - Cursor picks best)</option>
+                            <option value="grok-code">Grok Code (When available)</option>
+                            <option value="claude-4-sonnet-thinking">Claude 4 Sonnet Thinking</option>
+                            <option value="o3">O3</option>
+                            <option value="claude-4-opus-thinking">Claude 4 Opus Thinking</option>
+                        </select>
+                        <div id="modelStatus" style="margin-top: 0.5rem; font-size: 0.75rem; color: var(--moon-accent);">
+                            🔄 Checking available models...
+                        </div>
+                    </div>
+
+                    <textarea
+                        id="agentPrompt"
+                        class="command-input"
+                        placeholder="Describe what you want the Cursor agent to do for ShadowWatch AI development..."
+                        rows="4"></textarea>
+
+                    <div class="command-buttons">
+                        <button class="btn-primary" onclick="launchCustomAgent()">Launch Custom Agent</button>
+                        <button class="btn-secondary" onclick="launchFeatureAgent()">Develop Feature</button>
+                        <button class="btn-secondary" onclick="launchBugFixAgent()">Fix Bug</button>
+                        <button class="btn-secondary" onclick="launchPerformanceAgent()">Optimize Performance</button>
+                    </div>
+                </div>
+
+                <div class="command-section">
+                    <h3 class="panel-title">⚡ Quick Commands</h3>
+                    <div class="command-buttons">
+                        <button class="btn-secondary" onclick="launchTestAgent()">Add Tests</button>
+                        <button class="btn-secondary" onclick="launchRefactorAgent()">Refactor Code</button>
+                        <button class="btn-secondary" onclick="launchDocsAgent()">Update Docs</button>
+                        <button class="btn-secondary" onclick="monitorAgents()">Monitor Agents</button>
+                    </div>
+                </div>
+
+                <!-- AUTONOMOUS DEVELOPMENT SECTION -->
+                <div class="command-section">
+                    <h3 class="panel-title">🤖 Autonomous Development Kit</h3>
+                    <p style="margin-bottom: 1rem; color: var(--text-secondary); font-size: 0.875rem;">
+                        Enable AI to automatically detect game files and continuously develop your game
+                    </p>
+
+                    <div class="command-buttons">
+                        <button id="enableAutoBtn" class="btn-primary" onclick="enableAutonomousMode()" style="background: linear-gradient(135deg, #10b981, #059669);">
+                            🚀 Enable Auto Development
+                        </button>
+                        <button id="enableUltraBtn" class="btn-primary" onclick="enableUltraMaximumAutonomousMode()" style="background: linear-gradient(135deg, #ff6b35, #f7931e); font-weight: bold; animation: pulse 2s infinite;">
+                            🚀🚀🚀 ENABLE ULTRA-MAXIMUM 9500H MODE 🚀🚀🚀
+                        </button>
+                        <div style="margin-top: 1rem; padding: 1rem; background: var(--moon-dark); border-radius: var(--radius-md); border: 1px solid var(--moon-accent);">
+                            <h4 style="margin: 0 0 0.5rem 0; color: var(--moon-accent);">🛡️ AI PROTECTION & LANGUAGE RESTRICTIONS</h4>
+                            <div style="font-size: 0.75rem; color: var(--text-secondary);">
+                                <div style="margin-bottom: 0.5rem;">
+                                    <strong style="color: var(--moon-accent);">🚫 PROTECTED FILES:</strong> AI cannot touch ShadowWatch AI system files
+                                </div>
+                                <div style="margin-bottom: 0.5rem;">
+                                    <strong style="color: var(--moon-accent);">✅ ALLOWED LANGUAGES:</strong>
+                                    <ul style="margin: 0.25rem 0; padding-left: 1rem;">
+                                        <li><strong>C#</strong> - Unity Engine projects</li>
+                                        <li><strong>C++</strong> - Unreal Engine projects</li>
+                                        <li><strong>TypeScript</strong> - Web-based games</li>
+                                        <li><strong>JavaScript</strong> - Web-based games</li>
+                                        <li><strong>HTML</strong> - ONLY webpage-based MMO games</li>
+                                    </ul>
+                                </div>
+                                <div style="color: var(--moon-accent); font-weight: bold;">
+                                    ⚠️ AI ONLY WORKS ON YOUR GAME FILES - NEVER TOUCHES SHADOWWATCH AI CODE!
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                    <!-- Autonomous Status -->
+                    <div id="autonomousStatus" class="status-display" style="margin-top: 1rem; display: none;">
+                        <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                            <div id="autoStatusIndicator" class="status-indicator" style="width: 12px; height: 12px; border-radius: 50%; background: var(--text-secondary);"></div>
+                            <span id="autoStatusText" style="font-weight: 500;">Initializing...</span>
+                        </div>
+
+                        <div id="autoStats" style="font-size: 0.75rem; color: var(--text-secondary);">
+                            <!-- Stats will be populated by JavaScript -->
+                        </div>
+                    </div>
+
+                    <!-- Autonomous Controls -->
+                    <div id="autonomousControls" style="margin-top: 1rem; display: none;">
+                        <div class="command-buttons" style="flex-wrap: wrap;">
+                            <button class="btn-secondary" onclick="forceDevelopmentCycle()" style="font-size: 0.75rem;">
+                                🔄 Force Cycle
+                            </button>
+                            <button class="btn-secondary" onclick="clearDevelopmentQueue()" style="font-size: 0.75rem;">
+                                🧹 Clear Queue
+                            </button>
+                            <button class="btn-warning" onclick="resetAutonomousDevelopment()" style="font-size: 0.75rem;">
+                                🔄 Reset System
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- UNITY & UNREAL ENGINE SUPPORT -->
+                <div class="command-section">
+                    <h3 class="panel-title">🎮 Game Engine Support</h3>
+                    <div class="command-buttons">
+                        <button class="btn-secondary" onclick="initializeUnitySupport()">Initialize Unity Support</button>
+                        <button class="btn-secondary" onclick="initializeUnrealSupport()">Initialize Unreal Support</button>
+                    </div>
+                </div>
+
+                <!-- WEAPON BLUEPRINT & MODEL CREATION -->
+                <div class="command-section">
+                    <h3 class="panel-title">🔫 Weapon Creation</h3>
+                    <div style="margin-bottom: 1rem;">
+                        <input type="text" id="weaponName" class="command-input" placeholder="Weapon name (e.g., Plasma Rifle)" style="margin-bottom: 0.5rem; width: 100%;">
+                        <select id="weaponType" class="command-input" style="margin-bottom: 0.5rem; width: 100%;">
+                            <option value="rifle">Rifle</option>
+                            <option value="pistol">Pistol</option>
+                            <option value="shotgun">Shotgun</option>
+                            <option value="sniper">Sniper Rifle</option>
+                            <option value="smg">SMG</option>
+                            <option value="melee">Melee Weapon</option>
+                            <option value="launcher">Launcher</option>
+                            <option value="energy">Energy Weapon</option>
+                        </select>
+                        <select id="weaponEngine" class="command-input" style="margin-bottom: 0.5rem; width: 100%;">
+                            <option value="unity">Unity Engine</option>
+                            <option value="unreal">Unreal Engine</option>
+                        </select>
+                    </div>
+                    <div class="command-buttons">
+                        <button class="btn-primary" onclick="createWeaponBlueprint()">Create Weapon Blueprint & 3D Model</button>
+                    </div>
+                </div>
+
+                <!-- VEHICLE BLUEPRINT & MODEL CREATION -->
+                <div class="command-section">
+                    <h3 class="panel-title">🚗 Vehicle Creation</h3>
+                    <div style="margin-bottom: 1rem;">
+                        <input type="text" id="vehicleName" class="command-input" placeholder="Vehicle name (e.g., Hover Tank)" style="margin-bottom: 0.5rem; width: 100%;">
+                        <select id="vehicleType" class="command-input" style="margin-bottom: 0.5rem; width: 100%;">
+                            <option value="car">Car</option>
+                            <option value="truck">Truck</option>
+                            <option value="tank">Tank</option>
+                            <option value="aircraft">Aircraft</option>
+                            <option value="boat">Boat</option>
+                            <option value="motorcycle">Motorcycle</option>
+                            <option value="mech">Mech</option>
+                            <option value="spaceship">Spaceship</option>
+                        </select>
+                        <select id="vehicleEngine" class="command-input" style="margin-bottom: 0.5rem; width: 100%;">
+                            <option value="unity">Unity Engine</option>
+                            <option value="unreal">Unreal Engine</option>
+                        </select>
+                    </div>
+                    <div class="command-buttons">
+                        <button class="btn-primary" onclick="createVehicleBlueprint()">Create Vehicle Blueprint & 3D Model</button>
+                    </div>
+                </div>
+
+                <!-- MODEL PACK CREATION -->
+                <div class="command-section">
+                    <h3 class="panel-title">📦 Model Pack Creation</h3>
+                    <div style="margin-bottom: 1rem;">
+                        <input type="text" id="packName" class="command-input" placeholder="Pack name (e.g., Military Weapons Pack)" style="margin-bottom: 0.5rem; width: 100%;">
+                        <select id="packType" class="command-input" style="margin-bottom: 0.5rem; width: 100%;">
+                            <option value="weapons">Weapon Pack</option>
+                            <option value="vehicles">Vehicle Pack</option>
+                        </select>
+                        <textarea id="packItems" class="command-input" placeholder="Enter items as JSON array: [{&quot;name&quot;:&quot;Plasma Rifle&quot;,&quot;type&quot;:&quot;rifle&quot;}]" rows="3" style="width: 100%;"></textarea>
+                    </div>
+                    <div class="command-buttons">
+                        <button class="btn-primary" onclick="createModelPack()">Create Model Pack</button>
+                        <button class="btn-secondary" onclick="createModelStructure()">Create Model Directory Structure</button>
+                    </div>
+                </div>
+
+                <!-- VEHICLE CREATION SECTION -->
+                <div class="command-section">
+                    <h3 class="panel-title">🚗 Complete Vehicle Manufacturer Creation</h3>
+                    <p style="margin-bottom: 1rem; color: var(--text-secondary); font-size: 0.875rem;">
+                        Create complete 3D vehicles with full interiors, body shells, and default rims for Unreal Engine only.
+                    </p>
+
+                    <div style="margin-bottom: 1rem;">
+                        <label for="vehicle-manufacturer-select" style="display: block; margin-bottom: 0.5rem; font-weight: bold; font-size: 0.875rem;">Select Manufacturer:</label>
+                        <select id="vehicle-manufacturer-select" style="width: 100%; padding: 0.5rem; background: var(--moon-dark); border: 1px solid var(--moon-accent); border-radius: var(--radius-sm); color: var(--text-primary); font-size: 0.875rem;">
+                            <option value="">-- Choose Manufacturer --</option>
+                            <option value="Abarth">Abarth (Italy - High-performance Fiat variants)</option>
+                            <option value="Alfa Romeo">Alfa Romeo (Italy - Sports cars and sedans)</option>
+                            <option value="Aston Martin">Aston Martin (UK - Luxury sports cars)</option>
+                            <option value="Audi">Audi (Germany - Luxury sedans and SUVs)</option>
+                            <option value="Bentley">Bentley (UK - Ultra-luxury vehicles)</option>
+                            <option value="BMW">BMW (Germany - Performance and luxury)</option>
+                            <option value="Bugatti">Bugatti (France - Hyper-sports cars)</option>
+                            <option value="Cadillac">Cadillac (USA - American luxury)</option>
+                            <option value="Chevrolet">Chevrolet (USA - Mass-market vehicles)</option>
+                            <option value="Chrysler">Chrysler (USA - American sedans and SUVs)</option>
+                            <option value="Citroën">Citroën (France - Comfort and innovation)</option>
+                            <option value="Dacia">Dacia (Romania - Budget vehicles)</option>
+                            <option value="Daewoo">Daewoo (South Korea - Budget and compact)</option>
+                            <option value="Daihatsu">Daihatsu (Japan - Compact and kei cars)</option>
+                            <option value="Dodge">Dodge (USA - Performance and muscle cars)</option>
+                            <option value="Donkervoort">Donkervoort (Netherlands - Lightweight sports)</option>
+                            <option value="DS">DS (France - Premium Citroën vehicles)</option>
+                            <option value="Ferrari">Ferrari (Italy - High-performance sports)</option>
+                            <option value="Fiat">Fiat (Italy - Compact and city cars)</option>
+                            <option value="Fisker">Fisker (USA - Electric luxury vehicles)</option>
+                            <option value="Ford">Ford (USA - Mass-market vehicles)</option>
+                            <option value="Honda">Honda (Japan - Reliable and efficient)</option>
+                            <option value="Hummer">Hummer (USA - Military-style SUVs)</option>
+                            <option value="Hyundai">Hyundai (South Korea - Modern and affordable)</option>
+                            <option value="Infiniti">Infiniti (Japan - Luxury Nissan vehicles)</option>
+                            <option value="Iveco">Iveco (Italy - Commercial vehicles)</option>
+                            <option value="Jaguar">Jaguar (UK - Luxury sports cars)</option>
+                            <option value="Jeep">Jeep (USA - Off-road vehicles)</option>
+                            <option value="Kia">Kia (South Korea - Modern and stylish)</option>
+                            <option value="KTM">KTM (Austria - Adventure vehicles)</option>
+                            <option value="Lada">Lada (Russia - Budget Russian vehicles)</option>
+                            <option value="Lamborghini">Lamborghini (Italy - Super-sports cars)</option>
+                            <option value="Lancia">Lancia (Italy - Luxury and comfort)</option>
+                            <option value="Land Rover">Land Rover (UK - Luxury SUVs and off-road)</option>
+                            <option value="Landwind">Landwind (China - Budget SUVs)</option>
+                            <option value="Lexus">Lexus (Japan - Luxury Toyota vehicles)</option>
+                            <option value="Lotus">Lotus (UK - Lightweight sports cars)</option>
+                            <option value="Maserati">Maserati (Italy - Luxury sports cars)</option>
+                            <option value="Maybach">Maybach (Germany - Ultra-luxury vehicles)</option>
+                            <option value="Mazda">Mazda (Japan - Stylish and sporty)</option>
+                            <option value="McLaren">McLaren (UK - Hyper-sports cars)</option>
+                            <option value="Mercedes-Benz">Mercedes-Benz (Germany - Luxury and performance)</option>
+                            <option value="MG">MG (UK - Affordable sports cars)</option>
+                            <option value="Mini">Mini (UK - Compact luxury cars)</option>
+                            <option value="Mitsubishi">Mitsubishi (Japan - Reliable and versatile)</option>
+                            <option value="Morgan">Morgan (UK - Classic sports cars)</option>
+                            <option value="Nissan">Nissan (Japan - Innovative and sporty)</option>
+                            <option value="Opel">Opel (Germany - German mass-market)</option>
+                            <option value="Peugeot">Peugeot (France - Stylish and practical)</option>
+                            <option value="Porsche">Porsche (Germany - High-performance sports)</option>
+                            <option value="Renault">Renault (France - Innovative and affordable)</option>
+                            <option value="Rolls-Royce">Rolls-Royce (UK - Ultimate luxury)</option>
+                            <option value="Rover">Rover (UK - Classic British vehicles)</option>
+                            <option value="Saab">Saab (Sweden - Safety and performance)</option>
+                            <option value="Seat">Seat (Spain - Stylish Spanish vehicles)</option>
+                            <option value="Skoda">Skoda (Czech Republic - Practical and affordable)</option>
+                            <option value="Smart">Smart (Germany - Micro cars and electric)</option>
+                            <option value="SsangYong">SsangYong (South Korea - SUVs and off-road)</option>
+                            <option value="Subaru">Subaru (Japan - AWD and outdoor vehicles)</option>
+                            <option value="Suzuki">Suzuki (Japan - Compact and affordable)</option>
+                            <option value="Tesla">Tesla (USA - Electric and autonomous)</option>
+                            <option value="Toyota">Toyota (Japan - Reliable and mass-market)</option>
+                            <option value="Volkswagen">Volkswagen (Germany - People's car and mass-market)</option>
+                            <option value="Volvo">Volvo (Sweden - Safety and luxury)</option>
+                        </select>
+                    </div>
+
+                    <div style="margin-bottom: 1rem;">
+                        <label for="vehicle-model-input" style="display: block; margin-bottom: 0.5rem; font-weight: bold; font-size: 0.875rem;">Vehicle Model:</label>
+                        <input type="text" id="vehicle-model-input" placeholder="e.g., 488 Spider, Model S, Golf, etc." style="width: 100%; padding: 0.5rem; background: var(--moon-dark); border: 1px solid var(--moon-accent); border-radius: var(--radius-sm); color: var(--text-primary); font-size: 0.875rem;" />
+                    </div>
+
+                    <div style="margin-bottom: 1rem;">
+                        <button class="btn-primary" onclick="createSingleVehicle()" style="width: 100%; margin-bottom: 0.5rem;">
+                            🚗 Create Single Vehicle
+                        </button>
+                        <button class="btn-secondary" onclick="createManufacturerPack()" style="width: 100%; margin-bottom: 0.5rem;">
+                            📦 Create Full Manufacturer Pack
+                        </button>
+                        <button class="btn-danger" onclick="createAllManufacturers()" style="width: 100%;">
+                            🌍🚗 CREATE ALL 50+ MANUFACTURERS (MASSIVE!)
+                        </button>
+                    </div>
+
+                    <div style="padding: 1rem; background: var(--moon-dark); border-radius: var(--radius-md); border: 1px solid var(--moon-accent);">
+                        <h4 style="margin: 0 0 0.5rem 0; color: var(--moon-accent); font-size: 0.875rem;">🎯 What Gets Created:</h4>
+                        <ul style="font-size: 0.75rem; color: var(--text-secondary); margin: 0; padding-left: 1rem;">
+                            <li>✅ Complete body shell with accurate proportions</li>
+                            <li>✅ Full interior with manufacturer-specific details</li>
+                            <li>✅ Default rims and wheels (manufacturer style)</li>
+                            <li>✅ Unreal Engine C++ vehicle classes</li>
+                            <li>✅ Realistic physics and handling</li>
+                            <li>✅ Audio systems and particle effects</li>
+                            <li>✅ Damage systems and customization</li>
+                            <li>✅ Production-ready 3D model specifications</li>
+                        </ul>
+                        <div style="margin-top: 0.5rem; font-size: 0.7rem; color: var(--moon-accent); font-weight: bold;">
+                            ⚠️ UNREAL ENGINE ONLY - C++ CODE ONLY - NO BLUEPRINTS!
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ANTI-HACKER PROTECTION -->
+                <div class="command-section">
+                    <h3 class="panel-title">🛡️ Security & Protection</h3>
+                    <div id="securityStatus" style="margin-bottom: 1rem; padding: 1rem; background: var(--moon-dark); border-radius: var(--radius-md);">
+                        <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                            <div id="securityIndicator" style="width: 12px; height: 12px; border-radius: 50%; background: var(--text-secondary);"></div>
+                            <span id="securityText">Security Status: Monitoring</span>
+                        </div>
+                        <div id="securityStats" style="font-size: 0.75rem; color: var(--text-secondary);">
+                            <!-- Security stats will be populated -->
+                        </div>
+                    </div>
+                    <div class="command-buttons">
+                        <button class="btn-warning" onclick="performSecurityScan()">Force Security Scan</button>
+                        <button class="btn-secondary" onclick="getSecurityStatus()">Check Security Status</button>
+                    </div>
+                </div>
+
+                <div class="command-section">
+                    <h3 class="panel-title">📋 Active Agents</h3>
+                    <div id="agentsList" class="agents-list">
+                        <div class="loading"></div>
+                        Loading agents...
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats Panel -->
+            <div class="stats-panel">
+                <h3 class="panel-title">📊 Statistics</h3>
+                <div id="statsContent">
+                    <div class="stats-item">
+                        <span class="stats-label">Total Agents</span>
+                        <span class="stats-value" id="totalAgents">0</span>
+                    </div>
+                    <div class="stats-item">
+                        <span class="stats-label">Active Agents</span>
+                        <span class="stats-value" id="activeAgents">0</span>
+                    </div>
+                    <div class="stats-item">
+                        <span class="stats-label">Completed</span>
+                        <span class="stats-value" id="completedAgents">0</span>
+                    </div>
+                    <div class="stats-item">
+                        <span class="stats-label">Failed</span>
+                        <span class="stats-value" id="failedAgents">0</span>
+                    </div>
+                </div>
+
+                <div style="margin-top: 2rem;">
+                    <h4 style="color: var(--text-primary); margin-bottom: 1rem;">Actions</h4>
+                    <button class="btn-secondary" style="width: 100%; margin-bottom: 0.5rem;" onclick="refreshStats()">Refresh Stats</button>
+                    <button class="btn-secondary" style="width: 100%; margin-bottom: 0.5rem;" onclick="exportHistory()">Export History</button>
+                    <button class="btn-secondary" style="width: 100%;" onclick="clearCompleted()">Clear Completed</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Conversation Modal -->
+    <div id="conversationModal" class="conversation-modal">
+        <div class="conversation-content">
+            <div class="conversation-header">
+                <h3 class="conversation-title">Agent Conversation</h3>
+                <button class="btn-secondary" onclick="closeConversationModal()">× Close</button>
+            </div>
+            <div id="conversationMessages" class="conversation-messages">
+                Loading conversation...
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="cursor-control.js"></script>
+</body>
+</html>

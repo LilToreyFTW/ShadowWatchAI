@@ -1,0 +1,67 @@
+{
+  "name": "shadowwatch-ai-software",
+  "version": "1.0.0",
+  "description": "Ultimate AI Game Development Assistant - Portable Software Package",
+  "main": "core/server.js",
+  "scripts": {
+    "start": "node core/server.js",
+    "dev": "node core/server.js",
+    "setup": "node scripts/setup.js",
+    "install-deps": "npm install",
+    "check": "node --check core/server.js && node --check core/cursor-api-integration.js",
+    "docs": "start docs/README.md"
+  },
+  "keywords": [
+    "ai",
+    "game-development",
+    "unity",
+    "unreal",
+    "webgl",
+    "autonomous-development",
+    "weapon-creation",
+    "vehicle-creation"
+  ],
+  "author": "ShadowWatch AI",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "helmet": "^7.1.0",
+    "compression": "^1.7.4",
+    "dotenv": "^16.3.1",
+    "http-proxy-middleware": "^2.0.6",
+    "serve-static": "^1.15.0",
+    "node-fetch": "^3.3.2",
+    "ws": "^8.14.2",
+    "multer": "^1.4.5-lts.1",
+    "uuid": "^9.0.1"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "repository": {
+    "type": "software-package",
+    "url": "local-installation"
+  },
+  "shadowwatch": {
+    "version": "ultimate",
+    "features": [
+      "9500h-autonomous-development",
+      "unity-unreal-integration",
+      "weapon-vehicle-creation",
+      "language-restrictions-enforced",
+      "anti-hacker-protection",
+      "3d-game-engine",
+      "model-pack-management"
+    ],
+    "supported-engines": [
+      "unity-csharp-only",
+      "unreal-cpp-only",
+      "web-typescript-javascript"
+    ],
+    "development-modes": [
+      "autonomous-development",
+      "ultra-maximum-9500h-mode"
+    ]
+  }
+}

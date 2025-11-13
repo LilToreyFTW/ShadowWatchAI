@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ShadowWatch AI - Complete Documentation</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Orbitron:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🤖</text></svg>">
+    <style>
+        .docs-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .docs-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .docs-title {
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--moon-accent);
+            margin-bottom: 1rem;
+            font-family: 'Orbitron', monospace;
+        }
+
+        .docs-subtitle {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        .docs-grid {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .docs-nav {
+            background: rgba(30, 58, 138, 0.3);
+            border: 1px solid rgba(6, 182, 212, 0.2);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            height: fit-content;
+            position: sticky;
+            top: 2rem;
+        }
+
+        .docs-nav-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--moon-accent);
+            margin-bottom: 1rem;
+            font-family: 'Orbitron', monospace;
+        }
+
+        .docs-nav-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .docs-nav-item {
+            margin-bottom: 0.5rem;
+        }
+
+        .docs-nav-link {
+            display: block;
+            padding: 0.5rem 0.75rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            border-radius: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .docs-nav-link:hover,
+        .docs-nav-link.active {
+            background: var(--moon-accent);
+            color: var(--moon-bg);
+        }
+
+        .docs-content {
+            background: rgba(30, 58, 138, 0.2);
+            border: 1px solid rgba(6, 182, 212, 0.1);
+            border-radius: 1rem;
+            padding: 2rem;
+        }
+
+        .docs-section {
+            margin-bottom: 3rem;
+        }
+
+        .docs-section-title {
+            font-size: 2rem;
+            font-weight: 600;
+            color: var(--moon-accent);
+            margin-bottom: 1rem;
+            font-family: 'Orbitron', monospace;
+            border-bottom: 2px solid var(--moon-accent);
+            padding-bottom: 0.5rem;
+        }
+
+        .docs-section-subtitle {
+            font-size: 1.2rem;
+            color: var(--text-primary);
+            margin-bottom: 1.5rem;
+            font-weight: 500;
+        }
+
+        .docs-text {
+            color: var(--text-secondary);
+            line-height: 1.7;
+            margin-bottom: 1rem;
+        }
+
+        .docs-highlight {
+            background: rgba(6, 182, 212, 0.1);
+            border-left: 4px solid var(--moon-accent);
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 0 0.5rem 0.5rem 0;
+        }
+
+        .docs-highlight strong {
+            color: var(--moon-accent);
+        }
+
+        .docs-code {
+            background: var(--moon-dark);
+            border: 1px solid rgba(6, 182, 212, 0.3);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin: 1rem 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            color: var(--text-primary);
+            overflow-x: auto;
+        }
+
+        .docs-list {
+            margin: 1rem 0;
+            padding-left: 1.5rem;
+        }
+
+        .docs-list li {
+            margin-bottom: 0.5rem;
+            color: var(--text-secondary);
+        }
+
+        .docs-steps {
+            counter-reset: step-counter;
+        }
+
+        .docs-steps li {
+            counter-increment: step-counter;
+            margin-bottom: 1rem;
+            position: relative;
+            padding-left: 2rem;
+        }
+
+        .docs-steps li::before {
+            content: counter(step-counter);
+            position: absolute;
+            left: 0;
+            top: 0;
+            background: var(--moon-accent);
+            color: var(--moon-bg);
+            width: 1.5rem;
+            height: 1.5rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .feature-card {
+            background: rgba(30, 58, 138, 0.4);
+            border: 1px solid rgba(6, 182, 212, 0.2);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .feature-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .feature-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--moon-accent);
+            margin-bottom: 0.5rem;
+        }
+
+        .feature-description {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .download-section {
+            background: linear-gradient(135deg, rgba(6, 182, 212, 0.1), rgba(30, 58, 138, 0.3));
+            border: 2px solid var(--moon-accent);
+            border-radius: 1rem;
+            padding: 2rem;
+            text-align: center;
+            margin: 2rem 0;
+        }
+
+        .download-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--moon-accent);
+            margin-bottom: 1rem;
+        }
+
+        .download-description {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .download-button {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--moon-accent), #0891b2);
+            color: var(--moon-bg);
+            padding: 1rem 2rem;
+            border-radius: 0.5rem;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(6, 182, 212, 0.3);
+        }
+
+        .download-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(6, 182, 212, 0.4);
+        }
+
+        .warning-box {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+
+        .warning-box strong {
+            color: #ef4444;
+        }
+
+        @media (max-width: 768px) {
+            .docs-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .docs-nav {
+                position: static;
+            }
+
+            .docs-title {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="docs-container">
+        <!-- Header -->
+        <header class="docs-header">
+            <h1 class="docs-title">ShadowWatch AI</h1>
+            <p class="docs-subtitle">
+                Complete Documentation - The Ultimate AI Game Development System
+            </p>
+        </header>
+
+        <!-- Main Content -->
+        <div class="docs-grid">
+            <!-- Navigation Sidebar -->
+            <nav class="docs-nav">
+                <h3 class="docs-nav-title">📚 Documentation</h3>
+                <ul class="docs-nav-list">
+                    <li class="docs-nav-item">
+                        <a href="#overview" class="docs-nav-link active" onclick="scrollToSection('overview')">Overview</a>
+                    </li>
+                    <li class="docs-nav-item">
+                        <a href="#features" class="docs-nav-link" onclick="scrollToSection('features')">Features</a>
+                    </li>
+                    <li class="docs-nav-item">
+                        <a href="#getting-started" class="docs-nav-link" onclick="scrollToSection('getting-started')">Getting Started</a>
+                    </li>
+                    <li class="docs-nav-item">
+                        <a href="#ai-providers" class="docs-nav-link" onclick="scrollToSection('ai-providers')">AI Providers</a>
+                    </li>
+                    <li class="docs-nav-item">
+                        <a href="#autonomous-development" class="docs-nav-link" onclick="scrollToSection('autonomous-development')">Autonomous Development</a>
+                    </li>
+                    <li class="docs-nav-item">
+                        <a href="#vehicle-creation" class="docs-nav-link" onclick="scrollToSection('vehicle-creation')">Vehicle Creation</a>
+                    </li>
+                    <li class="docs-nav-item">
+                        <a href="#weapon-creation" class="docs-nav-link" onclick="scrollToSection('weapon-creation')">Weapon Creation</a>
+                    </li>
+                    <li class="docs-nav-item">
+                        <a href="#engine-support" class="docs-nav-link" onclick="scrollToSection('engine-support')">Engine Support</a>
+                    </li>
+                    <li class="docs-nav-item">
+                        <a href="#security" class="docs-nav-link" onclick="scrollToSection('security')">Security</a>
+                    </li>
+                    <li class="docs-nav-item">
+                        <a href="#download" class="docs-nav-link" onclick="scrollToSection('download')">Download</a>
+                    </li>
+                    <li class="docs-nav-item">
+                        <a href="#troubleshooting" class="docs-nav-link" onclick="scrollToSection('troubleshooting')">Troubleshooting</a>
+                    </li>
+                </ul>
+            </nav>
+
+            <!-- Content Area -->
+            <main class="docs-content">
+                <!-- Overview Section -->
+                <section id="overview" class="docs-section">
+                    <h2 class="docs-section-title">🎯 Overview</h2>
+                    <p class="docs-text">
+                        ShadowWatch AI is the most advanced AI-powered game development system ever created. It combines cutting-edge artificial intelligence with professional game development tools to help you build complete, production-ready games autonomously.
+                    </p>
+
+                    <div class="docs-highlight">
+                        <strong>What makes ShadowWatch AI unique?</strong><br>
+                        Unlike other AI tools, ShadowWatch AI can work continuously for thousands of hours, create complete game systems, generate production-ready code, and maintain enterprise-grade security while protecting its own codebase.
+                    </div>
+
+                    <p class="docs-text">
+                        Whether you're a solo developer, indie studio, or enterprise team, ShadowWatch AI provides the assistance you need to bring your game ideas to life faster and more efficiently than ever before.
+                    </p>
+                </section>
+
+                <!-- Features Section -->
+                <section id="features" class="docs-section">
+                    <h2 class="docs-section-title">🚀 Core Features</h2>
+
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <div class="feature-icon">🤖</div>
+                            <h3 class="feature-title">9500-Hour Autonomous Development</h3>
+                            <p class="feature-description">
+                                AI works continuously for 9500 hours to build complete 3D MMO/RPG games with WASD controls, physics, and all game systems.
+                            </p>
+                        </div>
+
+                        <div class="feature-card">
+                            <div class="feature-icon">🚗</div>
+                            <h3 class="feature-title">Complete Vehicle Creation</h3>
+                            <p class="feature-description">
+                                Generate authentic vehicles from 50+ manufacturers with full body shells, interiors, rims, and Unreal Engine C++ code.
+                            </p>
+                        </div>
+
+                        <div class="feature-card">
+                            <div class="feature-icon">🔫</div>
+                            <h3 class="feature-title">Weapon Blueprint System</h3>
+                            <p class="feature-description">
+                                Create complete weapon systems with mechanics, 3D models, particle effects, and professional game integration.
+                            </p>
+                        </div>
+
+                        <div class="feature-card">
+                            <div class="feature-icon">🎮</div>
+                            <h3 class="feature-title">Multi-Engine Support</h3>
+                            <p class="feature-description">
+                                Full support for Unity (C#), Unreal Engine (C++), and web-based games with automatic language enforcement.
+                            </p>
+                        </div>
+
+                        <div class="feature-card">
+                            <div class="feature-icon">🛡️</div>
+                            <h3 class="feature-title">Enterprise Security</h3>
+                            <p class="feature-description">
+                                Military-grade protection prevents AI from modifying its own codebase while maintaining complete user project safety.
+                            </p>
+                        </div>
+
+                        <div class="feature-card">
+                            <div class="feature-icon">🔄</div>
+                            <h3 class="feature-title">Dual AI Providers</h3>
+                            <p class="feature-description">
+                                Choose between Cursor AI (GitHub-integrated) and OpenAI GPT (direct AI development) for maximum flexibility.
+                            </p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Getting Started Section -->
+                <section id="getting-started" class="docs-section">
+                    <h2 class="docs-section-title">🎮 Getting Started</h2>
+                    <p class="docs-text">
+                        Getting ShadowWatch AI running in your game project takes just a few minutes. Follow these steps to start building games with AI assistance.
+                    </p>
+
+                    <ol class="docs-steps">
+                        <li>
+                            <strong>Download ShadowWatch AI Software</strong><br>
+                            Download the complete ShadowWatchAI-Software folder from the Download section below.
+                        </li>
+                        <li>
+                            <strong>Copy to Your Game Project</strong><br>
+                            Place the ShadowWatchAI-Software folder in the root directory of your game project.
+                        </li>
+                        <li>
+                            <strong>Install Dependencies</strong><br>
+                            Run <code>npm install</code> in the ShadowWatchAI-Software directory.
+                        </li>
+                        <li>
+                            <strong>Start the AI Server</strong><br>
+                            Run <code>Start-ShadowWatchAI.bat</code> (Windows) or <code>node scripts/start-server.js</code>.
+                        </li>
+                        <li>
+                            <strong>Open Control Panel</strong><br>
+                            Navigate to <code>http://localhost:8080/cursor-control.html</code> in your browser.
+                        </li>
+                        <li>
+                            <strong>Configure AI Provider</strong><br>
+                            Set up your preferred AI provider (Cursor AI or OpenAI) and start developing!
+                        </li>
+                    </ol>
+
+                    <div class="docs-highlight">
+                        <strong>Quick Start Command:</strong><br>
+                        <code>cd ShadowWatchAI-Software && npm install && node scripts/start-server.js</code>
+                    </div>
+                </section>
+
+                <!-- AI Providers Section -->
+                <section id="ai-providers" class="docs-section">
+                    <h2 class="docs-section-title">🤖 AI Providers</h2>
+                    <p class="docs-text">
+                        ShadowWatch AI supports two powerful AI providers, giving you flexibility in how you develop your games.
+                    </p>
+
+                    <h3 class="docs-section-subtitle">🖱️ Cursor AI (Recommended for Professional Development)</h3>
+                    <ul class="docs-list">
+                        <li>GitHub-integrated development with automatic pull request creation</li>
+                        <li>Repository-aware development with full version control integration</li>
+                        <li>Professional development workflow with branch management</li>
+                        <li>Enterprise-grade development environment</li>
+                        <li>Automatic code review and quality assurance</li>
+                    </ul>
+
+                    <h3 class="docs-section-subtitle">🧠 OpenAI GPT (Recommended for Rapid Development)</h3>
+                    <ul class="docs-list">
+                        <li>Direct AI responses without GitHub integration overhead</li>
+                        <li>Use your own OpenAI API key for unlimited development</li>
+                        <li>Multiple GPT models: GPT-4o, GPT-4o Mini, GPT-4 Turbo, GPT-3.5 Turbo</li>
+                        <li>Faster iteration cycles for rapid prototyping</li>
+                        <li>More flexible development approach</li>
+                    </ul>
+
+                    <div class="docs-highlight">
+                        <strong>Provider Switching:</strong> You can switch between Cursor AI and OpenAI at any time without losing functionality. All ShadowWatch AI features work with both providers.
+                    </div>
+                </section>
+
+                <!-- Autonomous Development Section -->
+                <section id="autonomous-development" class="docs-section">
+                    <h2 class="docs-section-title">⚡ Autonomous Development</h2>
+                    <p class="docs-text">
+                        ShadowWatch AI's autonomous development system can build complete games without constant supervision. Enable the ULTRA-MAXIMUM 9500-HOUR MODE for the ultimate AI development experience.
+                    </p>
+
+                    <h3 class="docs-section-subtitle">🚀 ULTRA-MAXIMUM 9500-HOUR MODE</h3>
+                    <p class="docs-text">
+                        This mode activates ShadowWatch AI's full autonomous development capabilities:
+                    </p>
+                    <ul class="docs-list">
+                        <li>Works continuously for 9500 hours (over 1 year)</li>
+                        <li>Builds complete 3D MMO/RPG games from scratch</li>
+                        <li>Implements WASD + mouse controls</li>
+                        <li>Creates all game systems (combat, inventory, quests, etc.)</li>
+                        <li>Fulfills all HTML tabs in web-based games</li>
+                        <li>Generates production-ready code and assets</li>
+                        <li>Performs continuous quality checks and improvements</li>
+                    </ul>
+
+                    <div class="warning-box">
+                        <strong>⚠️ WARNING:</strong> ULTRA-MAXIMUM MODE cannot be stopped once activated. The AI will work continuously until the game is complete.
+                    </div>
+
+                    <h3 class="docs-section-subtitle">🎯 What Gets Built</h3>
+                    <ul class="docs-list">
+                        <li><strong>Complete 3D Game Engine</strong> - Physics, rendering, audio systems</li>
+                        <li><strong>Character Systems</strong> - Player character, NPCs, AI behavior</li>
+                        <li><strong>World Generation</strong> - Terrain, buildings, interactive objects</li>
+                        <li><strong>Game Mechanics</strong> - Combat, inventory, crafting, quests</li>
+                        <li><strong>UI/UX Systems</strong> - Complete interface for all game functions</li>
+                        <li><strong>Multiplayer Support</strong> - Networking and server infrastructure</li>
+                        <li><strong>Content Creation</strong> - Weapons, vehicles, environments, assets</li>
+                    </ul>
+                </section>
+
+                <!-- Vehicle Creation Section -->
+                <section id="vehicle-creation" class="docs-section">
+                    <h2 class="docs-section-title">🚗 Vehicle Creation System</h2>
+                    <p class="docs-text">
+                        ShadowWatch AI can create complete vehicles from any manufacturer with authentic designs, full interiors, and production-ready code.
+                    </p>
+
+                    <h3 class="docs-section-subtitle">🏭 Supported Manufacturers</h3>
+                    <p class="docs-text">
+                        ShadowWatch AI supports vehicles from 50+ manufacturers including:
+                    </p>
+
+                    <div class="docs-code">
+Italian: Abarth, Alfa Romeo, Ferrari, Fiat, Lamborghini, Lancia, Maserati<br>
+British: Aston Martin, Bentley, Jaguar, Land Rover, Lotus, McLaren, MG, Mini, Morgan, Rolls-Royce, Rover<br>
+German: Audi, BMW, Mercedes-Benz, Maybach, Opel, Porsche, Smart, Volkswagen, Volvo<br>
+French: Bugatti, Citroën, DS, Peugeot, Renault<br>
+American: Cadillac, Chevrolet, Chrysler, Dodge, Ford, Hummer, Jeep<br>
+Japanese: Honda, Infiniti, Lexus, Mazda, Mitsubishi, Nissan, Subaru, Suzuki, Toyota<br>
+Korean: Hyundai, Kia, SsangYong<br>
+Other: Donkervoort, Iveco, KTM, Lada, Landwind, Mini, Smart
+                    </div>
+
+                    <h3 class="docs-section-subtitle">🎨 What Gets Created</h3>
+                    <ul class="docs-list">
+                        <li><strong>Complete Body Shell</strong> - Accurate exterior proportions and manufacturer styling</li>
+                        <li><strong>Full Interior</strong> - Authentic dashboard, seats, controls, and materials</li>
+                        <li><strong>Default Rims</strong> - Manufacturer-specific wheel designs and tire specifications</li>
+                        <li><strong>Unreal Engine C++ Code</strong> - Complete vehicle classes with physics and controls</li>
+                        <li><strong>Realistic Physics</strong> - Manufacturer-specific handling characteristics</li>
+                        <li><strong>Audio Systems</strong> - Engine sounds, tire sounds, and effects</li>
+                        <li><strong>Customization</strong> - Paint options, upgrades, and modifications</li>
+                    </ul>
+
+                    <div class="docs-highlight">
+                        <strong>Vehicle Creation Options:</strong>
+                        <br>• Single Vehicle - Create one specific model
+                        <br>• Manufacturer Pack - Create all vehicles from one manufacturer
+                        <br>• All Manufacturers - Create vehicles from every supported manufacturer (massive operation)
+                    </div>
+                </section>
+
+                <!-- Weapon Creation Section -->
+                <section id="weapon-creation" class="docs-section">
+                    <h2 class="docs-section-title">🔫 Weapon Creation System</h2>
+                    <p class="docs-text">
+                        Create complete weapon systems with professional game integration, 3D models, and realistic mechanics.
+                    </p>
+
+                    <h3 class="docs-section-subtitle">🎯 Weapon Types</h3>
+                    <ul class="docs-list">
+                        <li><strong>Firearms</strong> - Pistols, rifles, shotguns, SMGs, sniper rifles</li>
+                        <li><strong>Energy Weapons</strong> - Plasma guns, laser weapons, futuristic firearms</li>
+                        <li><strong>Melee Weapons</strong> - Swords, axes, hammers, exotic weapons</li>
+                        <li><strong>Heavy Weapons</strong> - Rocket launchers, miniguns, explosives</li>
+                        <li><strong>Magic Weapons</strong> - Spellcasters, wands, enchanted weapons</li>
+                        <li><strong>Specialized</strong> - Grappling hooks, utility tools, environmental weapons</li>
+                    </ul>
+
+                    <h3 class="docs-section-subtitle">⚙️ Complete Weapon Systems</h3>
+                    <ul class="docs-list">
+                        <li><strong>3D Models</strong> - High-quality meshes with LODs and animations</li>
+                        <li><strong>Game Mechanics</strong> - Damage, range, fire rate, ammo systems</li>
+                        <li><strong>Visual Effects</strong> - Muzzle flash, bullet trails, impact effects</li>
+                        <li><strong>Audio Design</strong> - Shooting sounds, reload sounds, impact audio</li>
+                        <li><strong>UI Integration</strong> - HUD elements, crosshairs, ammo counters</li>
+                        <li><strong>Balancing</strong> - Damage values, recoil, accuracy systems</li>
+                        <li><strong>Customization</strong> - Attachments, skins, upgrade systems</li>
+                    </ul>
+                </section>
+
+                <!-- Engine Support Section -->
+                <section id="engine-support" class="docs-section">
+                    <h2 class="docs-section-title">🎮 Game Engine Support</h2>
+                    <p class="docs-text">
+                        ShadowWatch AI provides complete support for the most popular game engines with automatic code generation and project setup.
+                    </p>
+
+                    <h3 class="docs-section-subtitle">🟦 Unreal Engine (Primary Focus)</h3>
+                    <ul class="docs-list">
+                        <li><strong>C++ Code Generation</strong> - Production-ready Unreal Engine classes</li>
+                        <li><strong>Blueprint-Free Development</strong> - All code is pure C++</li>
+                        <li><strong>Vehicle Systems</strong> - Complete vehicle implementations</li>
+                        <li><strong>Physics Integration</strong> - Realistic physics and collision</li>
+                        <li><strong>Material Systems</strong> - PBR materials and shaders</li>
+                        <li><strong>Animation Systems</strong> - Skeletal meshes and animations</li>
+                        <li><strong>Audio Integration</strong> - Wwise-ready audio systems</li>
+                    </ul>
+
+                    <h3 class="docs-section-subtitle">🟨 Unity Engine</h3>
+                    <ul class="docs-list">
+                        <li><strong>C# Code Generation</strong> - Professional Unity C# scripts</li>
+                        <li><strong>Component Systems</strong> - MonoBehaviour implementations</li>
+                        <li><strong>Physics Integration</strong> - Unity physics and collision</li>
+                        <li><strong>Shader Support</strong> - Unity Shader Graph compatible</li>
+                        <li><strong>Asset Integration</strong> - Unity asset pipeline support</li>
+                    </ul>
+
+                    <h3 class="docs-section-subtitle">🌐 Web-Based Games</h3>
+                    <ul class="docs-list">
+                        <li><strong>TypeScript/JavaScript</strong> - Modern web development</li>
+                        <li><strong>HTML5 Canvas/WebGL</strong> - Browser-based 3D rendering</li>
+                        <li><strong>WebSocket Support</strong> - Real-time multiplayer</li>
+                        <li><strong>Progressive Web Apps</strong> - Installable web games</li>
+                    </ul>
+
+                    <div class="docs-highlight">
+                        <strong>Language Enforcement:</strong> ShadowWatch AI strictly enforces programming languages based on the target engine to ensure code quality and compatibility.
+                    </div>
+                </section>
+
+                <!-- Security Section -->
+                <section id="security" class="docs-section">
+                    <h2 class="docs-section-title">🛡️ Security & Protection</h2>
+                    <p class="docs-text">
+                        ShadowWatch AI implements enterprise-grade security measures to protect both the AI system and user projects.
+                    </p>
+
+                    <h3 class="docs-section-subtitle">🔒 AI Self-Protection</h3>
+                    <ul class="docs-list">
+                        <li><strong>File Path Protection</strong> - AI cannot access its own codebase files</li>
+                        <li><strong>Extension Blocking</strong> - Protected file types (.js, .html, .css, etc.)</li>
+                        <li><strong>Directory Restrictions</strong> - Core folders are completely protected</li>
+                        <li><strong>Integrity Checks</strong> - Continuous validation of AI system files</li>
+                        <li><strong>Access Control</strong> - Strict whitelist/blacklist system</li>
+                    </ul>
+
+                    <h3 class="docs-section-subtitle">🚫 Protected Directories</h3>
+                    <div class="docs-code">
+ShadowWatchAI-Software/<br>
+├── core/           # AI engine files<br>
+├── scripts/        # Setup scripts<br>
+├── config/         # Configuration<br>
+├── docs/           # Documentation<br>
+├── *.js            # JavaScript files<br>
+├── *.html          # HTML files<br>
+└── *.bat           # Batch scripts
+                    </div>
+
+                    <h3 class="docs-section-subtitle">✅ Allowed Game Directories</h3>
+                    <div class="docs-code">
+YourGameProject/<br>
+├── Assets/         # Unity assets<br>
+├── Content/        # Unreal assets<br>
+├── Source/         # Unreal source<br>
+├── src/            # Web source<br>
+├── models/         # Generated assets<br>
+├── Scripts/        # Game scripts<br>
+└── scenes/         # Game scenes
+                    </div>
+
+                    <h3 class="docs-section-subtitle">🔍 Anti-Hacker Protection</h3>
+                    <ul class="docs-list">
+                        <li><strong>Code Theft Detection</strong> - Monitors for unauthorized code redistribution</li>
+                        <li><strong>Security Scanning</strong> - Continuous security assessments</li>
+                        <li><strong>Threat Response</strong> - Automatic countermeasures against threats</li>
+                        <li><strong>Audit Logging</strong> - Complete activity logging and monitoring</li>
+                    </ul>
+                </section>
+
+                <!-- Download Section -->
+                <section id="download" class="docs-section">
+                    <h2 class="docs-section-title">📥 Download ShadowWatch AI</h2>
+
+                    <div class="download-section">
+                        <h3 class="download-title">🚀 Get ShadowWatch AI Software</h3>
+                        <p class="download-description">
+                            Download the complete ShadowWatchAI-Software package. This is the exact folder you need to copy into your game project directory to start using ShadowWatch AI.
+                        </p>
+
+                        <a href="/download/ShadowWatchAI-Software.zip" class="download-button" download>
+                            📦 Download ShadowWatchAI-Software.zip
+                        </a>
+
+                        <div style="margin-top: 1rem; font-size: 0.9rem; color: var(--text-secondary);">
+                            File Size: ~50MB | Version: 1.0.0 | Updated: November 2025
+                        </div>
+                    </div>
+
+                    <h3 class="docs-section-subtitle">📂 Folder Structure</h3>
+                    <p class="docs-text">
+                        After downloading and extracting, copy the entire <code>ShadowWatchAI-Software</code> folder into your game project root:
+                    </p>
+
+                    <div class="docs-code">
+YourGameProject/<br>
+├── ShadowWatchAI-Software/          # ← COPY THIS ENTIRE FOLDER<br>
+│   ├── core/<br>
+│   │   ├── server.js<br>
+│   │   └── cursor-api-integration.js<br>
+│   ├── models/<br>
+│   │   ├── vehicles/<br>
+│   │   ├── weapons/<br>
+│   │   └── blueprints/<br>
+│   ├── scripts/<br>
+│   │   ├── start-server.js<br>
+│   │   └── setup.js<br>
+│   ├── config/<br>
+│   │   └── default-config.json<br>
+│   ├── docs/<br>
+│   │   ├── README.md<br>
+│   │   └── setup-guide.md<br>
+│   ├── Start-ShadowWatchAI.bat<br>
+│   ├── package.json<br>
+│   └── index.html<br>
+├── Assets/                          # Your Unity assets<br>
+├── Content/                         # Your Unreal assets<br>
+└── src/                            # Your web source
+                    </div>
+
+                    <div class="docs-highlight">
+                        <strong>Important:</strong> Do NOT modify any files inside the ShadowWatchAI-Software folder. The AI is designed to only work on your game project files, not its own codebase.
+                    </div>
+                </section>
+
+                <!-- Troubleshooting Section -->
+                <section id="troubleshooting" class="docs-section">
+                    <h2 class="docs-section-title">🔧 Troubleshooting</h2>
+
+                    <h3 class="docs-section-subtitle">❌ Server Won't Start</h3>
+                    <div class="docs-code">
+# Check Node.js installation<br>
+node --version<br>
+<br>
+# Install dependencies<br>
+cd ShadowWatchAI-Software<br>
+npm install<br>
+<br>
+# Start server<br>
+node scripts/start-server.js
+                    </div>
+
+                    <h3 class="docs-section-subtitle">❌ AI Not Responding</h3>
+                    <ul class="docs-list">
+                        <li>Check internet connection</li>
+                        <li>Verify API keys are configured (Cursor AI or OpenAI)</li>
+                        <li>Check browser console for errors</li>
+                        <li>Restart the server</li>
+                        <li>Verify firewall settings</li>
+                    </ul>
+
+                    <h3 class="docs-section-subtitle">❌ "Protected Path" Errors</h3>
+                    <p class="docs-text">
+                        This is normal! ShadowWatch AI is correctly protecting its own codebase. The AI only works on your game project files.
+                    </p>
+                    <ul class="docs-list">
+                        <li>Ensure your game files are in allowed directories (Assets/, Content/, src/, etc.)</li>
+                        <li>Do not place game files inside ShadowWatchAI-Software/ folder</li>
+                        <li>The protection system prevents accidental modification of AI files</li>
+                    </ul>
+
+                    <h3 class="docs-section-subtitle">❌ Engine Not Detected</h3>
+                    <ul class="docs-list">
+                        <li>Check project structure matches engine requirements</li>
+                        <li>Ensure correct file extensions (.cs for Unity, .cpp for Unreal)</li>
+                        <li>Run engine initialization in the control panel</li>
+                    </ul>
+
+                    <h3 class="docs-section-subtitle">❌ OpenAI Connection Issues</h3>
+                    <ul class="docs-list">
+                        <li>Verify API key starts with "sk-"</li>
+                        <li>Check OpenAI account has sufficient credits</li>
+                        <li>Test connection using the "Test" button</li>
+                        <li>Try different GPT models if issues persist</li>
+                    </ul>
+
+                    <div class="docs-highlight">
+                        <strong>Need Help?</strong> Check the logs in the ShadowWatchAI-Software directory for detailed error messages. All operations are logged for troubleshooting.
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        // Smooth scrolling for navigation
+        function scrollToSection(sectionId) {
+            const element = document.getElementById(sectionId);
+            if (element) {
+                element.scrollIntoView({ behavior: 'smooth' });
+            }
+
+            // Update active nav link
+            document.querySelectorAll('.docs-nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            document.querySelector(`[href="#${sectionId}"]`).classList.add('active');
+        }
+
+        // Update active nav link on scroll
+        window.addEventListener('scroll', () => {
+            const sections = document.querySelectorAll('.docs-section');
+            const navLinks = document.querySelectorAll('.docs-nav-link');
+
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                if (pageYOffset >= sectionTop - 60) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === `#${current}`) {
+                    link.classList.add('active');
+                }
+            });
+        });
+
+        // Handle download link
+        document.addEventListener('DOMContentLoaded', () => {
+            const downloadLink = document.querySelector('.download-button');
+            if (downloadLink) {
+                downloadLink.addEventListener('click', (e) => {
+                    // Here you would implement the actual download logic
+                    // For now, show an alert
+                    alert('Download functionality will be implemented. Please check the GitHub repository for the latest ShadowWatchAI-Software.zip file.');
+                    e.preventDefault();
+                });
+            }
+        });
+    </script>
+</body>
+</html>

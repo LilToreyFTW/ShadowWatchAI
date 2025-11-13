@@ -1,0 +1,885 @@
+/**
+ * ShadowWatch AI - Client Styles
+ * Modern, accessible CSS for ShadowWatch AI UI components
+ */
+
+/* ==========================================
+   CSS VARIABLES & THEMES
+   ========================================== */
+
+:root {
+    /* ShadowWatch Brand Colors */
+    --shadowwatch-primary: #6366f1;
+    --shadowwatch-secondary: #8b5cf6;
+    --shadowwatch-accent: #06b6d4;
+    --shadowwatch-success: #10b981;
+    --shadowwatch-warning: #f59e0b;
+    --shadowwatch-error: #ef4444;
+    --shadowwatch-info: #3b82f6;
+
+    /* Neutral Colors */
+    --shadowwatch-gray-50: #f8fafc;
+    --shadowwatch-gray-100: #f1f5f9;
+    --shadowwatch-gray-200: #e2e8f0;
+    --shadowwatch-gray-300: #cbd5e1;
+    --shadowwatch-gray-400: #94a3b8;
+    --shadowwatch-gray-500: #64748b;
+    --shadowwatch-gray-600: #475569;
+    --shadowwatch-gray-700: #334155;
+    --shadowwatch-gray-800: #1e293b;
+    --shadowwatch-gray-900: #0f172a;
+
+    /* Spacing & Sizing */
+    --shadowwatch-spacing-xs: 0.25rem;
+    --shadowwatch-spacing-sm: 0.5rem;
+    --shadowwatch-spacing-md: 0.75rem;
+    --shadowwatch-spacing-lg: 1rem;
+    --shadowwatch-spacing-xl: 1.5rem;
+    --shadowwatch-spacing-2xl: 2rem;
+
+    /* Border Radius */
+    --shadowwatch-radius-sm: 0.25rem;
+    --shadowwatch-radius-md: 0.375rem;
+    --shadowwatch-radius-lg: 0.5rem;
+    --shadowwatch-radius-xl: 0.75rem;
+    --shadowwatch-radius-full: 9999px;
+
+    /* Shadows */
+    --shadowwatch-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadowwatch-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --shadowwatch-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    --shadowwatch-shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+
+    /* Animations */
+    --shadowwatch-transition-fast: 150ms ease-in-out;
+    --shadowwatch-transition-normal: 250ms ease-in-out;
+    --shadowwatch-transition-slow: 350ms ease-in-out;
+
+    /* Z-Index */
+    --shadowwatch-z-tutorial: 1000;
+    --shadowwatch-z-modal: 1100;
+    --shadowwatch-z-tooltip: 1200;
+    --shadowwatch-z-notification: 1300;
+}
+
+/* Dark theme support */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --shadowwatch-gray-50: #0f172a;
+        --shadowwatch-gray-100: #1e293b;
+        --shadowwatch-gray-200: #334155;
+        --shadowwatch-gray-300: #475569;
+        --shadowwatch-gray-400: #64748b;
+        --shadowwatch-gray-500: #94a3b8;
+        --shadowwatch-gray-600: #cbd5e1;
+        --shadowwatch-gray-700: #e2e8f0;
+        --shadowwatch-gray-800: #f1f5f9;
+        --shadowwatch-gray-900: #f8fafc;
+    }
+}
+
+/* ==========================================
+   BASE STYLES
+   ========================================== */
+
+.shadowwatch * {
+    box-sizing: border-box;
+}
+
+.shadowwatch {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--shadowwatch-gray-800);
+}
+
+/* ==========================================
+   TUTORIAL SYSTEM
+   ========================================== */
+
+/* Tutorial Overlay */
+.shadowwatch-tutorial-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(2px);
+    z-index: var(--shadowwatch-z-tutorial);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: shadowwatch-fade-in var(--shadowwatch-transition-normal);
+}
+
+.shadowwatch-tutorial-modal {
+    background: white;
+    border-radius: var(--shadowwatch-radius-xl);
+    box-shadow: var(--shadowwatch-shadow-xl);
+    max-width: 600px;
+    width: 90vw;
+    max-height: 80vh;
+    overflow-y: auto;
+    position: relative;
+    border: 2px solid var(--shadowwatch-primary);
+}
+
+.shadowwatch-tutorial-header {
+    background: linear-gradient(135deg, var(--shadowwatch-primary), var(--shadowwatch-secondary));
+    color: white;
+    padding: var(--shadowwatch-spacing-xl);
+    border-radius: var(--shadowwatch-radius-lg) var(--shadowwatch-radius-lg) 0 0;
+    position: relative;
+}
+
+.shadowwatch-tutorial-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 0 0 var(--shadowwatch-spacing-sm) 0;
+}
+
+.shadowwatch-tutorial-subtitle {
+    font-size: 0.875rem;
+    opacity: 0.9;
+    margin: 0;
+}
+
+.shadowwatch-tutorial-progress {
+    position: absolute;
+    bottom: var(--shadowwatch-spacing-md);
+    left: var(--shadowwatch-spacing-xl);
+    right: var(--shadowwatch-spacing-xl);
+}
+
+.shadowwatch-tutorial-progress-bar {
+    width: 100%;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: var(--shadowwatch-radius-full);
+    overflow: hidden;
+}
+
+.shadowwatch-tutorial-progress-fill {
+    height: 100%;
+    background: white;
+    border-radius: var(--shadowwatch-radius-full);
+    transition: width var(--shadowwatch-transition-normal);
+}
+
+.shadowwatch-tutorial-content {
+    padding: var(--shadowwatch-spacing-xl);
+}
+
+.shadowwatch-tutorial-text {
+    font-size: 1rem;
+    line-height: 1.6;
+    margin-bottom: var(--shadowwatch-spacing-lg);
+    color: var(--shadowwatch-gray-700);
+}
+
+.shadowwatch-tutorial-actions {
+    display: flex;
+    gap: var(--shadowwatch-spacing-md);
+    justify-content: flex-end;
+    padding-top: var(--shadowwatch-spacing-lg);
+    border-top: 1px solid var(--shadowwatch-gray-200);
+}
+
+.shadowwatch-btn {
+    padding: var(--shadowwatch-spacing-sm) var(--shadowwatch-spacing-lg);
+    border: none;
+    border-radius: var(--shadowwatch-radius-md);
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--shadowwatch-transition-fast);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--shadowwatch-spacing-sm);
+}
+
+.shadowwatch-btn:focus {
+    outline: 2px solid var(--shadowwatch-primary);
+    outline-offset: 2px;
+}
+
+.shadowwatch-btn-primary {
+    background: var(--shadowwatch-primary);
+    color: white;
+}
+
+.shadowwatch-btn-primary:hover {
+    background: var(--shadowwatch-primary-dark, #4f46e5);
+    transform: translateY(-1px);
+    box-shadow: var(--shadowwatch-shadow-md);
+}
+
+.shadowwatch-btn-secondary {
+    background: var(--shadowwatch-gray-100);
+    color: var(--shadowwatch-gray-700);
+    border: 1px solid var(--shadowwatch-gray-300);
+}
+
+.shadowwatch-btn-secondary:hover {
+    background: var(--shadowwatch-gray-200);
+}
+
+.shadowwatch-btn-success {
+    background: var(--shadowwatch-success);
+    color: white;
+}
+
+.shadowwatch-btn-warning {
+    background: var(--shadowwatch-warning);
+    color: white;
+}
+
+.shadowwatch-tutorial-highlight {
+    position: relative;
+    z-index: calc(var(--shadowwatch-z-tutorial) + 1);
+}
+
+.shadowwatch-tutorial-highlight::before {
+    content: '';
+    position: absolute;
+    top: -4px;
+    left: -4px;
+    right: -4px;
+    bottom: -4px;
+    background: var(--shadowwatch-accent);
+    border-radius: var(--shadowwatch-radius-md);
+    z-index: -1;
+    animation: shadowwatch-pulse 2s infinite;
+}
+
+/* ==========================================
+   STATS PULSE SIDEBAR
+   ========================================== */
+
+.shadowwatch-stats-pulse {
+    position: fixed;
+    right: var(--shadowwatch-spacing-lg);
+    top: 50%;
+    transform: translateY(-50%);
+    background: white;
+    border-radius: var(--shadowwatch-radius-lg);
+    box-shadow: var(--shadowwatch-shadow-lg);
+    padding: var(--shadowwatch-spacing-lg);
+    min-width: 280px;
+    z-index: 100;
+    border: 1px solid var(--shadowwatch-gray-200);
+}
+
+.shadowwatch-stats-header {
+    display: flex;
+    align-items: center;
+    gap: var(--shadowwatch-spacing-sm);
+    margin-bottom: var(--shadowwatch-spacing-md);
+    padding-bottom: var(--shadowwatch-spacing-sm);
+    border-bottom: 1px solid var(--shadowwatch-gray-200);
+}
+
+.shadowwatch-stats-icon {
+    width: 24px;
+    height: 24px;
+    color: var(--shadowwatch-primary);
+}
+
+.shadowwatch-stats-title {
+    font-weight: 600;
+    font-size: 0.875rem;
+    margin: 0;
+    color: var(--shadowwatch-gray-800);
+}
+
+.shadowwatch-stat-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--shadowwatch-spacing-sm) 0;
+    border-bottom: 1px solid var(--shadowwatch-gray-100);
+}
+
+.shadowwatch-stat-item:last-child {
+    border-bottom: none;
+}
+
+.shadowwatch-stat-label {
+    font-size: 0.875rem;
+    color: var(--shadowwatch-gray-600);
+}
+
+.shadowwatch-stat-value {
+    font-weight: 600;
+    color: var(--shadowwatch-gray-800);
+}
+
+.shadowwatch-stat-change {
+    font-size: 0.75rem;
+    padding: 2px 6px;
+    border-radius: var(--shadowwatch-radius-sm);
+    font-weight: 500;
+}
+
+.shadowwatch-stat-change.positive {
+    background: var(--shadowwatch-success);
+    color: white;
+}
+
+.shadowwatch-stat-change.negative {
+    background: var(--shadowwatch-error);
+    color: white;
+}
+
+.shadowwatch-pulse-active {
+    animation: shadowwatch-pulse-subtle 3s infinite;
+}
+
+/* ==========================================
+   NOTIFICATIONS
+   ========================================== */
+
+.shadowwatch-notification {
+    position: fixed;
+    top: var(--shadowwatch-spacing-lg);
+    right: var(--shadowwatch-spacing-lg);
+    background: white;
+    border-radius: var(--shadowwatch-radius-lg);
+    box-shadow: var(--shadowwatch-shadow-lg);
+    padding: var(--shadowwatch-spacing-lg);
+    min-width: 320px;
+    max-width: 480px;
+    z-index: var(--shadowwatch-z-notification);
+    border-left: 4px solid var(--shadowwatch-primary);
+    animation: shadowwatch-slide-in var(--shadowwatch-transition-normal);
+}
+
+.shadowwatch-notification.success {
+    border-left-color: var(--shadowwatch-success);
+}
+
+.shadowwatch-notification.warning {
+    border-left-color: var(--shadowwatch-warning);
+}
+
+.shadowwatch-notification.error {
+    border-left-color: var(--shadowwatch-error);
+}
+
+.shadowwatch-notification.info {
+    border-left-color: var(--shadowwatch-info);
+}
+
+.shadowwatch-notification-header {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--shadowwatch-spacing-sm);
+    margin-bottom: var(--shadowwatch-spacing-sm);
+}
+
+.shadowwatch-notification-icon {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.shadowwatch-notification-title {
+    font-weight: 600;
+    font-size: 0.875rem;
+    margin: 0;
+    color: var(--shadowwatch-gray-800);
+}
+
+.shadowwatch-notification-message {
+    font-size: 0.875rem;
+    color: var(--shadowwatch-gray-600);
+    margin-bottom: var(--shadowwatch-spacing-md);
+    line-height: 1.5;
+}
+
+.shadowwatch-notification-actions {
+    display: flex;
+    gap: var(--shadowwatch-spacing-sm);
+    justify-content: flex-end;
+}
+
+/* ==========================================
+   TRAINING SYSTEM
+   ========================================== */
+
+.shadowwatch-training-ui {
+    position: fixed;
+    bottom: var(--shadowwatch-spacing-lg);
+    left: var(--shadowwatch-spacing-lg);
+    background: white;
+    border-radius: var(--shadowwatch-radius-lg);
+    box-shadow: var(--shadowwatch-shadow-lg);
+    padding: var(--shadowwatch-spacing-lg);
+    min-width: 320px;
+    z-index: 100;
+    border: 1px solid var(--shadowwatch-gray-200);
+}
+
+.shadowwatch-training-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--shadowwatch-spacing-md);
+}
+
+.shadowwatch-training-title {
+    font-weight: 600;
+    font-size: 1rem;
+    margin: 0;
+    color: var(--shadowwatch-gray-800);
+}
+
+.shadowwatch-training-status {
+    font-size: 0.75rem;
+    padding: 2px 8px;
+    border-radius: var(--shadowwatch-radius-full);
+    font-weight: 500;
+    text-transform: uppercase;
+}
+
+.shadowwatch-training-status.active {
+    background: var(--shadowwatch-success);
+    color: white;
+}
+
+.shadowwatch-training-status.waiting {
+    background: var(--shadowwatch-warning);
+    color: white;
+}
+
+.shadowwatch-training-status.searching {
+    background: var(--shadowwatch-info);
+    color: white;
+}
+
+.shadowwatch-combat-display {
+    background: var(--shadowwatch-gray-50);
+    border-radius: var(--shadowwatch-radius-md);
+    padding: var(--shadowwatch-spacing-md);
+    margin-bottom: var(--shadowwatch-spacing-md);
+}
+
+.shadowwatch-health-bar {
+    width: 100%;
+    height: 8px;
+    background: var(--shadowwatch-gray-200);
+    border-radius: var(--shadowwatch-radius-full);
+    overflow: hidden;
+    margin-bottom: var(--shadowwatch-spacing-sm);
+}
+
+.shadowwatch-health-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--shadowwatch-error), var(--shadowwatch-warning), var(--shadowwatch-success));
+    border-radius: var(--shadowwatch-radius-full);
+    transition: width var(--shadowwatch-transition-fast);
+}
+
+.shadowwatch-combat-log {
+    max-height: 120px;
+    overflow-y: auto;
+    font-size: 0.75rem;
+    color: var(--shadowwatch-gray-600);
+    background: white;
+    border: 1px solid var(--shadowwatch-gray-200);
+    border-radius: var(--shadowwatch-radius-sm);
+    padding: var(--shadowwatch-spacing-sm);
+}
+
+.shadowwatch-combat-entry {
+    padding: 2px 0;
+    border-bottom: 1px solid var(--shadowwatch-gray-100);
+}
+
+.shadowwatch-combat-entry:last-child {
+    border-bottom: none;
+}
+
+.shadowwatch-combat-entry.damage {
+    color: var(--shadowwatch-error);
+}
+
+.shadowwatch-combat-entry.heal {
+    color: var(--shadowwatch-success);
+}
+
+.shadowwatch-combat-entry.special {
+    color: var(--shadowwatch-secondary);
+    font-weight: 500;
+}
+
+/* ==========================================
+   CONSENT & PRIVACY
+   ========================================== */
+
+.shadowwatch-consent-banner {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--shadowwatch-gray-800);
+    color: white;
+    padding: var(--shadowwatch-spacing-lg);
+    z-index: var(--shadowwatch-z-modal);
+    border-top: 1px solid var(--shadowwatch-gray-700);
+}
+
+.shadowwatch-consent-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--shadowwatch-spacing-lg);
+}
+
+.shadowwatch-consent-text {
+    flex: 1;
+    font-size: 0.875rem;
+    line-height: 1.5;
+}
+
+.shadowwatch-consent-actions {
+    display: flex;
+    gap: var(--shadowwatch-spacing-sm);
+    flex-shrink: 0;
+}
+
+.shadowwatch-privacy-settings {
+    background: white;
+    border-radius: var(--shadowwatch-radius-lg);
+    box-shadow: var(--shadowwatch-shadow-xl);
+    padding: var(--shadowwatch-spacing-xl);
+    max-width: 500px;
+    width: 90vw;
+}
+
+.shadowwatch-privacy-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: var(--shadowwatch-spacing-lg);
+    color: var(--shadowwatch-gray-800);
+}
+
+.shadowwatch-privacy-option {
+    display: flex;
+    align-items: center;
+    gap: var(--shadowwatch-spacing-md);
+    padding: var(--shadowwatch-spacing-md);
+    border: 1px solid var(--shadowwatch-gray-200);
+    border-radius: var(--shadowwatch-radius-md);
+    margin-bottom: var(--shadowwatch-spacing-sm);
+    cursor: pointer;
+    transition: all var(--shadowwatch-transition-fast);
+}
+
+.shadowwatch-privacy-option:hover {
+    border-color: var(--shadowwatch-primary);
+    background: var(--shadowwatch-gray-50);
+}
+
+.shadowwatch-privacy-option.selected {
+    border-color: var(--shadowwatch-primary);
+    background: var(--shadowwatch-primary-light, rgba(99, 102, 241, 0.05));
+}
+
+.shadowwatch-privacy-icon {
+    width: 24px;
+    height: 24px;
+    color: var(--shadowwatch-primary);
+    flex-shrink: 0;
+}
+
+.shadowwatch-privacy-details h4 {
+    margin: 0 0 var(--shadowwatch-spacing-xs) 0;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--shadowwatch-gray-800);
+}
+
+.shadowwatch-privacy-details p {
+    margin: 0;
+    font-size: 0.75rem;
+    color: var(--shadowwatch-gray-600);
+}
+
+/* ==========================================
+   ANIMATIONS
+   ========================================== */
+
+@keyframes shadowwatch-fade-in {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes shadowwatch-slide-in {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes shadowwatch-pulse {
+    0%, 100% {
+        box-shadow: 0 0 0 0 rgba(6, 182, 212, 0.7);
+    }
+    50% {
+        box-shadow: 0 0 0 8px rgba(6, 182, 212, 0);
+    }
+}
+
+@keyframes shadowwatch-pulse-subtle {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.7;
+    }
+}
+
+@keyframes shadowwatch-bounce-in {
+    0% {
+        transform: scale(0.3);
+        opacity: 0;
+    }
+    50% {
+        transform: scale(1.05);
+    }
+    70% {
+        transform: scale(0.9);
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* ==========================================
+   RESPONSIVE DESIGN
+   ========================================== */
+
+@media (max-width: 768px) {
+    .shadowwatch-tutorial-modal {
+        width: 95vw;
+        max-height: 90vh;
+    }
+
+    .shadowwatch-stats-pulse {
+        right: var(--shadowwatch-spacing-sm);
+        left: var(--shadowwatch-spacing-sm);
+        width: auto;
+        min-width: auto;
+    }
+
+    .shadowwatch-training-ui {
+        bottom: var(--shadowwatch-spacing-sm);
+        left: var(--shadowwatch-spacing-sm);
+        right: var(--shadowwatch-spacing-sm);
+        width: auto;
+        min-width: auto;
+    }
+
+    .shadowwatch-notification {
+        top: var(--shadowwatch-spacing-sm);
+        right: var(--shadowwatch-spacing-sm);
+        left: var(--shadowwatch-spacing-sm);
+        width: auto;
+        min-width: auto;
+    }
+
+    .shadowwatch-consent-content {
+        flex-direction: column;
+        align-items: stretch;
+        text-align: center;
+    }
+
+    .shadowwatch-consent-actions {
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .shadowwatch-tutorial-header {
+        padding: var(--shadowwatch-spacing-lg);
+    }
+
+    .shadowwatch-tutorial-content {
+        padding: var(--shadowwatch-spacing-lg);
+    }
+
+    .shadowwatch-tutorial-actions {
+        flex-direction: column;
+    }
+
+    .shadowwatch-btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* ==========================================
+   ACCESSIBILITY
+   ========================================== */
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+    :root {
+        --shadowwatch-primary: #0000ff;
+        --shadowwatch-gray-200: #000000;
+        --shadowwatch-gray-100: #ffffff;
+    }
+}
+
+/* Focus indicators for keyboard navigation */
+.shadowwatch-btn:focus-visible,
+.shadowwatch-privacy-option:focus-visible {
+    outline: 3px solid var(--shadowwatch-primary);
+    outline-offset: 2px;
+}
+
+/* Screen reader only content */
+.shadowwatch-sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* ==========================================
+   DARK THEME OVERRIDE
+   ========================================== */
+
+@media (prefers-color-scheme: dark) {
+    .shadowwatch-tutorial-modal,
+    .shadowwatch-stats-pulse,
+    .shadowwatch-notification,
+    .shadowwatch-training-ui {
+        background: var(--shadowwatch-gray-800);
+        color: var(--shadowwatch-gray-100);
+        border-color: var(--shadowwatch-gray-700);
+    }
+
+    .shadowwatch-tutorial-text {
+        color: var(--shadowwatch-gray-200);
+    }
+
+    .shadowwatch-stat-item {
+        border-color: var(--shadowwatch-gray-700);
+    }
+
+    .shadowwatch-btn-secondary {
+        background: var(--shadowwatch-gray-700);
+        color: var(--shadowwatch-gray-200);
+        border-color: var(--shadowwatch-gray-600);
+    }
+
+    .shadowwatch-btn-secondary:hover {
+        background: var(--shadowwatch-gray-600);
+    }
+
+    .shadowwatch-combat-display {
+        background: var(--shadowwatch-gray-800);
+    }
+
+    .shadowwatch-combat-log {
+        background: var(--shadowwatch-gray-800);
+        border-color: var(--shadowwatch-gray-700);
+        color: var(--shadowwatch-gray-200);
+    }
+
+    .shadowwatch-privacy-settings {
+        background: var(--shadowwatch-gray-800);
+        color: var(--shadowwatch-gray-100);
+    }
+
+    .shadowwatch-privacy-option {
+        border-color: var(--shadowwatch-gray-700);
+        color: var(--shadowwatch-gray-100);
+    }
+
+    .shadowwatch-privacy-option:hover,
+    .shadowwatch-privacy-option.selected {
+        background: var(--shadowwatch-gray-700);
+    }
+}
+
+/* ==========================================
+   UTILITY CLASSES
+   ========================================== */
+
+.shadowwatch-hidden {
+    display: none !important;
+}
+
+.shadowwatch-visible {
+    display: block !important;
+}
+
+.shadowwatch-loading {
+    position: relative;
+    pointer-events: none;
+    opacity: 0.6;
+}
+
+.shadowwatch-loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    margin: -10px 0 0 -10px;
+    border: 2px solid var(--shadowwatch-gray-300);
+    border-top: 2px solid var(--shadowwatch-primary);
+    border-radius: 50%;
+    animation: shadowwatch-spin 1s linear infinite;
+}
+
+@keyframes shadowwatch-spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* ==========================================
+   PRINT STYLES
+   ========================================== */
+
+@media print {
+    .shadowwatch-tutorial-overlay,
+    .shadowwatch-stats-pulse,
+    .shadowwatch-notification,
+    .shadowwatch-training-ui,
+    .shadowwatch-consent-banner {
+        display: none !important;
+    }
+}

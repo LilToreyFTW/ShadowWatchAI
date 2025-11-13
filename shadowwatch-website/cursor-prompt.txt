@@ -1,0 +1,777 @@
+================================================================================
+SHADOWWATCH AI INTEGRATION PROMPT FOR CURSOR AI
+================================================================================
+
+Hello Cursor! I need you to help me integrate ShadowWatch AI into my browser-based MMORPG. Please follow this step-by-step guide very carefully and implement everything exactly as specified.
+
+================================================================================
+MY GAME INFORMATION
+================================================================================
+
+Please analyze my project structure and current codebase, then proceed with the integration.
+
+Key Information:
+- Game Type: Browser-based MMORPG
+- Frontend: [PLEASE SPECIFY: React/Vue/Angular/Vanilla JS/etc.]
+- Backend: [PLEASE SPECIFY: Node.js/Python/etc.]
+- Database: [PLEASE SPECIFY: PostgreSQL/MySQL/MongoDB/etc.]
+- WebSocket: [PLEASE SPECIFY: Socket.IO/native WebSockets/etc.]
+- Authentication: [PLEASE SPECIFY: JWT/sessions/etc.]
+
+================================================================================
+STEP-BY-STEP INTEGRATION INSTRUCTIONS FOR CURSOR
+================================================================================
+
+FOLLOW EACH STEP EXACTLY. DO NOT SKIP ANYTHING. IMPLEMENT IN THIS ORDER:
+
+================================================================================
+STEP 1: PROJECT ANALYSIS & SETUP
+================================================================================
+
+1. First, analyze my current project structure
+2. Identify existing server files, client files, and configuration
+3. Check for existing package.json and dependencies
+4. Verify database setup and connection strings
+5. Look for existing WebSocket implementations
+
+================================================================================
+STEP 2: SHADOWWATCH AI DEPENDENCY INSTALLATION
+================================================================================
+
+IMPLEMENT THIS EXACT CODE:
+
+```bash
+# Navigate to project root
+cd /path/to/your/game/project
+
+# Install ShadowWatch AI dependencies
+npm install pg redis socket.io node-cron crypto express cors helmet compression dotenv
+
+# Verify installation
+npm list pg redis socket.io
+```
+
+================================================================================
+STEP 3: DATABASE SETUP
+================================================================================
+
+IMPLEMENT THIS EXACT CODE:
+
+```javascript
+// Create database setup script (create-db.js)
+import pg from 'pg';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+async function setupDatabase() {
+    const client = new pg.Client({
+        host: process.env.DB_HOST || 'localhost',
+        port: process.env.DB_PORT || 5432,
+        user: process.env.DB_USER || 'postgres',
+        password: process.env.DB_PASSWORD || '',
+        database: 'postgres'
+    });
+
+    try {
+        await client.connect();
+
+        // Create ShadowWatch database
+        await client.query('CREATE DATABASE shadowwatch_ai;');
+
+        // Create ShadowWatch user
+        await client.query(`
+            CREATE USER shadowwatch_user WITH PASSWORD 'secure_password_123';
+            GRANT ALL PRIVILEGES ON DATABASE shadowwatch_ai TO shadowwatch_user;
+        `);
+
+        console.log('✅ Database and user created successfully');
+
+        // Switch to ShadowWatch database
+        const shadowwatchClient = new pg.Client({
+            host: process.env.DB_HOST || 'localhost',
+            port: process.env.DB_PORT || 5432,
+            user: 'shadowwatch_user',
+            password: 'secure_password_123',
+            database: 'shadowwatch_ai'
+        });
+
+        await shadowwatchClient.connect();
+
+        // Read and execute schema
+        const schemaPath = path.join(__dirname, 'shadowwatch-ai', 'database', 'shadowwatch_schema.sql');
+        const schema = fs.readFileSync(schemaPath, 'utf8');
+
+        await shadowwatchClient.query(schema);
+        console.log('✅ Database schema applied successfully');
+
+        await shadowwatchClient.end();
+
+    } catch (error) {
+        console.error('❌ Database setup failed:', error);
+    } finally {
+        await client.end();
+    }
+}
+
+setupDatabase();
+```
+
+================================================================================
+STEP 4: ENVIRONMENT CONFIGURATION
+================================================================================
+
+CREATE THIS EXACT .env FILE:
+
+```env
+# Server Configuration
+NODE_ENV=development
+PORT=3000
+HOST=localhost
+
+# Database Configuration
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=shadowwatch_ai
+DB_USER=shadowwatch_user
+DB_PASSWORD=secure_password_123
+
+# Redis Configuration (Optional)
+REDIS_HOST=localhost
+REDIS_PORT=6379
+REDIS_PASSWORD=
+
+# ShadowWatch AI Configuration
+SHADOWWATCH_ENCRYPTION_KEY=your_32_char_encryption_key_here_123
+SHADOWWATCH_MAX_CONCURRENT_USERS=10000
+SHADOWWATCH_HEARTBEAT_INTERVAL_SECONDS=30
+SHADOWWATCH_GLOBAL_MONITORING_ENABLED=true
+
+# Privacy & GDPR
+GDPR_COMPLIANCE_ENABLED=true
+DATA_RETENTION_DAYS=365
+USER_CONSENT_REQUIRED=true
+
+# Tutorial System
+TUTORIAL_AUTO_START=true
+TUTORIAL_REMINDER_INTERVAL_MINUTES=15
+
+# Attack Training
+ATTACK_TRAINING_MAX_SESSIONS=100
+ATTACK_TRAINING_CONSENT_REQUIRED=true
+
+# Logging
+LOG_LEVEL=info
+DEBUG_MODE=false
+
+# Security
+ADMIN_JWT_SECRET=your_admin_jwt_secret_key
+RATE_LIMIT_REQUESTS_PER_MINUTE=100
+
+# CORS
+FRONTEND_URL=http://localhost:3000
+```
+
+================================================================================
+STEP 5: SERVER INTEGRATION - MODIFY EXISTING SERVER
+================================================================================
+
+MODIFY YOUR MAIN SERVER FILE WITH THIS EXACT CODE:
+
+```javascript
+// Add these imports at the top of your server file
+import dotenv from 'dotenv';
+import { initializeCompleteSystem } from './shadowwatch-ai/index.js';
+
+dotenv.config();
+
+// Add this after your existing server setup but before io.on('connection')
+let shadowwatch;
+try {
+    const aiSystem = await initializeCompleteSystem({
+        dbConfig: {
+            host: process.env.DB_HOST,
+            port: process.env.DB_PORT,
+            database: process.env.DB_NAME,
+            user: process.env.DB_USER,
+            password: process.env.DB_PASSWORD
+        },
+        redisConfig: process.env.REDIS_HOST ? {
+            host: process.env.REDIS_HOST,
+            port: process.env.REDIS_PORT,
+            password: process.env.REDIS_PASSWORD
+        } : null
+    });
+
+    shadowwatch = aiSystem.shadowwatch;
+    global.attackTrainer = aiSystem.attackTrainer;
+    global.tutorialSystem = aiSystem.tutorialSystem;
+
+    console.log('✅ ShadowWatch AI initialized successfully');
+
+} catch (error) {
+    console.error('❌ Failed to initialize ShadowWatch AI:', error);
+    console.error('Make sure database is set up and .env is configured');
+    process.exit(1);
+}
+
+// MODIFY YOUR EXISTING io.on('connection') HANDLER:
+
+io.on('connection', (socket) => {
+    console.log('Player connected:', socket.id);
+
+    // ===== SHADOWWATCH AI AUTHENTICATION =====
+    socket.on('authenticate', async (data) => {
+        try {
+            const { token, userId, consent } = data;
+
+            // Your existing authentication logic here
+            const user = await authenticateUser(token); // Your existing function
+
+            if (!user) {
+                socket.emit('authentication_failed', { reason: 'Invalid credentials' });
+                return;
+            }
+
+            // Subscribe user to ShadowWatch AI
+            const success = await shadowwatch.subscribeUser(
+                userId || user.id,
+                socket,
+                consent || user.shadowwatch_consent_given
+            );
+
+            if (success) {
+                socket.emit('authenticated', {
+                    userId: userId || user.id,
+                    shadowwatch_enabled: user.shadowwatch_enabled
+                });
+
+                // Send welcome message
+                setTimeout(() => {
+                    shadowwatch.sendPersonalizedGreeting(userId || user.id);
+                }, 1000);
+
+                console.log(`✅ User ${userId || user.id} subscribed to ShadowWatch AI`);
+            } else {
+                socket.emit('authentication_failed', {
+                    reason: 'ShadowWatch subscription failed'
+                });
+            }
+
+        } catch (error) {
+            console.error('ShadowWatch authentication error:', error);
+            socket.emit('authentication_failed', { reason: 'Server error' });
+        }
+    });
+
+    // ===== SHADOWWATCH AI ACTIVITY MONITORING =====
+    // Add these event handlers to your existing socket handlers
+
+    socket.on('stats_change', async (data) => {
+        if (!socket.shadowwatchUserId) return;
+
+        await shadowwatch.monitorStatsChange(
+            socket.shadowwatchUserId,
+            data.actionType,
+            data.stats
+        );
+    });
+
+    socket.on('heartbeat', () => {
+        socket.emit('heartbeat_ack', { timestamp: Date.now() });
+    });
+
+    // Tutorial events
+    socket.on('tutorial_progress', async (data) => {
+        if (!socket.shadowwatchUserId) return;
+
+        const result = await global.tutorialSystem?.progressTutorial(
+            socket.shadowwatchUserId,
+            data.action
+        );
+        socket.emit('tutorial_update', result);
+    });
+
+    // Training events
+    socket.on('training_request', async (data) => {
+        if (!socket.shadowwatchUserId) return;
+
+        const result = await global.attackTrainer?.requestTrainingSession(
+            socket.shadowwatchUserId,
+            data.preferences
+        );
+        socket.emit('training_update', result);
+    });
+
+    socket.on('training_action', async (data) => {
+        if (!socket.shadowwatchUserId) return;
+
+        const result = await global.attackTrainer?.processTrainingAction(
+            socket.shadowwatchUserId,
+            data
+        );
+        socket.emit('training_update', result);
+    });
+
+    // ===== YOUR EXISTING GAME LOGIC =====
+    // Keep all your existing socket event handlers here
+
+    socket.on('disconnect', (reason) => {
+        console.log('Player disconnected:', socket.id, reason);
+        // ShadowWatch handles cleanup automatically
+    });
+});
+
+// ADD THESE API ENDPOINTS TO YOUR EXPRESS APP:
+
+// ShadowWatch Health Check
+app.get('/api/health', async (req, res) => {
+    try {
+        const health = await shadowwatch.performHealthCheck();
+        res.json({
+            service: 'Your Game + ShadowWatch AI',
+            version: '1.0.0',
+            status: health.status,
+            timestamp: new Date().toISOString(),
+            ...health
+        });
+    } catch (error) {
+        res.status(500).json({ error: 'Health check failed' });
+    }
+});
+
+// Tutorial API
+app.get('/api/tutorial/status/:userId', async (req, res) => {
+    try {
+        const status = await global.tutorialSystem?.getTutorialStatus(req.params.userId);
+        res.json(status);
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to get tutorial status' });
+    }
+});
+
+// Training API
+app.post('/api/training/request', async (req, res) => {
+    try {
+        const result = await global.attackTrainer?.requestTrainingSession(
+            req.body.userId,
+            req.body.preferences
+        );
+        res.json(result);
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to request training' });
+    }
+});
+
+// Privacy API (GDPR)
+app.get('/api/privacy/data/:userId', async (req, res) => {
+    try {
+        const data = await shadowwatch.getUserDataForExport(req.params.userId);
+        res.json(data);
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to export data' });
+    }
+});
+
+app.delete('/api/privacy/data/:userId', async (req, res) => {
+    try {
+        await shadowwatch.deleteUserData(req.params.userId);
+        res.json({ success: true, message: 'Data deleted successfully' });
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to delete data' });
+    }
+});
+```
+
+================================================================================
+STEP 6: CLIENT-SIDE INTEGRATION
+================================================================================
+
+CREATE THIS NEW FILE: public/shadowwatch-client.js
+
+```javascript
+// ShadowWatch Client Integration
+class GameShadowWatchClient {
+    constructor(socket) {
+        this.socket = socket;
+        this.userId = null;
+        this.authenticated = false;
+
+        this.setupSocketHandlers();
+        this.injectStyles();
+        this.createUIElements();
+    }
+
+    setupSocketHandlers() {
+        // Authentication
+        this.socket.on('authenticated', (data) => {
+            this.authenticated = true;
+            this.userId = data.userId;
+            this.showStatsPulse();
+            console.log('✅ ShadowWatch AI connected');
+        });
+
+        this.socket.on('authentication_failed', (data) => {
+            console.error('❌ ShadowWatch authentication failed:', data.reason);
+        });
+
+        // AI Messages
+        this.socket.on('shadowwatch_message', (data) => {
+            this.showAIMessage(data);
+        });
+
+        // Tutorial
+        this.socket.on('tutorial_update', (data) => {
+            this.handleTutorialUpdate(data);
+        });
+
+        // Training
+        this.socket.on('training_update', (data) => {
+            this.handleTrainingUpdate(data);
+        });
+
+        // Stats updates
+        this.socket.on('stats_update', (data) => {
+            this.updateStatsDisplay(data);
+        });
+
+        // Heartbeat
+        this.socket.on('heartbeat_ack', () => {
+            // Connection healthy
+        });
+    }
+
+    authenticate(token, userId, consent = false) {
+        this.socket.emit('authenticate', { token, userId, consent });
+    }
+
+    // Activity Reporting - CALL THESE IN YOUR GAME CODE
+    reportActivity(actionType, stats = {}) {
+        if (!this.authenticated) return;
+
+        this.socket.emit('stats_change', {
+            actionType,
+            stats: { ...stats, timestamp: Date.now() }
+        });
+    }
+
+    // UI Elements
+    injectStyles() {
+        const styles = `
+            .shadowwatch-notification {
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: linear-gradient(135deg, #1e3a8a, #3b82f6);
+                color: white;
+                padding: 1rem;
+                border-radius: 0.5rem;
+                box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+                z-index: 1000;
+                max-width: 400px;
+                animation: slideIn 0.3s ease-out;
+            }
+
+            .shadowwatch-stats-pulse {
+                position: fixed;
+                right: 20px;
+                top: 50%;
+                transform: translateY(-50%);
+                background: rgba(30, 58, 138, 0.9);
+                color: white;
+                padding: 1rem;
+                border-radius: 0.5rem;
+                font-family: monospace;
+                font-size: 0.875rem;
+                z-index: 100;
+            }
+
+            @keyframes slideIn {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+        `;
+
+        const styleSheet = document.createElement('style');
+        styleSheet.textContent = styles;
+        document.head.appendChild(styleSheet);
+    }
+
+    createUIElements() {
+        // Stats pulse container
+        this.statsContainer = document.createElement('div');
+        this.statsContainer.className = 'shadowwatch-stats-pulse';
+        this.statsContainer.style.display = 'none';
+        document.body.appendChild(this.statsContainer);
+    }
+
+    showStatsPulse() {
+        this.statsContainer.innerHTML = `
+            <div style="font-weight: bold; margin-bottom: 0.5rem;">ShadowWatch AI</div>
+            <div>Status: ✅ Active</div>
+            <div>Tutorial: Available</div>
+            <div>Training: Ready</div>
+        `;
+        this.statsContainer.style.display = 'block';
+    }
+
+    showAIMessage(data) {
+        const notification = document.createElement('div');
+        notification.className = 'shadowwatch-notification';
+        notification.innerHTML = `
+            <div style="font-weight: bold; margin-bottom: 0.5rem;">${data.title}</div>
+            <div>${data.message}</div>
+            ${data.actions ? data.actions.map(action =>
+                `<button style="margin: 0.25rem; padding: 0.25rem 0.5rem; background: rgba(255,255,255,0.2); border: none; border-radius: 0.25rem; color: white; cursor: pointer;" onclick="handleAIMessage('${action}')">${action}</button>`
+            ).join('') : ''}
+        `;
+
+        document.body.appendChild(notification);
+
+        // Auto-remove after 10 seconds
+        setTimeout(() => {
+            if (notification.parentElement) {
+                notification.remove();
+            }
+        }, 10000);
+    }
+
+    updateStatsDisplay(data) {
+        if (this.statsContainer) {
+            // Update stats display with new data
+            console.log('Stats updated:', data);
+        }
+    }
+
+    handleTutorialUpdate(data) {
+        // Handle tutorial UI updates
+        console.log('Tutorial update:', data);
+    }
+
+    handleTrainingUpdate(data) {
+        // Handle training UI updates
+        console.log('Training update:', data);
+    }
+}
+
+// Global handler for AI message actions
+function handleAIMessage(action) {
+    console.log('AI message action:', action);
+    // Implement action handling based on your game
+}
+
+// Initialize when your game loads
+// Add this to your main game initialization code:
+if (typeof io !== 'undefined') {
+    window.shadowwatch = new GameShadowWatchClient(window.socket || io());
+}
+```
+
+================================================================================
+STEP 7: INTEGRATE WITH YOUR GAME CODE
+================================================================================
+
+MODIFY YOUR EXISTING GAME FILES TO REPORT ACTIVITIES:
+
+```javascript
+// In your player movement code
+function movePlayer(newPosition) {
+    // Your existing movement logic
+    player.x = newPosition.x;
+    player.y = newPosition.y;
+
+    // Report to ShadowWatch AI
+    if (window.shadowwatch) {
+        window.shadowwatch.reportActivity('player_movement', {
+            position: newPosition,
+            health: player.health,
+            level: player.level
+        });
+    }
+}
+
+// In your combat code
+function engageCombat(enemyId) {
+    // Your existing combat logic
+    currentCombat = { enemyId, startTime: Date.now() };
+
+    // Report to ShadowWatch AI
+    if (window.shadowwatch) {
+        window.shadowwatch.reportActivity('combat_engagement', {
+            enemyId,
+            combatStart: true,
+            health: player.health,
+            level: player.level
+        });
+    }
+}
+
+// In your level up code
+function levelUp(newLevel) {
+    // Your existing level up logic
+    player.level = newLevel;
+
+    // Report to ShadowWatch AI
+    if (window.shadowwatch) {
+        window.shadowwatch.reportActivity('level_up', {
+            level: newLevel,
+            experience: player.experience,
+            health: player.health
+        });
+    }
+}
+
+// In your quest completion code
+function completeQuest(questId) {
+    // Your existing quest logic
+
+    // Report to ShadowWatch AI
+    if (window.shadowwatch) {
+        window.shadowwatch.reportActivity('quest_completion', {
+            questId,
+            completionTime: Date.now(),
+            rewards: questRewards
+        });
+    }
+}
+```
+
+================================================================================
+STEP 8: TESTING THE INTEGRATION
+================================================================================
+
+CREATE THIS TEST FILE: test-shadowwatch.js
+
+```javascript
+// Test ShadowWatch AI Integration
+import io from 'socket.io-client';
+
+async function testShadowWatchIntegration() {
+    console.log('🧪 Testing ShadowWatch AI Integration...\n');
+
+    // Connect to your server
+    const socket = io('http://localhost:3000');
+
+    socket.on('connect', () => {
+        console.log('✅ Connected to server');
+
+        // Test authentication
+        socket.emit('authenticate', {
+            token: 'test-token',
+            userId: 'test-user-123',
+            consent: true
+        });
+    });
+
+    socket.on('authenticated', (data) => {
+        console.log('✅ ShadowWatch authentication successful:', data);
+
+        // Test activity reporting
+        setTimeout(() => {
+            socket.emit('stats_change', {
+                actionType: 'test_action',
+                stats: { level: 1, health: 100, experience: 0 }
+            });
+            console.log('📊 Test activity reported');
+        }, 1000);
+
+        // Test health check
+        setTimeout(async () => {
+            try {
+                const response = await fetch('http://localhost:3000/api/health');
+                const health = await response.json();
+                console.log('🏥 Health check result:', health);
+
+                if (health.status === 'healthy') {
+                    console.log('✅ ShadowWatch AI integration test PASSED!');
+                } else {
+                    console.log('❌ ShadowWatch AI integration test FAILED!');
+                }
+            } catch (error) {
+                console.error('❌ Health check failed:', error);
+            }
+
+            socket.disconnect();
+            process.exit(0);
+        }, 2000);
+    });
+
+    socket.on('authentication_failed', (data) => {
+        console.error('❌ ShadowWatch authentication failed:', data);
+        socket.disconnect();
+        process.exit(1);
+    });
+
+    socket.on('shadowwatch_message', (data) => {
+        console.log('📨 Received AI message:', data.title);
+    });
+}
+
+// Run the test
+testShadowWatchIntegration();
+```
+
+================================================================================
+STEP 9: DEPLOYMENT CHECKLIST
+================================================================================
+
+BEFORE GOING LIVE, VERIFY THESE CHECKS:
+
+□ Database connection working
+□ ShadowWatch AI initializes without errors
+□ WebSocket authentication works
+□ Activity reporting functions correctly
+□ Health check endpoint responds
+□ Client-side integration loads
+□ No console errors in browser
+□ Performance impact is acceptable (<5% CPU, <50MB RAM)
+□ GDPR consent flow works
+□ Tutorial system can start
+□ Training system accepts requests
+
+================================================================================
+STEP 10: PRODUCTION DEPLOYMENT
+================================================================================
+
+WHEN READY FOR PRODUCTION:
+
+1. Set NODE_ENV=production in .env
+2. Use the deployment script:
+   ```bash
+   node shadowwatch-ai/deployment/deploy.js --start
+   ```
+3. Monitor logs and performance
+4. Set up automated backups
+5. Configure monitoring alerts
+
+================================================================================
+TROUBLESHOOTING GUIDE FOR CURSOR
+================================================================================
+
+IF SOMETHING GOES WRONG:
+
+1. CHECK DATABASE: psql -U shadowwatch_user -d shadowwatch_ai -c "SELECT version();"
+2. CHECK LOGS: Look for "ShadowWatch AI initialized successfully" in server logs
+3. CHECK WEBSOCKET: Test with a simple Socket.IO client
+4. CHECK CLIENT: Open browser console, look for ShadowWatch messages
+5. CHECK API: curl http://localhost:3000/api/health
+
+COMMON FIXES:
+
+- Database password wrong? Update .env and restart server
+- Port conflict? Change PORT in .env
+- CORS issues? Check FRONTEND_URL in .env
+- Module not found? Run npm install again
+
+================================================================================
+END OF CURSOR INTEGRATION PROMPT
+================================================================================
+
+Cursor, please implement all of the above steps in order. Start with analyzing the user's project structure, then proceed through each step methodically. Do not skip any steps or make assumptions. Ask the user for clarification if anything is unclear about their existing codebase or setup.
+
+The integration should result in a fully functional ShadowWatch AI system running alongside their existing game, with all features working correctly.
+
+Good luck! 🚀
