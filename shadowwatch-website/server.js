@@ -20,6 +20,7 @@ import fs from 'fs';
 import crypto from 'crypto';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import fetch from 'node-fetch';
 
 // Cursor API Integration
 import CursorAPIIntegration from './cursor-api-integration.js';
@@ -42,6 +43,14 @@ class ShadowWatchWebsiteServer {
 
         // Initialize user and subscription system
         this.initializeUserSystem();
+
+        // Discord OAuth2 Configuration
+        this.discordConfig = {
+            clientId: process.env.DISCORD_CLIENT_ID || 'your-discord-client-id',
+            clientSecret: process.env.DISCORD_CLIENT_SECRET || 'your-discord-client-secret',
+            redirectUri: process.env.DISCORD_REDIRECT_URI || 'http://localhost:8080/auth/discord/callback',
+            scopes: ['identify', 'email']
+        };
 
         this.setupMiddleware();
         this.setupRoutes();
@@ -2424,9 +2433,225 @@ Please analyze the game path and implement the user's request. Provide detailed 
         console.log(`📥 Download tracked: ${fileName} by user ${ip}`);
     }
 
+    // Discord OAuth routes setup
+    setupDiscordOAuthRoutes() {
+        // Start Discord OAuth flow
+        this.app.get('/auth/discord', (req, res) => {
+            const state = crypto.randomUUID(); // Generate random state for CSRF protection
+            req.session.discordState = state;
+
+            const authUrl = `https://discord.com/api/oauth2/authorize?` +
+                `client_id=${this.discordConfig.clientId}&` +
+                `redirect_uri=${encodeURIComponent(this.discordConfig.redirectUri)}&` +
+                `response_type=code&` +
+                `scope=${this.discordConfig.scopes.join('%20')}&` +
+                `state=${state}`;
+
+            res.redirect(authUrl);
+        });
+
+        // Discord OAuth callback
+        this.app.get('/auth/discord/callback', async (req, res) => {
+            try {
+                const { code, state } = req.query;
+
+                // Verify state parameter for CSRF protection
+                if (!state || state !== req.session.discordState) {
+                    return res.status(400).json({ error: 'Invalid state parameter' });
+                }
+
+                // Clear the stored state
+                delete req.session.discordState;
+
+                // Exchange code for access token
+                const tokenResponse = await fetch('https://discord.com/api/oauth2/token', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: new URLSearchParams({
+                        client_id: this.discordConfig.clientId,
+                        client_secret: this.discordConfig.clientSecret,
+                        grant_type: 'authorization_code',
+                        code: code,
+                        redirect_uri: this.discordConfig.redirectUri,
+                    }),
+                });
+
+                if (!tokenResponse.ok) {
+                    throw new Error('Failed to exchange code for token');
+                }
+
+                const tokenData = await tokenResponse.json();
+
+                // Fetch user information from Discord
+                const userResponse = await fetch('https://discord.com/api/users/@me', {
+                    headers: {
+                        'Authorization': `Bearer ${tokenData.access_token}`,
+                    },
+                });
+
+                if (!userResponse.ok) {
+                    throw new Error('Failed to fetch user data');
+                }
+
+                const discordUser = await userResponse.json();
+
+                // Check if user exists in our system
+                let user = this.users.find(u => u.discordId === discordUser.id);
+
+                if (!user) {
+                    // Create new user account
+                    user = {
+                        id: `discord-${discordUser.id}`,
+                        discordId: discordUser.id,
+                        username: discordUser.username,
+                        email: discordUser.email,
+                        avatar: discordUser.avatar,
+                        discriminator: discordUser.discriminator,
+                        role: 'user',
+                        subscription: null,
+                        createdAt: new Date().toISOString(),
+                        authProvider: 'discord'
+                    };
+                    this.users.push(user);
+                } else {
+                    // Update existing user information
+                    user.username = discordUser.username;
+                    user.email = discordUser.email;
+                    user.avatar = discordUser.avatar;
+                    user.discriminator = discordUser.discriminator;
+                }
+
+                // Store tokens securely in session
+                req.session.discordTokens = {
+                    accessToken: tokenData.access_token,
+                    refreshToken: tokenData.refresh_token,
+                    expiresAt: Date.now() + (tokenData.expires_in * 1000)
+                };
+
+                // Set user session
+                req.session.user = {
+                    id: user.id,
+                    username: user.username,
+                    email: user.email,
+                    role: user.role,
+                    avatar: user.avatar,
+                    authProvider: 'discord'
+                };
+
+                // Generate JWT token
+                const jwtToken = jwt.sign(
+                    { id: user.id, username: user.username, email: user.email },
+                    process.env.JWT_SECRET || 'shadowwatch-jwt-secret-2025',
+                    { expiresIn: '24h' }
+                );
+
+                // Store JWT in session for API calls
+                req.session.jwtToken = jwtToken;
+
+                // Redirect to dashboard or original destination
+                const redirectTo = req.session.postLoginRedirect || '/dashboard';
+                delete req.session.postLoginRedirect;
+
+                res.redirect(redirectTo);
+
+            } catch (error) {
+                console.error('Discord OAuth error:', error);
+                res.status(500).json({ error: 'Authentication failed', details: error.message });
+            }
+        });
+
+        // Logout
+        this.app.post('/auth/discord/logout', (req, res) => {
+            // Clear Discord tokens
+            if (req.session.discordTokens) {
+                delete req.session.discordTokens;
+            }
+
+            // Clear user session
+            req.session.destroy((err) => {
+                if (err) {
+                    return res.status(500).json({ error: 'Logout failed' });
+                }
+                res.json({ message: 'Logged out successfully' });
+            });
+        });
+
+        // Get Discord user guilds (optional)
+        this.app.get('/api/discord/guilds', this.authenticateToken, async (req, res) => {
+            try {
+                if (!req.session.discordTokens || !req.session.discordTokens.accessToken) {
+                    return res.status(401).json({ error: 'No Discord access token' });
+                }
+
+                const guildsResponse = await fetch('https://discord.com/api/users/@me/guilds', {
+                    headers: {
+                        'Authorization': `Bearer ${req.session.discordTokens.accessToken}`,
+                    },
+                });
+
+                if (!guildsResponse.ok) {
+                    throw new Error('Failed to fetch guilds');
+                }
+
+                const guilds = await guildsResponse.json();
+                res.json({ guilds });
+
+            } catch (error) {
+                console.error('Discord guilds error:', error);
+                res.status(500).json({ error: 'Failed to fetch Discord guilds' });
+            }
+        });
+
+        // Refresh Discord access token
+        this.app.post('/api/discord/refresh', async (req, res) => {
+            try {
+                if (!req.session.discordTokens || !req.session.discordTokens.refreshToken) {
+                    return res.status(401).json({ error: 'No refresh token available' });
+                }
+
+                const refreshResponse = await fetch('https://discord.com/api/oauth2/token', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: new URLSearchParams({
+                        client_id: this.discordConfig.clientId,
+                        client_secret: this.discordConfig.clientSecret,
+                        grant_type: 'refresh_token',
+                        refresh_token: req.session.discordTokens.refreshToken,
+                    }),
+                });
+
+                if (!refreshResponse.ok) {
+                    throw new Error('Failed to refresh token');
+                }
+
+                const newTokenData = await refreshResponse.json();
+
+                // Update stored tokens
+                req.session.discordTokens = {
+                    accessToken: newTokenData.access_token,
+                    refreshToken: newTokenData.refresh_token,
+                    expiresAt: Date.now() + (newTokenData.expires_in * 1000)
+                };
+
+                res.json({ message: 'Token refreshed successfully' });
+
+            } catch (error) {
+                console.error('Token refresh error:', error);
+                res.status(500).json({ error: 'Failed to refresh token' });
+            }
+        });
+    }
+
     setupRoutes() {
         // Authentication routes
         this.setupAuthRoutes();
+
+        // Discord OAuth routes
+        this.setupDiscordOAuthRoutes();
 
         // AI Prompt routes
         this.setupAIPromptRoutes();
@@ -2436,6 +2661,14 @@ Please analyze the game path and implement the user's request. Provide detailed 
 
         // Download routes
         this.setupDownloadRoutes();
+
+        // Dashboard page
+        this.app.get('/dashboard', (req, res) => {
+            if (!req.session.user) {
+                return res.redirect('/login?redirect=/dashboard&message=Please log in to access your dashboard');
+            }
+            res.sendFile(path.join(__dirname, 'dashboard.html'));
+        });
 
         // Health check for website server
         this.app.get('/health', (req, res) => {
