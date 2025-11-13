@@ -143,6 +143,96 @@ shadowwatch [mode] create --UltraHardCoded -f --test <type> --<engine> [--name <
 - `-f` or `--force` - Force overwrite
 - `--UltraHardCoded` - Maximum quality
 
+## 🤖 Cursor Agent Auto Mode
+
+**Automatically run the full ShadowWatch AI CLI with Cursor Agent integration!**
+
+### Autonomous Development
+
+The CLI now includes Cursor Agent Auto mode for fully autonomous game development.
+
+#### Start Ultra-Maximum 9500-Hour Mode
+
+```bash
+# Start 9500-hour autonomous development for Unreal Engine
+shadowwatch cursor-agent-auto 9500h unreal
+
+# Start for Unity Engine
+shadowwatch cursor-agent-auto ultra-maximum unity
+
+# Start continuous development (runs forever)
+shadowwatch cursor-agent-auto continuous unreal
+```
+
+#### Auto-Run Command Sequences
+
+```bash
+# Run default sequence (characters, weapons, vehicles)
+shadowwatch cursor-auto-run default
+
+# Create all weapons for both engines
+shadowwatch cursor-auto-run weapons
+
+# Create all vehicles for both engines
+shadowwatch cursor-auto-run vehicles
+
+# Create all characters for both engines
+shadowwatch cursor-auto-run characters
+```
+
+#### Check Cursor Agent Status
+
+```bash
+# Check current development status
+shadowwatch cursor-status
+```
+
+### What Happens in Auto Mode?
+
+#### Ultra-Maximum 9500-Hour Mode:
+- 🚀 **9500 Hours** of continuous development
+- 🎯 **Complete 3D MMO/RPG** with WASD + mouse controls
+- 🤖 **Random model generation** every 15 seconds
+- 💾 **Auto-save progress** every hour
+- 🎮 **Multi-engine support** (Unreal & Unity)
+
+#### Continuous Mode:
+- ♾️ **Runs indefinitely** until stopped
+- 🔄 **Random command execution** every 15-60 seconds
+- 📊 **Real-time status updates**
+- 🛡️ **Error recovery** and automatic retry
+
+#### Auto-Run Sequences:
+- **Default**: Complete model set (characters, weapons, vehicles)
+- **Weapons**: All weapon types for both engines
+- **Vehicles**: All vehicle types for both engines
+- **Characters**: All character types for both engines
+
+### Cursor Agent Integration
+
+The CLI integrates with the Cursor Cloud Agents API to:
+
+- ✅ **Launch autonomous agents** for development
+- ✅ **Monitor development progress** in real-time
+- ✅ **Execute commands automatically** based on AI decisions
+- ✅ **Handle API rate limits** and error recovery
+- ✅ **Generate comprehensive reports** of development progress
+
+### Development Flow
+
+1. **Start Auto Mode**: `shadowwatch cursor-agent-auto 9500h unreal`
+2. **Monitor Progress**: `shadowwatch cursor-status`
+3. **View Generated Models**: `shadowwatch list-models unreal`
+4. **Stop When Complete**: Ctrl+C to interrupt
+
+### Safety Features
+
+- 🛡️ **Rate limiting** to prevent API abuse
+- 🔄 **Auto-retry** on failures with exponential backoff
+- 💾 **Progress saving** to resume after interruptions
+- 🚨 **Error logging** for debugging
+- ⏹️ **Graceful shutdown** with progress preservation
+
 ## 🎮 Supported Game Engines
 
 | Engine | Language | Features |

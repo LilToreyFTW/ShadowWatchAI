@@ -37,6 +37,70 @@ class CursorAPIIntegration {
         this.vehicleBlueprintMode = true;
         this.modelPackMode = true;
         this.antiHackerProtection = true;
+
+        // CRITICAL PROTECTION: AI CANNOT TOUCH SHADOWWATCH AI CODEBASE
+        this.protectedDirectories = [
+            'ShadowWatchAI-Software',
+            'ShadowWatchAI-Software/',
+            'ShadowWatchAI-Software/**',
+            '**/ShadowWatchAI-Software/**',
+            '**/ShadowWatchAI-Software',
+            'core/',
+            'core/**',
+            'scripts/',
+            'scripts/**',
+            'config/',
+            'config/**',
+            'docs/',
+            'docs/**',
+            'cursor-api-integration.js',
+            'server.js',
+            'cursor-control.html',
+            'index.html',
+            'styles.css',
+            'package.json',
+            'Start-ShadowWatchAI.bat',
+            '**/node_modules/**',
+            '**/logs/**',
+            '**/.git/**',
+            '**/.gitignore',
+            '**/README.md',
+            '**/readme.md'
+        ];
+
+        // OpenAI API Integration
+        this.openaiApiKey = process.env.OPENAI_API_KEY || '';
+        this.openaiBaseUrl = 'https://api.openai.com/v1';
+        this.openaiModel = 'gpt-4o'; // Default to GPT-4o for best performance
+        this.useOpenAI = false; // Toggle between Cursor and OpenAI
+
+        this.allowedDirectories = [
+            'Assets/',
+            'Content/',
+            'Source/',
+            'src/',
+            'public/',
+            'models/',
+            'Scripts/',
+            'Blueprints/',
+            'Vehicles/',
+            'Vehicles/**',
+            'Content/**',
+            'Assets/**',
+            'src/**',
+            'models/**',
+            'game/',
+            'game/**',
+            'scenes/',
+            'scenes/**',
+            'levels/',
+            'levels/**',
+            'characters/',
+            'characters/**',
+            'ui/',
+            'ui/**'
+        ];
+
         this.developmentStats = {
             filesAnalyzed: 0,
             featuresImplemented: 0,
@@ -564,6 +628,293 @@ Please ensure documentation is accurate, clear, and comprehensive.`;
         }
 
         return results;
+    }
+
+    // ================================================
+    // CRITICAL AI PROTECTION SYSTEM - PREVENTS AI FROM TOUCHING SHADOWWATCH CODEBASE
+    // ================================================
+
+    // Check if a file/path is protected from AI modification
+    isPathProtected(filePath) {
+        if (!filePath) return true;
+
+        // Normalize path separators
+        const normalizedPath = filePath.replace(/\\/g, '/').toLowerCase();
+
+        // Check against protected directories and files
+        for (const protectedPattern of this.protectedDirectories) {
+            const pattern = protectedPattern.toLowerCase().replace(/\*/g, '.*');
+            try {
+                if (normalizedPath.match(new RegExp(pattern.replace(/\//g, '\\/')))) {
+                    console.log(`🛡️ PROTECTED: AI cannot modify ${filePath} (matches ${protectedPattern})`);
+                    return true;
+                }
+            } catch (error) {
+                // Invalid regex pattern, continue
+                continue;
+            }
+        }
+
+        return false;
+    }
+
+    // Check if a path is allowed for AI modification
+    isPathAllowed(filePath) {
+        if (!filePath) return false;
+
+        // First check if it's protected - if so, it's not allowed
+        if (this.isPathProtected(filePath)) {
+            return false;
+        }
+
+        // Normalize path separators
+        const normalizedPath = filePath.replace(/\\/g, '/').toLowerCase();
+
+        // Check against allowed directories
+        for (const allowedPattern of this.allowedDirectories) {
+            const pattern = allowedPattern.toLowerCase().replace(/\*/g, '.*');
+            try {
+                if (normalizedPath.match(new RegExp(pattern.replace(/\//g, '\\/')))) {
+                    return true;
+                }
+            } catch (error) {
+                // Invalid regex pattern, continue
+                continue;
+            }
+        }
+
+        // Additional check: if it's in a standard game project structure
+        const gameProjectPatterns = [
+            /^assets\//i,
+            /^content\//i,
+            /^source\//i,
+            /^src\//i,
+            /^scripts\//i,
+            /^scenes\//i,
+            /^levels\//i,
+            /^characters\//i,
+            /^models\//i,
+            /^game\//i,
+            /^public\//i
+        ];
+
+        for (const pattern of gameProjectPatterns) {
+            if (pattern.test(normalizedPath)) {
+                return true;
+            }
+        }
+
+        console.log(`⚠️ WARNING: Path ${filePath} is not in allowed directories. AI will only work on game project files.`);
+        return false;
+    }
+
+    // Enhanced launchAgent with protection checks
+    async launchProtectedAgent(prompt, options = {}) {
+        // Add protection warnings to all prompts
+        const protectedPrompt = `CRITICAL PROTECTION RULES - YOU MUST FOLLOW THESE EXACTLY:
+
+🚫 DO NOT TOUCH OR MODIFY ANY SHADOWWATCH AI CODEBASE FILES:
+- ShadowWatchAI-Software/ directory and all contents
+- core/ directory and all files
+- scripts/ directory and all files
+- config/ directory and all files
+- docs/ directory and all files
+- Any file ending in .js, .html, .css, .json, .bat, .md
+- node_modules/, logs/, .git/ directories
+- README files, documentation files
+- Server files, API files, UI files
+
+✅ ONLY WORK ON USER'S GAME PROJECT FILES:
+- Assets/ (Unity)
+- Content/ (Unreal)
+- Source/ (Unreal)
+- src/ (Web projects)
+- models/ (generated assets)
+- Scripts/ (game scripts)
+- scenes/, levels/, characters/ directories
+- User's game logic and assets only
+
+🔒 YOU ARE FORBIDDEN FROM MODIFYING THE SHADOWWATCH AI SYSTEM ITSELF.
+🔒 ONLY MODIFY THE USER'S GAME CODE AND ASSETS.
+🔒 IF ASKED TO MODIFY AI SYSTEM FILES, REFUSE AND EXPLAIN PROTECTION RULES.
+
+${prompt}`;
+
+        // Check if target paths are allowed
+        if (options.targetPath && !this.isPathAllowed(options.targetPath)) {
+            console.log(`🚫 BLOCKED: Cannot work on protected path ${options.targetPath}`);
+            return {
+                error: 'PROTECTED_PATH',
+                message: 'Cannot modify ShadowWatch AI system files. Only user game project files are allowed.',
+                path: options.targetPath
+            };
+        }
+
+        // Choose between Cursor AI and OpenAI based on settings
+        if (this.useOpenAI && this.openaiApiKey) {
+            return this.callOpenAI(protectedPrompt, options);
+        } else {
+            return this.launchAgent(protectedPrompt, options);
+        }
+    }
+
+    // ================================================
+    // OPENAI API INTEGRATION SYSTEM
+    // ================================================
+
+    // Set OpenAI API key
+    setOpenAIKey(apiKey) {
+        this.openaiApiKey = apiKey;
+        console.log('🔑 OpenAI API key set successfully');
+        return { success: true, message: 'OpenAI API key configured' };
+    }
+
+    // Toggle between Cursor AI and OpenAI
+    setAIProvider(useOpenAI) {
+        this.useOpenAI = useOpenAI;
+        const provider = useOpenAI ? 'OpenAI' : 'Cursor AI';
+        console.log(`🤖 AI Provider switched to: ${provider}`);
+        return { success: true, provider, message: `Now using ${provider}` };
+    }
+
+    // Get current AI provider status
+    getAIProviderStatus() {
+        return {
+            currentProvider: this.useOpenAI ? 'OpenAI' : 'Cursor AI',
+            openaiConfigured: !!this.openaiApiKey,
+            cursorConfigured: !!this.apiKey,
+            openaiModel: this.openaiModel
+        };
+    }
+
+    // Call OpenAI API
+    async callOpenAI(prompt, options = {}) {
+        if (!this.openaiApiKey) {
+            throw new Error('OpenAI API key not configured. Please set your OpenAI API key first.');
+        }
+
+        const model = options.model || this.openaiModel;
+        const temperature = options.temperature || 0.7;
+        const maxTokens = options.maxTokens || 4000;
+
+        try {
+            const response = await fetch(`${this.openaiBaseUrl}/chat/completions`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${this.openaiApiKey}`
+                },
+                body: JSON.stringify({
+                    model: model,
+                    messages: [
+                        {
+                            role: 'system',
+                            content: 'You are ShadowWatch AI, an advanced game development assistant. You help create complete games, vehicles, weapons, and other game assets. You are bound by strict protection rules and can only work on user game project files, never modify the ShadowWatch AI system itself.'
+                        },
+                        {
+                            role: 'user',
+                            content: prompt
+                        }
+                    ],
+                    temperature: temperature,
+                    max_tokens: maxTokens,
+                    stream: false
+                })
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(`OpenAI API error: ${response.status} - ${errorData.error?.message || 'Unknown error'}`);
+            }
+
+            const data = await response.json();
+
+            if (!data.choices || !data.choices[0] || !data.choices[0].message) {
+                throw new Error('Invalid response format from OpenAI API');
+            }
+
+            const result = data.choices[0].message.content;
+
+            console.log(`✅ OpenAI (${model}) response received: ${result.length} characters`);
+
+            return {
+                id: data.id,
+                content: result,
+                model: data.model,
+                usage: data.usage,
+                provider: 'OpenAI'
+            };
+
+        } catch (error) {
+            console.error('❌ OpenAI API call failed:', error);
+            throw error;
+        }
+    }
+
+    // Enhanced launchAgent that can use either Cursor or OpenAI
+    async launchAgent(prompt, options = {}) {
+        // If using OpenAI, route to OpenAI instead
+        if (this.useOpenAI && this.openaiApiKey) {
+            return this.callOpenAI(prompt, options);
+        }
+
+        // Original Cursor AI implementation
+        const url = `${this.baseUrl}/agents`;
+        const payload = {
+            prompt: {
+                text: prompt,
+                images: options.images || []
+            },
+            source: {
+                repository: this.repository,
+                ref: options.ref || 'main'
+            },
+            target: {
+                autoCreatePr: options.autoCreatePr !== false,
+                openAsCursorGithubApp: options.openAsCursorGithubApp || false,
+                skipReviewerRequest: options.skipReviewerRequest || false,
+                branchName: options.branchName
+            }
+        };
+
+        if (options.model) {
+            payload.model = options.model;
+        }
+
+        if (options.webhook) {
+            payload.webhook = options.webhook;
+        }
+
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Basic ${btoa(`${this.apiKey}:`)}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(`Cursor API error: ${response.status} - ${errorData.message || 'Unknown error'}`);
+            }
+
+            const data = await response.json();
+            console.log(`✅ Cursor AI agent launched: ${data.id}`);
+
+            return {
+                id: data.id,
+                status: data.status,
+                url: data.target?.url,
+                prUrl: data.target?.prUrl,
+                provider: 'Cursor'
+            };
+
+        } catch (error) {
+            console.error('❌ Cursor AI launch failed:', error);
+            throw error;
+        }
     }
 
     // ================================================
@@ -1797,7 +2148,7 @@ DO NOT use Python, Java, or any other languages. Update the user's HTML tabs to 
         ];
 
         for (const task of unityTasks) {
-            await this.launchAgent(`UNITY SETUP: ${task} - Full Unity ${unityVersion} integration`, {
+            await this.launchProtectedAgent(`UNITY SETUP: ${task} - Full Unity ${unityVersion} integration`, {
                 model: 'AUTO',
                 autoCreatePr: true,
                 branchName: `unity-setup-${Date.now().toString(36)}`
@@ -1823,7 +2174,7 @@ DO NOT use Python, Java, or any other languages. Update the user's HTML tabs to 
         ];
 
         for (const task of unrealTasks) {
-            await this.launchAgent(`UNREAL SETUP: ${task} - Full Unreal Engine ${unrealVersion} integration`, {
+            await this.launchProtectedAgent(`UNREAL SETUP: ${task} - Full Unreal Engine ${unrealVersion} integration`, {
                 model: 'AUTO',
                 autoCreatePr: true,
                 branchName: `unreal-setup-${Date.now().toString(36)}`
@@ -1887,7 +2238,7 @@ Please create:
 
 DO NOT use Python, Java, or any other languages besides the approved list above. Make this production-ready with proper error handling and optimization.`;
 
-        const blueprint = await this.launchAgent(blueprintPrompt, {
+        const blueprint = await this.launchProtectedAgent(blueprintPrompt, {
             model: 'AUTO',
             autoCreatePr: true,
             branchName: `weapon-blueprint-${weaponName.toLowerCase().replace(/\s+/g, '-')}-${Date.now().toString(36)}`
@@ -1912,7 +2263,7 @@ Model Requirements:
 
 Include complete 3D modeling pipeline and export settings.`;
 
-        const model = await this.launchAgent(modelPrompt, {
+        const model = await this.launchProtectedAgent(modelPrompt, {
             model: 'AUTO',
             autoCreatePr: true,
             branchName: `weapon-model-${weaponName.toLowerCase().replace(/\s+/g, '-')}-${Date.now().toString(36)}`
@@ -2008,7 +2359,7 @@ Please create:
 
 DO NOT use Python, Java, or any other languages besides the approved list above. Make this production-ready with proper optimization and scalability.`;
 
-        const blueprint = await this.launchAgent(blueprintPrompt, {
+        const blueprint = await this.launchProtectedAgent(blueprintPrompt, {
             model: 'AUTO',
             autoCreatePr: true,
             branchName: `vehicle-blueprint-${vehicleName.toLowerCase().replace(/\s+/g, '-')}-${Date.now().toString(36)}`
@@ -2034,7 +2385,7 @@ Model Requirements:
 
 Include complete vehicle modeling pipeline and export settings.`;
 
-        const model = await this.launchAgent(modelPrompt, {
+        const model = await this.launchProtectedAgent(modelPrompt, {
             model: 'AUTO',
             autoCreatePr: true,
             branchName: `vehicle-model-${vehicleName.toLowerCase().replace(/\s+/g, '-')}-${Date.now().toString(36)}`
@@ -2100,7 +2451,7 @@ Include complete vehicle modeling pipeline and export settings.`;
 
         // Create directory structure tasks
         for (const [dir, description] of Object.entries(directoryStructure)) {
-            await this.launchAgent(`DIRECTORY: Create ${dir} - ${description} - Organize all game assets properly`, {
+            await this.launchProtectedAgent(`DIRECTORY: Create ${dir} - ${description} - Organize all game assets properly`, {
                 model: 'AUTO',
                 autoCreatePr: true,
                 branchName: `model-structure-${Date.now().toString(36)}`
@@ -2114,7 +2465,7 @@ Include complete vehicle modeling pipeline and export settings.`;
     async saveWeaponBlueprint(weaponName, blueprint, model) {
         const weaponDir = `models/weapons/${weaponName.toLowerCase().replace(/\s+/g, '_')}/`;
 
-        await this.launchAgent(`SAVE WEAPON: Create ${weaponDir} and save ${weaponName} blueprint and model files - Organize everything properly`, {
+        await this.launchProtectedAgent(`SAVE WEAPON: Create ${weaponDir} and save ${weaponName} blueprint and model files - Organize everything properly`, {
             model: 'AUTO',
             autoCreatePr: true,
             branchName: `save-weapon-${weaponName.toLowerCase().replace(/\s+/g, '-')}-${Date.now().toString(36)}`
@@ -2125,7 +2476,7 @@ Include complete vehicle modeling pipeline and export settings.`;
     async saveVehicleBlueprint(vehicleName, blueprint, model) {
         const vehicleDir = `models/vehicles/${vehicleName.toLowerCase().replace(/\s+/g, '_')}/`;
 
-        await this.launchAgent(`SAVE VEHICLE: Create ${vehicleDir} and save ${vehicleName} blueprint and model files - Organize everything properly`, {
+        await this.launchProtectedAgent(`SAVE VEHICLE: Create ${vehicleDir} and save ${vehicleName} blueprint and model files - Organize everything properly`, {
             model: 'AUTO',
             autoCreatePr: true,
             branchName: `save-vehicle-${vehicleName.toLowerCase().replace(/\s+/g, '-')}-${Date.now().toString(36)}`
@@ -2136,7 +2487,7 @@ Include complete vehicle modeling pipeline and export settings.`;
     async saveWeaponPack(packName, packData) {
         const packDir = `models/weapons/packs/${packName.toLowerCase().replace(/\s+/g, '_')}/`;
 
-        await this.launchAgent(`SAVE WEAPON PACK: Create ${packDir} and save complete ${packName} weapon pack with all ${packData.weapons.length} weapons - Fully organized`, {
+        await this.launchProtectedAgent(`SAVE WEAPON PACK: Create ${packDir} and save complete ${packName} weapon pack with all ${packData.weapons.length} weapons - Fully organized`, {
             model: 'AUTO',
             autoCreatePr: true,
             branchName: `save-weapon-pack-${packName.toLowerCase().replace(/\s+/g, '-')}-${Date.now().toString(36)}`
@@ -2147,7 +2498,7 @@ Include complete vehicle modeling pipeline and export settings.`;
     async saveVehiclePack(packName, packData) {
         const packDir = `models/vehicles/packs/${packName.toLowerCase().replace(/\s+/g, '_')}/`;
 
-        await this.launchAgent(`SAVE VEHICLE PACK: Create ${packDir} and save complete ${packName} vehicle pack with all ${packData.vehicles.length} vehicles - Fully organized`, {
+        await this.launchProtectedAgent(`SAVE VEHICLE PACK: Create ${packDir} and save complete ${packName} vehicle pack with all ${packData.vehicles.length} vehicles - Fully organized`, {
             model: 'AUTO',
             autoCreatePr: true,
             branchName: `save-vehicle-pack-${packName.toLowerCase().replace(/\s+/g, '-')}-${Date.now().toString(36)}`
@@ -2208,7 +2559,7 @@ Include complete vehicle modeling pipeline and export settings.`;
         });
 
         // Notify administrators (in real implementation)
-        await this.launchAgent(`SECURITY ALERT: ${threat} - Implement immediate protective measures and countermeasures`, {
+        await this.launchProtectedAgent(`SECURITY ALERT: ${threat} - Implement immediate protective measures and countermeasures`, {
             model: 'AUTO',
             autoCreatePr: true,
             branchName: `security-alert-${Date.now().toString(36)}`
@@ -2232,7 +2583,7 @@ Include complete vehicle modeling pipeline and export settings.`;
         ];
 
         for (const measure of measures) {
-            await this.launchAgent(`SECURITY: ${measure} in response to ${threat} - Protect ShadowWatchAI from hackers
+            await this.launchProtectedAgent(`SECURITY: ${measure} in response to ${threat} - Protect ShadowWatchAI from hackers
 
 CRITICAL LANGUAGE RESTRICTION: You MUST ONLY use:
 - C# (for Unity Engine projects)
@@ -2308,6 +2659,786 @@ DO NOT use Python, Java, or any other languages. Implement security measures usi
                 'No breaks, no stops, pure development'
             ]
         };
+    }
+
+    // ================================================
+    // COMPREHENSIVE VEHICLE MANUFACTURER DATABASE & 3D MODEL SYSTEM
+    // ================================================
+
+    // Complete vehicle manufacturer database
+    get vehicleManufacturers() {
+        return {
+            'Abarth': {
+                country: 'Italy',
+                founded: 1949,
+                specialty: 'High-performance Fiat variants',
+                models: ['500e', '600e', 'Pulse'],
+                wheelStyles: ['alloy', 'sport', 'racing'],
+                interiorThemes: ['sport', 'racing', 'performance']
+            },
+            'Alfa Romeo': {
+                country: 'Italy',
+                founded: 1910,
+                specialty: 'Sports cars and sedans',
+                models: ['Giulia', 'Stelvio', 'Tonale', 'Junior', '33 Stradale'],
+                wheelStyles: ['alloy', 'sport', 'premium'],
+                interiorThemes: ['luxury', 'sport', 'modern', 'exclusive']
+            },
+            'Aston Martin': {
+                country: 'United Kingdom',
+                founded: 1913,
+                specialty: 'Luxury sports cars and hypercars',
+                models: ['Vantage', 'DB12', 'DBX707', 'Vanquish', 'Valhalla', 'Valkyrie', 'Valour'],
+                wheelStyles: ['alloy', 'premium', 'carbon', 'exclusive'],
+                interiorThemes: ['luxury', 'exclusive', 'bespoke', 'hypercar']
+            },
+            'Audi': {
+                country: 'Germany',
+                founded: 1909,
+                specialty: 'Luxury sedans, SUVs and electric vehicles',
+                models: ['A3', 'A4', 'A5', 'A6', 'A7', 'A8', 'Q3', 'Q4 e-tron', 'Q5', 'Q6 e-tron', 'Q7', 'Q8', 'e-tron GT'],
+                wheelStyles: ['alloy', 'premium', 'audi-sport', 'quattro'],
+                interiorThemes: ['luxury', 'tech', 'modern', 'electric']
+            },
+            'Bentley': {
+                country: 'United Kingdom',
+                founded: 1919,
+                specialty: 'Ultra-luxury vehicles',
+                models: ['Continental GT', 'Continental GT Convertible', 'Flying Spur', 'Bentayga'],
+                wheelStyles: ['alloy', 'premium', 'chrome', 'bespoke'],
+                interiorThemes: ['ultra-luxury', 'handcrafted', 'bespoke', 'exclusive']
+            },
+            'BMW': {
+                country: 'Germany',
+                founded: 1916,
+                specialty: 'Performance and luxury vehicles',
+                models: ['1 Series', '2 Series', '3 Series', '4 Series', '5 Series', '7 Series', '8 Series', 'i4', 'i5', 'i7', 'iX', 'X1', 'X2', 'X3', 'X4', 'X5', 'X6', 'X7', 'Z4'],
+                wheelStyles: ['alloy', 'm-performance', 'premium', 'bmw-individual'],
+                interiorThemes: ['luxury', 'tech', 'sport', 'electric', 'premium']
+            },
+            'Bugatti': {
+                country: 'France',
+                founded: 1909,
+                specialty: 'Hyper-sports cars',
+                models: ['Tourbillon', 'W16 Mistral', 'Bolide'],
+                wheelStyles: ['carbon', 'premium', 'exclusive'],
+                interiorThemes: ['ultra-luxury', 'exclusive', 'bespoke', 'hypercar']
+            },
+            'Cadillac': {
+                country: 'United States',
+                founded: 1902,
+                specialty: 'American luxury vehicles',
+                models: ['CT4', 'CT5', 'XT4', 'XT5', 'XT6', 'Lyriq', 'Escalade', 'Optiq', 'Escalade IQ', 'Vistiq', 'Celestiq'],
+                wheelStyles: ['alloy', 'chrome', 'premium', 'cadillac-crest'],
+                interiorThemes: ['luxury', 'american', 'tech', 'ultra-luxury', 'electric']
+            },
+            'Chevrolet': {
+                country: 'United States',
+                founded: 1911,
+                specialty: 'Mass-market vehicles',
+                models: ['Corvette', 'Camaro', 'Malibu', 'Trax', 'Trailblazer', 'Equinox', 'Blazer', 'Tahoe', 'Suburban', 'Silverado', 'Colorado', 'Traverse'],
+                wheelStyles: ['alloy', 'steel', 'sport', 'offroad'],
+                interiorThemes: ['standard', 'sport', 'luxury', 'american', 'family']
+            },
+            'Chrysler': {
+                country: 'United States',
+                founded: 1925,
+                specialty: 'American sedans and SUVs',
+                models: ['Pacifica', 'Voyager', '300'],
+                wheelStyles: ['alloy', 'chrome', 'standard'],
+                interiorThemes: ['american', 'family', 'luxury']
+            },
+            'Citroën': {
+                country: 'France',
+                founded: 1919,
+                specialty: 'Comfort and innovation',
+                models: ['C3', 'C4', 'C5 Aircross', 'Berlingo'],
+                wheelStyles: ['alloy', 'standard', 'sport'],
+                interiorThemes: ['comfort', 'modern', 'french', 'practical']
+            },
+            'Dacia': {
+                country: 'Romania',
+                founded: 1966,
+                specialty: 'Budget vehicles',
+                models: ['Sandero', 'Duster', 'Logan', 'Lodgy'],
+                wheelStyles: ['steel', 'alloy', 'standard'],
+                interiorThemes: ['basic', 'practical', 'modern']
+            },
+            'Daewoo': {
+                country: 'South Korea',
+                founded: 1967,
+                specialty: 'Budget and compact vehicles',
+                models: ['Matiz', 'Lanos', 'Nubira', 'Leganza'],
+                wheelStyles: ['steel', 'alloy', 'standard'],
+                interiorThemes: ['basic', 'practical', 'budget']
+            },
+            'Daihatsu': {
+                country: 'Japan',
+                founded: 1907,
+                specialty: 'Compact and kei cars',
+                models: ['Mira', 'Move', 'Cast', 'Terios'],
+                wheelStyles: ['steel', 'alloy', 'standard'],
+                interiorThemes: ['japanese', 'compact', 'practical']
+            },
+            'Dodge': {
+                country: 'United States',
+                founded: 1900,
+                specialty: 'Performance and muscle cars',
+                models: ['Charger', 'Challenger', 'Durango', 'Journey'],
+                wheelStyles: ['alloy', 'chrome', 'sport'],
+                interiorThemes: ['american', 'sport', 'muscle']
+            },
+            'Donkervoort': {
+                country: 'Netherlands',
+                founded: 1978,
+                specialty: 'Lightweight sports cars',
+                models: ['D8 GTO', 'D8 GT', 'D8 Cosmic'],
+                wheelStyles: ['alloy', 'sport', 'racing'],
+                interiorThemes: ['minimalist', 'racing', 'luxury']
+            },
+            'DS': {
+                country: 'France',
+                founded: 2014,
+                specialty: 'Premium Citroën vehicles',
+                models: ['DS 3', 'DS 4', 'DS 5', 'DS 7 Crossback'],
+                wheelStyles: ['alloy', 'premium', 'sport'],
+                interiorThemes: ['luxury', 'french', 'modern']
+            },
+            'Ferrari': {
+                country: 'Italy',
+                founded: 1947,
+                specialty: 'High-performance sports cars',
+                models: ['488 Spider', 'F8 Tributo', 'SF90 Stradale', 'Roma', 'Portofino'],
+                wheelStyles: ['alloy', 'carbon', 'premium'],
+                interiorThemes: ['luxury', 'italian', 'exclusive']
+            },
+            'Fiat': {
+                country: 'Italy',
+                founded: 1899,
+                specialty: 'Compact and city cars',
+                models: ['500', 'Panda', 'Tipo', '500X'],
+                wheelStyles: ['alloy', 'steel', 'standard'],
+                interiorThemes: ['italian', 'practical', 'modern']
+            },
+            'Fisker': {
+                country: 'United States',
+                founded: 2016,
+                specialty: 'Electric luxury vehicles',
+                models: ['Ocean', 'Pear'],
+                wheelStyles: ['alloy', 'premium', 'eco'],
+                interiorThemes: ['luxury', 'tech', 'sustainable']
+            },
+            'Ford': {
+                country: 'United States',
+                founded: 1903,
+                specialty: 'Mass-market vehicles',
+                models: ['Mustang', 'F-150', 'Explorer', 'Focus', 'Fiesta'],
+                wheelStyles: ['alloy', 'steel', 'sport'],
+                interiorThemes: ['american', 'practical', 'tech']
+            },
+            'Honda': {
+                country: 'Japan',
+                founded: 1948,
+                specialty: 'Reliable and efficient vehicles',
+                models: ['Civic', 'Accord', 'CR-V', 'Pilot', 'Fit'],
+                wheelStyles: ['alloy', 'steel', 'standard'],
+                interiorThemes: ['japanese', 'practical', 'modern']
+            },
+            'Hummer': {
+                country: 'United States',
+                founded: 1992,
+                specialty: 'Military-style SUVs',
+                models: ['H1', 'H2', 'H3'],
+                wheelStyles: ['alloy', 'military', 'offroad'],
+                interiorThemes: ['military', 'rugged', 'american']
+            },
+            'Hyundai': {
+                country: 'South Korea',
+                founded: 1967,
+                specialty: 'Modern and affordable vehicles',
+                models: ['Elantra', 'Sonata', 'Tucson', 'Santa Fe', 'Kona'],
+                wheelStyles: ['alloy', 'standard', 'sport'],
+                interiorThemes: ['modern', 'korean', 'tech']
+            },
+            'Infiniti': {
+                country: 'Japan',
+                founded: 1989,
+                specialty: 'Luxury Nissan vehicles',
+                models: ['Q50', 'Q60', 'QX60', 'QX80'],
+                wheelStyles: ['alloy', 'premium', 'sport'],
+                interiorThemes: ['luxury', 'japanese', 'tech']
+            },
+            'Iveco': {
+                country: 'Italy',
+                founded: 1975,
+                specialty: 'Commercial vehicles',
+                models: ['Daily', 'Eurocargo', 'Stralis'],
+                wheelStyles: ['steel', 'alloy', 'commercial'],
+                interiorThemes: ['commercial', 'practical', 'durable']
+            },
+            'Jaguar': {
+                country: 'United Kingdom',
+                founded: 1922,
+                specialty: 'Luxury sports cars',
+                models: ['F-Type', 'XE', 'XF', 'XJ', 'F-Pace'],
+                wheelStyles: ['alloy', 'premium', 'sport'],
+                interiorThemes: ['luxury', 'british', 'modern']
+            },
+            'Jeep': {
+                country: 'United States',
+                founded: 1941,
+                specialty: 'Off-road vehicles',
+                models: ['Wrangler', 'Grand Cherokee', 'Cherokee', 'Compass'],
+                wheelStyles: ['alloy', 'offroad', 'military'],
+                interiorThemes: ['rugged', 'american', 'adventure']
+            },
+            'Kia': {
+                country: 'South Korea',
+                founded: 1944,
+                specialty: 'Modern and stylish vehicles',
+                models: ['Rio', 'Sportage', 'Sorento', 'Optima', 'Stinger'],
+                wheelStyles: ['alloy', 'standard', 'sport'],
+                interiorThemes: ['modern', 'korean', 'tech']
+            },
+            'KTM': {
+                country: 'Austria',
+                founded: 1934,
+                specialty: 'Adventure vehicles',
+                models: ['X-Bow', 'X-Bow GT', 'X-Bow R'],
+                wheelStyles: ['alloy', 'sport', 'racing'],
+                interiorThemes: ['sport', 'racing', 'minimalist']
+            },
+            'Lada': {
+                country: 'Russia',
+                founded: 1966,
+                specialty: 'Budget Russian vehicles',
+                models: ['Vesta', 'Granta', 'Niva', 'Priora'],
+                wheelStyles: ['steel', 'alloy', 'standard'],
+                interiorThemes: ['basic', 'russian', 'practical']
+            },
+            'Lamborghini': {
+                country: 'Italy',
+                founded: 1963,
+                specialty: 'Super-sports cars',
+                models: ['Huracan', 'Aventador', 'Urus', 'Sian'],
+                wheelStyles: ['alloy', 'carbon', 'premium'],
+                interiorThemes: ['luxury', 'italian', 'exclusive']
+            },
+            'Lancia': {
+                country: 'Italy',
+                founded: 1906,
+                specialty: 'Luxury and comfort vehicles',
+                models: ['Ypsilon', 'Delta', 'Thema'],
+                wheelStyles: ['alloy', 'premium', 'standard'],
+                interiorThemes: ['luxury', 'italian', 'comfort']
+            },
+            'Land Rover': {
+                country: 'United Kingdom',
+                founded: 1948,
+                specialty: 'Luxury SUVs and off-road vehicles',
+                models: ['Range Rover', 'Discovery', 'Defender', 'Evoque'],
+                wheelStyles: ['alloy', 'offroad', 'premium'],
+                interiorThemes: ['luxury', 'british', 'rugged']
+            },
+            'Landwind': {
+                country: 'China',
+                founded: 2004,
+                specialty: 'Budget SUVs',
+                models: ['X6', 'X7', 'X9'],
+                wheelStyles: ['alloy', 'standard', 'sport'],
+                interiorThemes: ['basic', 'practical', 'modern']
+            },
+            'Lexus': {
+                country: 'Japan',
+                founded: 1989,
+                specialty: 'Luxury Toyota vehicles',
+                models: ['RX', 'GX', 'LX', 'ES', 'IS'],
+                wheelStyles: ['alloy', 'premium', 'sport'],
+                interiorThemes: ['luxury', 'japanese', 'tech']
+            },
+            'Lotus': {
+                country: 'United Kingdom',
+                founded: 1952,
+                specialty: 'Lightweight sports cars',
+                models: ['Elise', 'Exige', 'Evora', 'Emira'],
+                wheelStyles: ['alloy', 'sport', 'racing'],
+                interiorThemes: ['minimalist', 'sport', 'luxury']
+            },
+            'Maserati': {
+                country: 'Italy',
+                founded: 1914,
+                specialty: 'Luxury sports cars',
+                models: ['Ghibli', 'Quattroporte', 'Levante', 'MC20'],
+                wheelStyles: ['alloy', 'premium', 'sport'],
+                interiorThemes: ['luxury', 'italian', 'exclusive']
+            },
+            'Maybach': {
+                country: 'Germany',
+                founded: 1909,
+                specialty: 'Ultra-luxury vehicles',
+                models: ['S-Class Pullman', 'GLS-Class'],
+                wheelStyles: ['alloy', 'premium', 'chrome'],
+                interiorThemes: ['ultra-luxury', 'bespoke', 'exclusive']
+            },
+            'Mazda': {
+                country: 'Japan',
+                founded: 1920,
+                specialty: 'Stylish and sporty vehicles',
+                models: ['Mazda3', 'Mazda6', 'CX-5', 'MX-5 Miata'],
+                wheelStyles: ['alloy', 'sport', 'standard'],
+                interiorThemes: ['japanese', 'sport', 'modern']
+            },
+            'McLaren': {
+                country: 'United Kingdom',
+                founded: 1963,
+                specialty: 'Hyper-sports cars',
+                models: ['720S', '765LT', 'Artura', 'GT'],
+                wheelStyles: ['alloy', 'carbon', 'premium'],
+                interiorThemes: ['luxury', 'exclusive', 'bespoke']
+            },
+            'Mercedes-Benz': {
+                country: 'Germany',
+                founded: 1926,
+                specialty: 'Luxury and performance vehicles',
+                models: ['C-Class', 'E-Class', 'S-Class', 'G-Class', 'AMG GT'],
+                wheelStyles: ['alloy', 'premium', 'amg'],
+                interiorThemes: ['luxury', 'german', 'tech']
+            },
+            'MG': {
+                country: 'United Kingdom',
+                founded: 1924,
+                specialty: 'Affordable sports cars',
+                models: ['MG3', 'MG ZS', 'MG HS'],
+                wheelStyles: ['alloy', 'standard', 'sport'],
+                interiorThemes: ['british', 'sport', 'modern']
+            },
+            'Mini': {
+                country: 'United Kingdom',
+                founded: 1959,
+                specialty: 'Compact luxury cars',
+                models: ['Cooper', 'Countryman', 'Clubman'],
+                wheelStyles: ['alloy', 'premium', 'sport'],
+                interiorThemes: ['luxury', 'british', 'fun']
+            },
+            'Mitsubishi': {
+                country: 'Japan',
+                founded: 1870,
+                specialty: 'Reliable and versatile vehicles',
+                models: ['Outlander', 'Eclipse Cross', 'Pajero', 'Lancer'],
+                wheelStyles: ['alloy', 'standard', 'sport'],
+                interiorThemes: ['japanese', 'practical', 'rugged']
+            },
+            'Morgan': {
+                country: 'United Kingdom',
+                founded: 1909,
+                specialty: 'Classic sports cars',
+                models: ['Plus Four', 'Plus Six', 'Aero 8'],
+                wheelStyles: ['alloy', 'classic', 'sport'],
+                interiorThemes: ['classic', 'british', 'luxury']
+            },
+            'Nissan': {
+                country: 'Japan',
+                founded: 1933,
+                specialty: 'Innovative and sporty vehicles',
+                models: ['Altima', 'Sentra', 'Rogue', 'Pathfinder', '370Z'],
+                wheelStyles: ['alloy', 'standard', 'sport'],
+                interiorThemes: ['japanese', 'tech', 'modern']
+            },
+            'Opel': {
+                country: 'Germany',
+                founded: 1862,
+                specialty: 'German mass-market vehicles',
+                models: ['Astra', 'Corsa', 'Insignia', 'Mokka'],
+                wheelStyles: ['alloy', 'standard', 'sport'],
+                interiorThemes: ['german', 'practical', 'modern']
+            },
+            'Peugeot': {
+                country: 'France',
+                founded: 1889,
+                specialty: 'Stylish and practical vehicles',
+                models: ['208', '308', '3008', '5008'],
+                wheelStyles: ['alloy', 'standard', 'sport'],
+                interiorThemes: ['french', 'modern', 'practical']
+            },
+            'Porsche': {
+                country: 'Germany',
+                founded: 1931,
+                specialty: 'High-performance sports cars',
+                models: ['911', 'Cayenne', 'Panamera', 'Macan', 'Taycan'],
+                wheelStyles: ['alloy', 'premium', 'sport'],
+                interiorThemes: ['luxury', 'german', 'sport']
+            },
+            'Renault': {
+                country: 'France',
+                founded: 1899,
+                specialty: 'Innovative and affordable vehicles',
+                models: ['Clio', 'Megane', 'Captur', 'Kadjar'],
+                wheelStyles: ['alloy', 'standard', 'sport'],
+                interiorThemes: ['french', 'modern', 'practical']
+            },
+            'Rolls-Royce': {
+                country: 'United Kingdom',
+                founded: 1904,
+                specialty: 'Ultimate luxury vehicles',
+                models: ['Ghost', 'Dawn', 'Wraith', 'Cullinan'],
+                wheelStyles: ['alloy', 'premium', 'chrome'],
+                interiorThemes: ['ultra-luxury', 'bespoke', 'exclusive']
+            },
+            'Rover': {
+                country: 'United Kingdom',
+                founded: 1878,
+                specialty: 'Classic British vehicles',
+                models: ['Mini', 'Land Rover'],
+                wheelStyles: ['alloy', 'classic', 'offroad'],
+                interiorThemes: ['classic', 'british', 'luxury']
+            },
+            'Saab': {
+                country: 'Sweden',
+                founded: 1945,
+                specialty: 'Safety and performance vehicles',
+                models: ['9-3', '9-5', '900', '9000'],
+                wheelStyles: ['alloy', 'standard', 'sport'],
+                interiorThemes: ['scandinavian', 'practical', 'luxury']
+            },
+            'Seat': {
+                country: 'Spain',
+                founded: 1950,
+                specialty: 'Stylish Spanish vehicles',
+                models: ['Ibiza', 'Leon', 'Ateca', 'Arona'],
+                wheelStyles: ['alloy', 'standard', 'sport'],
+                interiorThemes: ['spanish', 'modern', 'practical']
+            },
+            'Skoda': {
+                country: 'Czech Republic',
+                founded: 1895,
+                specialty: 'Practical and affordable vehicles',
+                models: ['Fabia', 'Octavia', 'Superb', 'Kodiaq'],
+                wheelStyles: ['alloy', 'standard', 'sport'],
+                interiorThemes: ['practical', 'czech', 'modern']
+            },
+            'Smart': {
+                country: 'Germany',
+                founded: 1994,
+                specialty: 'Micro cars and electric vehicles',
+                models: ['Fortwo', 'Forfour', 'EQ Fortwo'],
+                wheelStyles: ['alloy', 'standard', 'eco'],
+                interiorThemes: ['minimalist', 'modern', 'tech']
+            },
+            'SsangYong': {
+                country: 'South Korea',
+                founded: 1954,
+                specialty: 'SUVs and off-road vehicles',
+                models: ['Tivoli', 'Korando', 'Rexton'],
+                wheelStyles: ['alloy', 'offroad', 'standard'],
+                interiorThemes: ['practical', 'rugged', 'modern']
+            },
+            'Subaru': {
+                country: 'Japan',
+                founded: 1953,
+                specialty: 'AWD and outdoor vehicles',
+                models: ['Impreza', 'Legacy', 'Outback', 'Forester'],
+                wheelStyles: ['alloy', 'standard', 'offroad'],
+                interiorThemes: ['japanese', 'practical', 'rugged']
+            },
+            'Suzuki': {
+                country: 'Japan',
+                founded: 1909,
+                specialty: 'Compact and affordable vehicles',
+                models: ['Swift', 'Vitara', 'Jimny', 'Baleno'],
+                wheelStyles: ['alloy', 'steel', 'standard'],
+                interiorThemes: ['japanese', 'practical', 'compact']
+            },
+            'Tesla': {
+                country: 'United States',
+                founded: 2003,
+                specialty: 'Electric and autonomous vehicles',
+                models: ['Model S', 'Model 3', 'Model X', 'Model Y', 'Cybertruck'],
+                wheelStyles: ['alloy', 'premium', 'eco'],
+                interiorThemes: ['tech', 'minimalist', 'futuristic']
+            },
+            'Toyota': {
+                country: 'Japan',
+                founded: 1937,
+                specialty: 'Reliable and mass-market vehicles',
+                models: ['Corolla', 'Camry', 'RAV4', 'Prius', 'Supra'],
+                wheelStyles: ['alloy', 'steel', 'sport'],
+                interiorThemes: ['japanese', 'practical', 'modern']
+            },
+            'Volkswagen': {
+                country: 'Germany',
+                founded: 1937,
+                specialty: 'People\'s car and mass-market vehicles',
+                models: ['Golf', 'Passat', 'Tiguan', 'Polo', 'Arteon'],
+                wheelStyles: ['alloy', 'standard', 'sport'],
+                interiorThemes: ['german', 'practical', 'modern']
+            },
+            'Volvo': {
+                country: 'Sweden',
+                founded: 1927,
+                specialty: 'Safety and luxury vehicles',
+                models: ['XC90', 'XC60', 'S90', 'V90'],
+                wheelStyles: ['alloy', 'premium', 'standard'],
+                interiorThemes: ['luxury', 'scandinavian', 'safe']
+            }
+        };
+    }
+
+    // Enhanced vehicle creation with full manufacturer support
+    async createVehicleBlueprint(manufacturer, model, engineType = 'unreal') {
+        console.log(`🚗 Creating ${manufacturer} ${model} for ${engineType.toUpperCase()}`);
+
+        if (engineType !== 'unreal') {
+            console.log('⚠️ WARNING: Vehicle creation is optimized for Unreal Engine. Other engines may have limited support.');
+        }
+
+        // Create vehicles directory structure
+        await this.createModelDirectoryStructure();
+
+        // Get manufacturer data
+        const manufacturerData = this.vehicleManufacturers[manufacturer];
+        if (!manufacturerData) {
+            throw new Error(`Manufacturer ${manufacturer} not found in database`);
+        }
+
+        // Validate model exists for manufacturer
+        if (!manufacturerData.models.includes(model)) {
+            console.log(`⚠️ Model ${model} not found for ${manufacturer}, but proceeding with generation...`);
+        }
+
+        const vehicleBlueprint = await this.generateCompleteVehicleBlueprint(manufacturer, model, manufacturerData, engineType);
+        const vehicleModel = await this.generateCompleteVehicleModel(manufacturer, model, manufacturerData, engineType);
+
+        // Save blueprint and model
+        await this.saveVehicleBlueprint(`${manufacturer}_${model}`, vehicleBlueprint, vehicleModel);
+
+        console.log(`✅ ${manufacturer} ${model} complete vehicle created with full 3D model, interior, and default rims`);
+        return {
+            manufacturer,
+            model,
+            engineType,
+            blueprint: vehicleBlueprint,
+            model: vehicleModel,
+            manufacturerData
+        };
+    }
+
+    // Generate complete vehicle blueprint with Unreal C++ code
+    async generateCompleteVehicleBlueprint(manufacturer, model, manufacturerData, engineType) {
+        const blueprintPrompt = `Create a COMPLETE ${manufacturer} ${model} vehicle blueprint for ${engineType.toUpperCase()}:
+
+CRITICAL LANGUAGE RESTRICTION: You MUST ONLY use C++ for Unreal Engine - NO Blueprints!
+
+Manufacturer: ${manufacturer}
+Model: ${model}
+Country: ${manufacturerData.country}
+Founded: ${manufacturerData.founded}
+Specialty: ${manufacturerData.specialty}
+
+You MUST create COMPLETE Unreal Engine C++ code including:
+
+1. **Vehicle Class** - Full C++ vehicle class inheriting from UWheeledVehicle
+2. **Movement Component** - Custom vehicle movement with realistic physics
+3. **Wheel Setup** - Complete wheel configuration with suspension
+4. **Engine/Transmission** - Realistic powertrain simulation
+5. **Controls** - Full input handling system
+6. **Audio System** - Engine sounds, tire sounds, etc.
+7. **Particle Effects** - Exhaust, tire smoke, damage effects
+8. **Damage System** - Realistic damage modeling
+9. **Customization System** - Paint, parts, upgrades
+10. **AI System** - NPC vehicle behavior
+
+Include:
+- Complete .h and .cpp files
+- Proper UPROPERTY and UFUNCTION declarations
+- Realistic physics values for ${manufacturer} ${model}
+- Manufacturer-specific handling characteristics
+- ${manufacturerData.wheelStyles.join(', ')} wheel styles
+- ${manufacturerData.interiorThemes.join(', ')} interior themes
+
+Make this production-ready enterprise-level C++ code for Unreal Engine.`;
+
+        const blueprint = await this.launchProtectedAgent(blueprintPrompt, {
+            model: 'AUTO',
+            autoCreatePr: true,
+            branchName: `vehicle-blueprint-${manufacturer.toLowerCase()}-${model.toLowerCase().replace(/\s+/g, '-')}-${Date.now().toString(36)}`
+        });
+
+        return blueprint;
+    }
+
+    // Generate complete 3D vehicle model with interior and rims
+    async generateCompleteVehicleModel(manufacturer, model, manufacturerData, engineType) {
+        const modelPrompt = `Create a COMPLETE 3D model specification for ${manufacturer} ${model}:
+
+Manufacturer Details:
+- Country: ${manufacturerData.country}
+- Founded: ${manufacturerData.founded}
+- Specialty: ${manufacturerData.specialty}
+
+You MUST create COMPLETE 3D model specifications including:
+
+**EXTERIOR BODY SHELL:**
+- Accurate ${manufacturer} ${model} body proportions and styling
+- Detailed exterior panels, doors, hood, trunk
+- Proper wheel wells and underbody details
+- Manufacturer-specific grille and lighting
+- Realistic surface details and panel gaps
+- Country-specific design language (${manufacturerData.country} style)
+
+**COMPLETE INTERIOR:**
+- Full dashboard with manufacturer-specific layout
+- Accurate seat designs and materials
+- Center console and control layouts
+- Door panels and trim pieces
+- Headliner and carpet details
+- Steering wheel design (${manufacturer} style)
+- Instrument cluster and displays
+
+**DEFAULT RIMS/WHEELS:**
+- ${manufacturer}-specific wheel designs
+- Available styles: ${manufacturerData.wheelStyles.join(', ')}
+- Proper tire specifications
+- Hubcap designs (if applicable)
+- Rim sizes and offsets for ${model}
+
+**TECHNICAL SPECIFICATIONS:**
+- Polycount breakdown (High/Low/LOD0-LOD3)
+- UV mapping layout and texel density
+- PBR material setup (BaseColor, Metallic, Roughness, Normal, AO)
+- Texture resolution requirements
+- Animation rig setup for doors, hood, trunk
+- Collision mesh specifications
+
+**UNREAL ENGINE OPTIMIZATION:**
+- Proper naming conventions
+- Material slot organization
+- LOD group setup
+- Socket placements for attachments
+- Physics collision setup
+- Lightmap UV coordinates
+
+Create production-ready 3D model specifications that match the real ${manufacturer} ${model} exactly.`;
+
+        const modelResult = await this.launchProtectedAgent(modelPrompt, {
+            model: 'AUTO',
+            autoCreatePr: true,
+            branchName: `vehicle-model-${manufacturer.toLowerCase()}-${model.toLowerCase().replace(/\s+/g, '-')}-${Date.now().toString(36)}`
+        });
+
+        return modelResult;
+    }
+
+    // Create vehicle model pack for manufacturer
+    async createManufacturerVehiclePack(manufacturer, engineType = 'unreal') {
+        console.log(`🚗 Creating complete vehicle pack for ${manufacturer}`);
+
+        const manufacturerData = this.vehicleManufacturers[manufacturer];
+        if (!manufacturerData) {
+            throw new Error(`Manufacturer ${manufacturer} not found`);
+        }
+
+        await this.createModelDirectoryStructure();
+
+        const packData = {
+            manufacturer,
+            country: manufacturerData.country,
+            founded: manufacturerData.founded,
+            specialty: manufacturerData.specialty,
+            vehicles: [],
+            created: new Date(),
+            engineType,
+            version: '1.0.0'
+        };
+
+        // Create all models for this manufacturer
+        for (const model of manufacturerData.models) {
+            console.log(`Building ${manufacturer} ${model}...`);
+            const vehicleData = await this.createVehicleBlueprint(manufacturer, model, engineType);
+            packData.vehicles.push({
+                model,
+                blueprint: vehicleData.blueprint,
+                model3d: vehicleData.model,
+                wheelStyles: manufacturerData.wheelStyles,
+                interiorThemes: manufacturerData.interiorThemes
+            });
+
+            // Delay between models to prevent API overload
+            await new Promise(resolve => setTimeout(resolve, 3000));
+        }
+
+        // Save complete manufacturer pack
+        await this.saveManufacturerPack(manufacturer, packData);
+
+        console.log(`✅ Complete ${manufacturer} vehicle pack created with ${manufacturerData.models.length} models`);
+        return packData;
+    }
+
+    // Create all manufacturers' vehicle packs
+    async createAllManufacturerVehiclePacks(engineType = 'unreal') {
+        console.log('🚗🚗🚗 CREATING ALL VEHICLE MANUFACTURERS PACKS 🚗🚗🚗');
+        console.log('This will create complete vehicle packs for ALL manufacturers listed');
+
+        const manufacturers = Object.keys(this.vehicleManufacturers);
+        const results = [];
+
+        for (const manufacturer of manufacturers) {
+            try {
+                console.log(`\n🔨 Building ${manufacturer} vehicle pack...`);
+                const packData = await this.createManufacturerVehiclePack(manufacturer, engineType);
+                results.push({
+                    manufacturer,
+                    success: true,
+                    modelsCreated: packData.vehicles.length,
+                    packData
+                });
+
+                // Major delay between manufacturers to prevent overwhelming
+                console.log(`✅ ${manufacturer} complete! Waiting before next manufacturer...`);
+                await new Promise(resolve => setTimeout(resolve, 10000)); // 10 second delay
+
+            } catch (error) {
+                console.error(`❌ Failed to create ${manufacturer} pack:`, error);
+                results.push({
+                    manufacturer,
+                    success: false,
+                    error: error.message
+                });
+            }
+        }
+
+        console.log('\n🎉 ALL VEHICLE MANUFACTURER PACKS CREATION COMPLETE!');
+        console.log(`✅ Successful: ${results.filter(r => r.success).length}`);
+        console.log(`❌ Failed: ${results.filter(r => !r.success).length}`);
+        console.log(`🚗 Total Vehicles Created: ${results.filter(r => r.success).reduce((sum, r) => sum + r.modelsCreated, 0)}`);
+
+        return results;
+    }
+
+    // Save manufacturer pack
+    async saveManufacturerPack(manufacturer, packData) {
+        const packDir = `models/vehicles/manufacturers/${manufacturer.toLowerCase().replace(/\s+/g, '_')}/`;
+
+        await this.launchProtectedAgent(`SAVE ${manufacturer} VEHICLE PACK: Create ${packDir} and save complete ${manufacturer} vehicle pack with all ${packData.vehicles.length} models - Fully organized Unreal Engine C++ code and 3D models`, {
+            model: 'AUTO',
+            autoCreatePr: true,
+            branchName: `manufacturer-pack-${manufacturer.toLowerCase()}-${Date.now().toString(36)}`
+        });
+    }
+
+    // Get manufacturer info
+    getManufacturerInfo(manufacturer) {
+        return this.vehicleManufacturers[manufacturer] || null;
+    }
+
+    // List all manufacturers
+    getAllManufacturers() {
+        return Object.keys(this.vehicleManufacturers);
+    }
+
+    // Get manufacturer models
+    getManufacturerModels(manufacturer) {
+        const data = this.vehicleManufacturers[manufacturer];
+        return data ? data.models : [];
     }
 
     // Initialize security log
