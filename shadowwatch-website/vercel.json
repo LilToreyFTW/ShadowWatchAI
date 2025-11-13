@@ -1,12 +1,10 @@
 {
   "version": 2,
-  "name": "ShadowWatch AI",
-  "builds": [
-    {
-      "src": "server.js",
-      "use": "@vercel/node"
+  "functions": {
+    "server.js": {
+      "maxDuration": 30
     }
-  ],
+  },
   "routes": [
     {
       "src": "/api/(.*)",
@@ -17,11 +15,6 @@
       "dest": "/server.js"
     }
   ],
-  "functions": {
-    "server.js": {
-      "maxDuration": 30
-    }
-  },
   "env": {
     "NODE_ENV": "production"
   },
