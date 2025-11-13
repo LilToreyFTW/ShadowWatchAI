@@ -1931,3 +1931,14 @@ body {
 .ai-prompt-access .btn-secondary:hover {
     background: rgba(0, 255, 255, 0.3);
 }
+
+/* QR Signup Hero Button */
+.qr-signup-btn {
+    background: linear-gradient(135deg, #06b6d4, #0891b2);
+    text-decoration: none;
+    display: inline-block;
+}
+
+.qr-signup-btn:hover {
+    text-decoration: none;
+}

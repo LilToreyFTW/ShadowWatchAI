@@ -2578,6 +2578,75 @@ Please analyze the game path and implement the user's request. Provide detailed 
             });
         });
 
+        // QR Signup API
+        this.app.post('/api/auth/qr-signup', async (req, res) => {
+            try {
+                const { verificationToken, username, email, password, phoneNumber } = req.body;
+
+                // Validate required fields
+                if (!verificationToken || !username || !password) {
+                    return res.status(400).json({ error: 'Missing required fields' });
+                }
+
+                // Check if username is already taken
+                const existingUser = this.users.find(u => u.username === username);
+                if (existingUser) {
+                    return res.status(409).json({ error: 'Username already taken' });
+                }
+
+                // Hash password
+                const saltRounds = 10;
+                const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+                // Create user account
+                const newUser = {
+                    id: `phone-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+                    username,
+                    email: email || null,
+                    password: hashedPassword,
+                    phoneNumber,
+                    role: 'user',
+                    subscription: null,
+                    authProvider: 'phone-verification',
+                    createdAt: new Date().toISOString(),
+                    verifiedAt: new Date().toISOString()
+                };
+
+                this.users.push(newUser);
+
+                // Generate JWT token
+                const token = jwt.sign(
+                    { id: newUser.id, username: newUser.username, email: newUser.email },
+                    process.env.JWT_SECRET || 'shadowwatch-jwt-secret-2025',
+                    { expiresIn: '24h' }
+                );
+
+                // Set session
+                req.session.user = {
+                    id: newUser.id,
+                    username: newUser.username,
+                    email: newUser.email,
+                    role: newUser.role,
+                    authProvider: 'phone-verification'
+                };
+
+                res.json({
+                    message: 'Account created successfully',
+                    token,
+                    user: {
+                        id: newUser.id,
+                        username: newUser.username,
+                        email: newUser.email,
+                        role: newUser.role
+                    }
+                });
+
+            } catch (error) {
+                console.error('QR signup error:', error);
+                res.status(500).json({ error: 'Failed to create account' });
+            }
+        });
+
         // Get Discord user guilds (optional)
         this.app.get('/api/discord/guilds', this.authenticateToken, async (req, res) => {
             try {
@@ -2668,6 +2737,11 @@ Please analyze the game path and implement the user's request. Provide detailed 
                 return res.redirect('/login?redirect=/dashboard&message=Please log in to access your dashboard');
             }
             res.sendFile(path.join(__dirname, 'dashboard.html'));
+        });
+
+        // QR Signup page
+        this.app.get('/qr-signup', (req, res) => {
+            res.sendFile(path.join(__dirname, 'qr-signup.html'));
         });
 
         // Health check for website server
