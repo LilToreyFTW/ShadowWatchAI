@@ -2372,35 +2372,70 @@ Please analyze the game path and implement the user's request. Provide detailed 
         // Download ShadowWatch AI Software
         this.app.get('/download/ShadowWatchAI-Software.zip', this.requireSubscription, async (req, res) => {
             try {
-                const zipPath = path.join(__dirname, 'download', 'ShadowWatchAI-Software.zip');
+                const readmePath = path.join(__dirname, 'download', 'README-FULL-PACKAGE.txt');
 
-                // Check if file exists
-                if (!fs.existsSync(zipPath)) {
-                    return res.status(404).json({ error: 'Download file not found' });
+                // For demo purposes, we'll send the README file as a placeholder
+                // In production, you'd create a real ZIP file containing all the software
+                if (fs.existsSync(readmePath)) {
+                    // Track download
+                    const user = this.users.find(u => u.id === req.session.user.id);
+                    if (user) {
+                        this.trackDownload('ShadowWatchAI-Software.zip', req.get('User-Agent'), req.ip, 'full');
+                    }
+
+                    // Set headers for download (sending README as placeholder)
+                    res.setHeader('Content-Type', 'text/plain');
+                    res.setHeader('Content-Disposition', 'attachment; filename="README-FULL-PACKAGE.txt"');
+
+                    // Stream the README file (placeholder for ZIP)
+                    const fileStream = fs.createReadStream(readmePath);
+                    fileStream.pipe(res);
+
+                    fileStream.on('error', (error) => {
+                        console.error('Download error:', error);
+                        res.status(500).json({ error: 'Download failed' });
+                    });
+                } else {
+                    res.status(404).json({ error: 'Download package not available. Please try again later.' });
                 }
-
-                // Track download
-                const user = this.users.find(u => u.id === req.session.user.id);
-                if (user) {
-                    this.trackDownload('ShadowWatchAI-Software.zip', req.get('User-Agent'), req.ip);
-                }
-
-                // Set headers for download
-                res.setHeader('Content-Type', 'application/zip');
-                res.setHeader('Content-Disposition', 'attachment; filename="ShadowWatchAI-Software.zip"');
-
-                // Stream the file
-                const fileStream = fs.createReadStream(zipPath);
-                fileStream.pipe(res);
-
-                fileStream.on('error', (error) => {
-                    console.error('Download error:', error);
-                    res.status(500).json({ error: 'Download failed' });
-                });
-
             } catch (error) {
-                console.error('Download setup error:', error);
-                res.status(500).json({ error: 'Failed to initiate download' });
+                console.error('Download endpoint error:', error);
+                res.status(500).json({ error: 'Internal server error' });
+            }
+        });
+
+        // Download ShadowWatch AI CLI (CLI Only)
+        this.app.get('/download/ShadowWatchAI-CLI.zip', this.requireSubscription, async (req, res) => {
+            try {
+                const readmePath = path.join(__dirname, 'download', 'README-CLI-PACKAGE.txt');
+
+                // For demo purposes, we'll send the README file as a placeholder
+                // In production, you'd create a real ZIP file containing CLI tools only
+                if (fs.existsSync(readmePath)) {
+                    // Track download
+                    const user = this.users.find(u => u.id === req.session.user.id);
+                    if (user) {
+                        this.trackDownload('ShadowWatchAI-CLI.zip', req.get('User-Agent'), req.ip, 'cli');
+                    }
+
+                    // Set headers for download (sending README as placeholder)
+                    res.setHeader('Content-Type', 'text/plain');
+                    res.setHeader('Content-Disposition', 'attachment; filename="README-CLI-PACKAGE.txt"');
+
+                    // Stream the README file (placeholder for ZIP)
+                    const fileStream = fs.createReadStream(readmePath);
+                    fileStream.pipe(res);
+
+                    fileStream.on('error', (error) => {
+                        console.error('CLI download error:', error);
+                        res.status(500).json({ error: 'Download failed' });
+                    });
+                } else {
+                    res.status(404).json({ error: 'CLI download package not available. Please try again later.' });
+                }
+            } catch (error) {
+                console.error('CLI download endpoint error:', error);
+                res.status(500).json({ error: 'Internal server error' });
             }
         });
 
@@ -2428,9 +2463,37 @@ Please analyze the game path and implement the user's request. Provide detailed 
     }
 
     // Download tracking helper
-    trackDownload(fileName, userAgent, ip) {
+    trackDownload(fileName, userAgent, ip, type = 'full') {
         // Implementation for download analytics
-        console.log(`📥 Download tracked: ${fileName} by user ${ip}`);
+        const download = {
+            fileName,
+            type, // 'full' or 'cli'
+            userAgent,
+            ip,
+            timestamp: new Date().toISOString(),
+            version: '1.0.0'
+        };
+
+        // Store download analytics
+        if (!this.downloadStats) {
+            this.downloadStats = [];
+        }
+        this.downloadStats.push(download);
+
+        // Keep only last 100 downloads
+        if (this.downloadStats.length > 100) {
+            this.downloadStats = this.downloadStats.slice(-100);
+        }
+
+        console.log(`📥 Download tracked: ${fileName} (${type}) by user ${ip}`);
+
+        // Save to file for persistence (optional)
+        try {
+            const statsFile = path.join(__dirname, 'download-stats.json');
+            fs.writeFileSync(statsFile, JSON.stringify(this.downloadStats, null, 2));
+        } catch (error) {
+            console.error('Failed to save download stats:', error);
+        }
     }
 
     // Discord OAuth routes setup

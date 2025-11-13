@@ -1,0 +1,28 @@
+{
+  "type": "dummy",
+  "engine": "unity",
+  "name": "Warrior",
+  "created": "2025-11-13T06:09:22.109Z",
+  "ultraHardcoded": true,
+  "components": [
+    "Head",
+    "Torso",
+    "LeftArm",
+    "RightArm",
+    "LeftLeg",
+    "RightLeg",
+    "LeftHand",
+    "RightHand",
+    "LeftFoot",
+    "RightFoot",
+    "Eyes",
+    "Mouth"
+  ],
+  "polycount": 50000,
+  "textures": [
+    "diffuse",
+    "normal",
+    "specular",
+    "emissive"
+  ]
+}

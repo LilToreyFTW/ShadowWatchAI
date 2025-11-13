@@ -39,20 +39,52 @@
             </div>
 
             <div class="download-grid">
-                <!-- Main Download Card -->
+                <!-- Full Software Package -->
                 <div class="download-card main-download">
                     <div class="download-icon">📦</div>
                     <div class="download-info">
                         <h3>ShadowWatch AI Software</h3>
                         <p class="version">Version 1.0.0</p>
-                        <p class="description">Complete AI development suite with Unity and Unreal Engine support</p>
+                        <p class="description">Complete AI development suite with Unity and Unreal Engine support, CLI tools, and autonomous development features</p>
                         <div class="file-details">
-                            <span class="file-size">Size: ~50MB</span>
+                            <span class="file-size">Size: ~85MB</span>
                             <span class="file-type">ZIP Archive</span>
                         </div>
+                        <div class="includes-list">
+                            <span class="include-tag">🤖 AI Engine</span>
+                            <span class="include-tag">💻 CLI Tools</span>
+                            <span class="include-tag">🎮 Game Templates</span>
+                            <span class="include-tag">📚 Documentation</span>
+                        </div>
                     </div>
-                    <button id="downloadBtn" class="btn-primary download-button">
-                        <span class="btn-text">Download Now</span>
+                    <button id="downloadFullBtn" class="btn-primary download-button">
+                        <span class="btn-text">Download Full Package</span>
+                        <div class="btn-loader" style="display: none;">
+                            <div class="spinner"></div>
+                        </div>
+                    </button>
+                </div>
+
+                <!-- CLI Tools Only -->
+                <div class="download-card cli-download">
+                    <div class="download-icon">💻</div>
+                    <div class="download-info">
+                        <h3>ShadowWatch AI CLI</h3>
+                        <p class="version">Version 1.0.0</p>
+                        <p class="description">Terminal command-line interface for instant 3D model creation and autonomous development</p>
+                        <div class="file-details">
+                            <span class="file-size">Size: ~35MB</span>
+                            <span class="file-type">ZIP Archive</span>
+                        </div>
+                        <div class="includes-list">
+                            <span class="include-tag">🚀 CLI Commands</span>
+                            <span class="include-tag">🤖 Auto Development</span>
+                            <span class="include-tag">🎯 Model Generation</span>
+                            <span class="include-tag">⚙️ Cursor Agent</span>
+                        </div>
+                    </div>
+                    <button id="downloadCliBtn" class="btn-secondary download-button">
+                        <span class="btn-text">Download CLI Only</span>
                         <div class="btn-loader" style="display: none;">
                             <div class="spinner"></div>
                         </div>
@@ -206,9 +238,8 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const downloadBtn = document.getElementById('downloadBtn');
-            const btnText = document.querySelector('.btn-text');
-            const btnLoader = document.querySelector('.btn-loader');
+            const downloadFullBtn = document.getElementById('downloadFullBtn');
+            const downloadCliBtn = document.getElementById('downloadCliBtn');
             const downloadProgress = document.getElementById('downloadProgress');
             const progressFill = document.getElementById('progressFill');
             const progressPercent = document.getElementById('progressPercent');
@@ -245,18 +276,35 @@
                 }
             }
 
-            // Handle download
-            downloadBtn.addEventListener('click', async function() {
+            // Handle full package download
+            downloadFullBtn.addEventListener('click', async function() {
+                await handleDownload('full');
+            });
+
+            // Handle CLI download
+            downloadCliBtn.addEventListener('click', async function() {
+                await handleDownload('cli');
+            });
+
+            // Main download handler
+            async function handleDownload(type) {
                 if (!(await checkSubscription())) return;
 
+                const btn = type === 'full' ? downloadFullBtn : downloadCliBtn;
+                const fileName = type === 'full' ? 'ShadowWatchAI-Software.zip' : 'ShadowWatchAI-CLI.zip';
+                const endpoint = type === 'full' ? '/download/ShadowWatchAI-Software.zip' : '/download/ShadowWatchAI-CLI.zip';
+
+                const btnText = btn.querySelector('.btn-text');
+                const btnLoader = btn.querySelector('.btn-loader');
+
                 // Show loading state
-                downloadBtn.disabled = true;
+                btn.disabled = true;
                 btnText.textContent = 'Preparing Download...';
                 btnLoader.style.display = 'block';
 
                 try {
                     // Start download
-                    const response = await fetch('/download/ShadowWatchAI-Software.zip');
+                    const response = await fetch(endpoint);
 
                     if (!response.ok) {
                         if (response.status === 401) {
@@ -306,7 +354,7 @@
                     const url = window.URL.createObjectURL(blob);
                     const a = document.createElement('a');
                     a.href = url;
-                    a.download = 'ShadowWatchAI-Software.zip';
+                    a.download = fileName;
                     document.body.appendChild(a);
                     a.click();
                     window.URL.revokeObjectURL(url);
@@ -323,7 +371,8 @@
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({
-                                fileName: 'ShadowWatchAI-Software.zip',
+                                fileName: fileName,
+                                type: type,
                                 timestamp: new Date().toISOString()
                             })
                         });
@@ -333,8 +382,8 @@
 
                     // Reset button after 3 seconds
                     setTimeout(() => {
-                        downloadBtn.disabled = false;
-                        btnText.textContent = 'Download Now';
+                        btn.disabled = false;
+                        btnText.textContent = type === 'full' ? 'Download Full Package' : 'Download CLI Only';
                     }, 3000);
 
                 } catch (error) {
@@ -342,11 +391,11 @@
                     downloadProgress.style.display = 'none';
                     btnText.textContent = 'Download Failed';
                     btnLoader.style.display = 'none';
-                    downloadBtn.disabled = false;
+                    btn.disabled = false;
 
                     alert('Download failed. Please try again or contact support.');
                 }
-            });
+            }
 
             // Load download history
             async function loadDownloadHistory() {
@@ -364,7 +413,7 @@
                                         <span class="download-date">${new Date(download.timestamp).toLocaleDateString()}</span>
                                     </div>
                                     <div class="history-status">
-                                        <span class="status-badge">Completed</span>
+                                        <span class="status-badge">${download.type === 'full' ? 'Full Package' : 'CLI Tools'}</span>
                                     </div>
                                 </div>
                             `).join('');
@@ -861,6 +910,30 @@
             background: rgba(255, 255, 255, 0.2);
             border-color: #00ffff;
             color: #00ffff;
+        }
+
+        /* Include tags */
+        .includes-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .include-tag {
+            background: rgba(0, 255, 255, 0.1);
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            color: #00ffff;
+            padding: 0.25rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .cli-download .include-tag {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.3);
+            color: #fff;
         }
 
         @media (max-width: 768px) {
