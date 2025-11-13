@@ -3,6 +3,10 @@
   "version": "1.0.0",
   "description": "Ultimate AI Game Development Assistant - Portable Software Package",
   "main": "core/server.js",
+  "bin": {
+    "shadowwatch": "./cli.js",
+    "sw": "./cli.js"
+  },
   "scripts": {
     "start": "node core/server.js",
     "dev": "node core/server.js",

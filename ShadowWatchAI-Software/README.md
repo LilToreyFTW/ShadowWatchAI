@@ -48,6 +48,101 @@ YourGameProject/
 - Click **"🚀🚀🚀 ENABLE ULTRA-MAXIMUM 9500H MODE 🚀🚀🚀"**
 - Watch AI develop your game!
 
+## 💻 Command Line Interface (CLI)
+
+**ShadowWatch AI now includes a powerful terminal interface for instant model creation!**
+
+### Installation
+
+```bash
+# Install globally (recommended)
+npm install -g .
+
+# Or run locally
+npm install
+npm link
+```
+
+### Basic Usage
+
+```bash
+# Create a dummy model with ultra quality
+shadowwatch create --UltraHardCoded -f --test model_dummy --Unreal
+
+# Create a weapon with custom name
+shadowwatch create --UltraHardCoded -f --test model_weapon --Unity --name MySword
+
+# Create a vehicle
+shadowwatch create --UltraHardCoded -f --test model_vehicle --Unreal --name SportsCar
+
+# List all created models
+shadowwatch list-models
+```
+
+### Command Aliases
+
+```bash
+shadowwatch  # Full command name
+sw          # Short alias
+```
+
+### Available Commands
+
+View all **50+ commands** in `commands-list.txt` or run:
+
+```bash
+shadowwatch --help
+```
+
+### Popular Commands
+
+```bash
+# Character Models (Unreal Engine)
+shadowwatch create --UltraHardCoded -f --test model_dummy --Unreal --name Hero
+shadowwatch create --UltraHardCoded -f --test model_dummy --Unreal --name Warrior
+
+# Character Models (Unity Engine)
+shadowwatch create --UltraHardCoded -f --test model_dummy --Unity --name Mage
+shadowwatch create --UltraHardCoded -f --test model_dummy --Unity --name Archer
+
+# Weapon Models
+shadowwatch create --UltraHardCoded -f --test model_weapon --Unreal --name Sword
+shadowwatch create --UltraHardCoded -f --test model_weapon --Unity --name Gun
+
+# Vehicle Models
+shadowwatch create --UltraHardCoded -f --test model_vehicle --Unreal --name Car
+shadowwatch create --UltraHardCoded -f --test model_vehicle --Unity --name Truck
+
+# Advanced Modes
+shadowwatch ultra-hardcoded create --test model_dummy --Unreal
+shadowwatch force-generate create --UltraHardCoded --test model_weapon --Unity
+```
+
+### Command Structure
+
+```
+shadowwatch [mode] create --UltraHardCoded -f --test <type> --<engine> [--name <name>]
+```
+
+#### Modes:
+- `ultra-hardcoded` - Maximum quality and detail
+- `force-generate` - Overwrite existing files
+- Default - Standard quality
+
+#### Model Types:
+- `model_dummy` - Complete character (head, torso, limbs, etc.)
+- `model_weapon` - Weapon with animations and effects
+- `model_vehicle` - Vehicle with physics and controls
+
+#### Engines:
+- `--Unreal` - Unreal Engine 5 (C++ only)
+- `--Unity` - Unity Engine (C# only)
+
+#### Options:
+- `--name <name>` - Custom model name
+- `-f` or `--force` - Force overwrite
+- `--UltraHardCoded` - Maximum quality
+
 ## 🎮 Supported Game Engines
 
 | Engine | Language | Features |

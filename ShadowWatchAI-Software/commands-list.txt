@@ -1,0 +1,179 @@
+╔══════════════════════════════════════════════════════════════╗
+║              🌙 SHADOWWATCH AI CLI COMMANDS 🌙               ║
+║                     50+ Generated Commands                     ║
+╚══════════════════════════════════════════════════════════════╝
+
+🚀 CHARACTER MODELS
+==================================================
+
+1. Ultra-hardcoded force-generated DUMMY model for Unreal Engine
+   Command: shadowwatch create --UltraHardCoded -f --test model_dummy --Unreal
+
+2. Ultra-hardcoded force-generated DUMMY model for Unity Engine
+   Command: shadowwatch create --UltraHardCoded -f --test model_dummy --Unity
+
+3. DUMMY model for Unreal Engine
+   Command: shadowwatch ultra-hardcoded create --test model_dummy --Unreal
+
+4. DUMMY model for Unity Engine
+   Command: shadowwatch force-generate ultra-hardcoded create --test model_dummy --Unity
+
+5. Ultra-hardcoded force-generated DUMMY model for Unreal Engine named "Hero"
+   Command: shadowwatch create --UltraHardCoded -f --test model_dummy --Unreal --name Hero
+
+6. Ultra-hardcoded force-generated DUMMY model for Unreal Engine named "Warrior"
+   Command: shadowwatch create --UltraHardCoded -f --test model_dummy --Unreal --name Warrior
+
+7. Ultra-hardcoded force-generated DUMMY model for Unreal Engine named "Mage"
+   Command: shadowwatch create --UltraHardCoded -f --test model_dummy --Unreal --name Mage
+
+8. Ultra-hardcoded force-generated DUMMY model for Unreal Engine named "Archer"
+   Command: shadowwatch create --UltraHardCoded -f --test model_dummy --Unreal --name Archer
+
+9. Ultra-hardcoded force-generated DUMMY model for Unreal Engine named "Knight"
+   Command: shadowwatch create --UltraHardCoded -f --test model_dummy --Unreal --name Knight
+
+10. Ultra-hardcoded force-generated DUMMY model for Unreal Engine named "Paladin"
+   Command: shadowwatch create --UltraHardCoded -f --test model_dummy --Unreal --name Paladin
+
+11. Ultra-hardcoded force-generated DUMMY model for Unreal Engine named "Rogue"
+   Command: shadowwatch create --UltraHardCoded -f --test model_dummy --Unreal --name Rogue
+
+12. Ultra-hardcoded force-generated DUMMY model for Unreal Engine named "Assassin"
+   Command: shadowwatch create --UltraHardCoded -f --test model_dummy --Unreal --name Assassin
+
+13. Ultra-hardcoded force-generated DUMMY model for Unreal Engine named "Soldier"
+   Command: shadowwatch create --UltraHardCoded -f --test model_dummy --Unreal --name Soldier
+
+14. Ultra-hardcoded force-generated DUMMY model for Unreal Engine named "Marine"
+   Command: shadowwatch create --UltraHardCoded -f --test model_dummy --Unreal --name Marine
+
+15. Ultra-hardcoded force-generated DUMMY model for Unreal Engine named "Pilot"
+   Command: shadowwatch create --UltraHardCoded -f --test model_dummy --Unreal --name Pilot
+
+16. Ultra-hardcoded force-generated DUMMY model for Unreal Engine named "Driver"
+   Command: shadowwatch create --UltraHardCoded -f --test model_dummy --Unreal --name Driver
+
+17. Ultra-hardcoded force-generated DUMMY model for Unreal Engine named "Captain"
+   Command: shadowwatch create --UltraHardCoded -f --test model_dummy --Unreal --name Captain
+
+18. Ultra-hardcoded force-generated DUMMY model for Unreal Engine named "Commander"
+   Command: shadowwatch create --UltraHardCoded -f --test model_dummy --Unreal --name Commander
+
+19. Ultra-hardcoded force-generated DUMMY model for Unreal Engine named "General"
+   Command: shadowwatch create --UltraHardCoded -f --test model_dummy --Unreal --name General
+
+20. Ultra-hardcoded force-generated DUMMY model for Unreal Engine named "Samurai"
+   Command: shadowwatch create --UltraHardCoded -f --test model_dummy --Unreal --name Samurai
+
+21. Ultra-hardcoded force-generated DUMMY model for Unreal Engine named "Ninja"
+   Command: shadowwatch create --UltraHardCoded -f --test model_dummy --Unreal --name Ninja
+
+22. Ultra-hardcoded force-generated DUMMY model for Unreal Engine named "Monk"
+   Command: shadowwatch create --UltraHardCoded -f --test model_dummy --Unreal --name Monk
+
+23. Ultra-hardcoded force-generated DUMMY model for Unreal Engine named "Priest"
+   Command: shadowwatch create --UltraHardCoded -f --test model_dummy --Unreal --name Priest
+
+24. Ultra-hardcoded force-generated DUMMY model for Unreal Engine named "Wizard"
+   Command: shadowwatch create --UltraHardCoded -f --test model_dummy --Unreal --name Wizard
+
+
+🚀 WEAPON MODELS
+==================================================
+
+1. Ultra-hardcoded force-generated WEAPON model for Unreal Engine
+   Command: shadowwatch create --UltraHardCoded -f --test model_weapon --Unreal
+
+2. Ultra-hardcoded force-generated WEAPON model for Unity Engine
+   Command: shadowwatch create --UltraHardCoded -f --test model_weapon --Unity
+
+3. WEAPON model for Unity Engine
+   Command: shadowwatch ultra-hardcoded create --test model_weapon --Unity
+
+4. Ultra-hardcoded force-generated WEAPON model for Unreal Engine named "Hero"
+   Command: shadowwatch create --UltraHardCoded -f --test model_weapon --Unreal --name Hero
+
+5. Ultra-hardcoded force-generated WEAPON model for Unreal Engine named "Warrior"
+   Command: shadowwatch create --UltraHardCoded -f --test model_weapon --Unreal --name Warrior
+
+6. Ultra-hardcoded force-generated WEAPON model for Unreal Engine named "Mage"
+   Command: shadowwatch create --UltraHardCoded -f --test model_weapon --Unreal --name Mage
+
+7. Ultra-hardcoded force-generated WEAPON model for Unreal Engine named "Archer"
+   Command: shadowwatch create --UltraHardCoded -f --test model_weapon --Unreal --name Archer
+
+8. Ultra-hardcoded force-generated WEAPON model for Unreal Engine named "Knight"
+   Command: shadowwatch create --UltraHardCoded -f --test model_weapon --Unreal --name Knight
+
+9. Ultra-hardcoded force-generated WEAPON model for Unreal Engine named "Paladin"
+   Command: shadowwatch create --UltraHardCoded -f --test model_weapon --Unreal --name Paladin
+
+10. Ultra-hardcoded force-generated WEAPON model for Unreal Engine named "Rogue"
+   Command: shadowwatch create --UltraHardCoded -f --test model_weapon --Unreal --name Rogue
+
+11. Ultra-hardcoded force-generated WEAPON model for Unreal Engine named "Assassin"
+   Command: shadowwatch create --UltraHardCoded -f --test model_weapon --Unreal --name Assassin
+
+12. Ultra-hardcoded force-generated WEAPON model for Unreal Engine named "Soldier"
+   Command: shadowwatch create --UltraHardCoded -f --test model_weapon --Unreal --name Soldier
+
+13. Ultra-hardcoded force-generated WEAPON model for Unreal Engine named "Marine"
+   Command: shadowwatch create --UltraHardCoded -f --test model_weapon --Unreal --name Marine
+
+14. Ultra-hardcoded force-generated WEAPON model for Unreal Engine named "Pilot"
+   Command: shadowwatch create --UltraHardCoded -f --test model_weapon --Unreal --name Pilot
+
+15. Ultra-hardcoded force-generated WEAPON model for Unreal Engine named "Driver"
+   Command: shadowwatch create --UltraHardCoded -f --test model_weapon --Unreal --name Driver
+
+16. Ultra-hardcoded force-generated WEAPON model for Unreal Engine named "Captain"
+   Command: shadowwatch create --UltraHardCoded -f --test model_weapon --Unreal --name Captain
+
+17. Ultra-hardcoded force-generated WEAPON model for Unreal Engine named "Commander"
+   Command: shadowwatch create --UltraHardCoded -f --test model_weapon --Unreal --name Commander
+
+18. Ultra-hardcoded force-generated WEAPON model for Unreal Engine named "General"
+   Command: shadowwatch create --UltraHardCoded -f --test model_weapon --Unreal --name General
+
+19. Ultra-hardcoded force-generated WEAPON model for Unreal Engine named "Samurai"
+   Command: shadowwatch create --UltraHardCoded -f --test model_weapon --Unreal --name Samurai
+
+20. Ultra-hardcoded force-generated WEAPON model for Unreal Engine named "Ninja"
+   Command: shadowwatch create --UltraHardCoded -f --test model_weapon --Unreal --name Ninja
+
+21. Ultra-hardcoded force-generated WEAPON model for Unreal Engine named "Monk"
+   Command: shadowwatch create --UltraHardCoded -f --test model_weapon --Unreal --name Monk
+
+22. Ultra-hardcoded force-generated WEAPON model for Unreal Engine named "Priest"
+   Command: shadowwatch create --UltraHardCoded -f --test model_weapon --Unreal --name Priest
+
+23. Ultra-hardcoded force-generated WEAPON model for Unreal Engine named "Wizard"
+   Command: shadowwatch create --UltraHardCoded -f --test model_weapon --Unreal --name Wizard
+
+
+🚀 VEHICLE MODELS
+==================================================
+
+1. Ultra-hardcoded force-generated VEHICLE model for Unreal Engine
+   Command: shadowwatch create --UltraHardCoded -f --test model_vehicle --Unreal
+
+2. Ultra-hardcoded force-generated VEHICLE model for Unity Engine
+   Command: shadowwatch create --UltraHardCoded -f --test model_vehicle --Unity
+
+3. Ultra-hardcoded VEHICLE model for Unreal Engine
+   Command: shadowwatch force-generate create --UltraHardCoded --test model_vehicle --Unreal
+
+
+💡 USAGE EXAMPLES:
+• Copy and paste any command into your terminal
+• All commands work with both "shadowwatch" and "sw" aliases
+• --UltraHardCoded enables maximum quality and detail
+• -f or --force overwrites existing files
+• --name specifies custom model names
+
+🎮 ENGINE SUPPORT:
+• Unreal Engine: C++ only (Blueprints disabled)
+• Unity Engine: C# only (Visual Scripting disabled)
+• Web Games: TypeScript/JavaScript only
+
