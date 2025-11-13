@@ -142,21 +142,7 @@ node server.js
 
 ---
 
-## 🔐 **Owner Access**
 
-For full system control and advanced features:
-
-**Username:** `ToreyOwner57`  
-**Password:** `KelsiesGotNiceTits5799@##`
-
-Access the owner dashboard at `/owner-dashboard` for:
-- Complete AI control
-- Vehicle and weapon creation
-- Project management
-- System statistics
-- Owner-only features
-
----
 
 ## 🎮 **AI Development Features**
 
