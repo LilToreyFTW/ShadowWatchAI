@@ -3,10 +3,11 @@
  * Ethical monitoring and guidance system for browser MMORPGs
  */
 
-const crypto = require('crypto');
-const { Pool } = require('pg');
-const Redis = require('redis');
-const cron = require('node-cron');
+import crypto from 'crypto';
+import pg from 'pg';
+const { Pool } = pg;
+import redis from 'redis';
+import cron from 'node-cron';
 
 class ShadowWatchAI {
     constructor(config = {}) {
